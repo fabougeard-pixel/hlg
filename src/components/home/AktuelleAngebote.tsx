@@ -16,6 +16,7 @@ interface BestsellerItem {
   ratingScore?: string;
   image: string;
   slug: string;
+  energyRating?: string;
 }
 
 interface DealItem {
@@ -31,6 +32,8 @@ interface DealItem {
   ratingScore: string;
   image: string;
   slug: string;
+  energyRating?: string;
+  deliveryNote?: string;
 }
 
 const bestsellersList: BestsellerItem[] = [
@@ -41,6 +44,7 @@ const bestsellersList: BestsellerItem[] = [
     rawPrice: 319.80,
     image: '/images/deals/bestseller-1.jpg',
     slug: 'bauknecht-waschmaschine-frontlader-8kg',
+    energyRating: 'A',
   },
   {
     id: 'bs-2',
@@ -49,6 +53,7 @@ const bestsellersList: BestsellerItem[] = [
     rawPrice: 466.29,
     image: '/images/deals/bestseller-2.jpg',
     slug: 'candy-cbd-waschtrockner',
+    energyRating: 'D',
   },
   {
     id: 'bs-3',
@@ -59,6 +64,7 @@ const bestsellersList: BestsellerItem[] = [
     ratingScore: '(4.50)',
     image: '/images/deals/bestseller-3.jpg',
     slug: 'aeg-ike-64450-xb-induktionskochfeld',
+    energyRating: 'A+',
   },
   {
     id: 'bs-4',
@@ -105,6 +111,7 @@ const spotlightDeal: DealItem = {
   ratingScore: '(5.00)',
   image: '/images/deals/deal-spotlight.jpg',
   slug: 'delonghi-la-specialista-maestro-cold-brew',
+  deliveryNote: 'Kostenloser Express-Versand',
 };
 
 const dealsGrid: DealItem[] = [
@@ -121,6 +128,8 @@ const dealsGrid: DealItem[] = [
     ratingScore: '(5.00)',
     image: '/images/deals/deal-1.jpg',
     slug: 'siemens-wn54c2a40-iq700-waschtrockner',
+    energyRating: 'A',
+    deliveryNote: 'Lieferung bis zum Verwendungsort',
   },
   {
     id: 'deal-2',
@@ -135,6 +144,7 @@ const dealsGrid: DealItem[] = [
     ratingScore: '(4.80)',
     image: '/images/deals/deal-2.jpg',
     slug: 'roborock-s8-maxv-ultra-weiss',
+    deliveryNote: 'Sofort lieferbar • 1-2 Werktage',
   },
   {
     id: 'deal-3',
@@ -149,6 +159,7 @@ const dealsGrid: DealItem[] = [
     ratingScore: '(4.94)',
     image: '/images/deals/deal-3.jpg',
     slug: 'nintendo-switch-oled-neon',
+    deliveryNote: 'Sofort lieferbar',
   },
   {
     id: 'deal-4',
@@ -163,6 +174,7 @@ const dealsGrid: DealItem[] = [
     ratingScore: '(4.63)',
     image: '/images/deals/deal-4.jpg',
     slug: 'kenwood-titanium-chef-patissier-xl-grau',
+    deliveryNote: 'Auf Lager • 2-3 Werktage',
   },
   {
     id: 'deal-5',
@@ -177,6 +189,7 @@ const dealsGrid: DealItem[] = [
     ratingScore: '(4.80)',
     image: '/images/deals/deal-5.jpg',
     slug: 'kenwood-titanium-chef-patissier-xl-zubehoer',
+    deliveryNote: 'Auf Lager • 2-3 Werktage',
   },
   {
     id: 'deal-6',
@@ -191,8 +204,36 @@ const dealsGrid: DealItem[] = [
     ratingScore: '(5.00)',
     image: '/images/deals/deal-6.jpg',
     slug: 'haier-hsr5918dipb-sbs-90-serie-5',
+    energyRating: 'E',
+    deliveryNote: 'Kostenlose 2-Mann-Lieferung',
   },
 ];
+
+// Official EU Energy Label Badge (A to G)
+function EnergyBadge({ rating }: { rating?: string }) {
+  if (!rating) return null;
+  const colors: Record<string, { bg: string, text: string }> = {
+    'A': { bg: 'bg-[#009640]', text: 'text-white' },
+    'A+++': { bg: 'bg-[#009640]', text: 'text-white' },
+    'A+': { bg: 'bg-[#009640]', text: 'text-white' },
+    'B': { bg: 'bg-[#54b848]', text: 'text-white' },
+    'C': { bg: 'bg-[#bfd730]', text: 'text-stone-900' },
+    'D': { bg: 'bg-[#ffcc00]', text: 'text-stone-900' },
+    'E': { bg: 'bg-[#f5a623]', text: 'text-white' },
+    'F': { bg: 'bg-[#f05a28]', text: 'text-white' },
+    'G': { bg: 'bg-[#e30613]', text: 'text-white' },
+  };
+  const c = colors[rating] || { bg: 'bg-[#009640]', text: 'text-white' };
+  return (
+    <span
+      className={`inline-flex items-center gap-0.5 text-[9px] font-black px-1.5 py-0.5 rounded ${c.bg} ${c.text} shadow-2xs tracking-wider shrink-0`}
+      title={`EU-Energieeffizienzklasse ${rating}`}
+    >
+      <span>{rating}</span>
+      <span className="text-[7px] opacity-80">↗</span>
+    </span>
+  );
+}
 
 // Helper to render yellow 5-star rating
 function StarRating({ score }: { score?: string }) {
@@ -213,6 +254,7 @@ function StarRating({ score }: { score?: string }) {
 export default function AktuelleAngebote() {
   const wishlistStore = useWishlistStore();
   const cartStore = useCartStore();
+  const [recentlyAdded, setRecentlyAdded] = useState<Record<string, boolean>>({});
 
   const handleToggleWishlist = (e: React.MouseEvent, item: any) => {
     e.preventDefault();
@@ -233,6 +275,10 @@ export default function AktuelleAngebote() {
       image: item.image,
       quantity: 1,
     });
+    setRecentlyAdded(prev => ({ ...prev, [item.id]: true }));
+    setTimeout(() => {
+      setRecentlyAdded(prev => ({ ...prev, [item.id]: false }));
+    }, 1800);
     cartStore.setIsOpen(true);
     toast.success('In den Warenkorb gelegt');
   };
@@ -273,8 +319,11 @@ export default function AktuelleAngebote() {
 
                   {/* Details */}
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-extrabold text-stone-900 leading-tight">
-                      {item.price}
+                    <div className="flex items-center justify-between gap-1">
+                      <div className="text-sm font-extrabold text-stone-900 leading-tight">
+                        {item.price}
+                      </div>
+                      {item.energyRating && <EnergyBadge rating={item.energyRating} />}
                     </div>
                     {item.rating && (
                       <div className="flex items-center gap-1 my-0.5">
@@ -373,18 +422,43 @@ export default function AktuelleAngebote() {
                 <div className="text-xl sm:text-2xl font-black text-stone-900 mt-2">
                   {spotlightDeal.price}
                 </div>
+
+                {/* Stock & Delivery Reassurance */}
+                {spotlightDeal.deliveryNote && (
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-800 bg-emerald-50/90 px-3 py-1 rounded-full mt-2.5">
+                    <span className="w-2 h-2 rounded-full bg-[#107b46] animate-pulse" />
+                    <span>{spotlightDeal.deliveryNote}</span>
+                    <span className="text-stone-300">•</span>
+                    <span>2 Jahre Garantie</span>
+                  </div>
+                )}
               </Link>
 
               {/* Action Button */}
               <button
                 type="button"
                 onClick={(e) => handleAddToCart(e, spotlightDeal)}
-                className="w-full mt-4 bg-stone-900 hover:bg-[#107b46] text-white font-bold text-xs sm:text-sm py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                className={`w-full mt-4 text-white font-bold text-xs sm:text-sm py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs ${
+                  recentlyAdded[spotlightDeal.id]
+                    ? 'bg-[#107b46]'
+                    : 'bg-stone-900 hover:bg-[#107b46]'
+                }`}
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                </svg>
-                <span>In den Warenkorb</span>
+                {recentlyAdded[spotlightDeal.id] ? (
+                  <>
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>✓ Hinzugefügt!</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    <span>In den Warenkorb</span>
+                  </>
+                )}
               </button>
             </div>
 
@@ -395,11 +469,14 @@ export default function AktuelleAngebote() {
                   key={deal.id}
                   className="bg-white rounded-2xl border border-stone-200/80 p-3.5 hover:shadow-lg hover:border-emerald-200 transition-all flex flex-col justify-between group relative"
                 >
-                  {/* Top Bar: Category label & Wishlist */}
+                  {/* Top Bar: Category label, Energy Badge & Wishlist */}
                   <div className="flex items-center justify-between gap-1 mb-1">
-                    <span className="text-[11px] font-semibold text-stone-500 truncate">
-                      {deal.category}
-                    </span>
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="text-[11px] font-semibold text-stone-500 truncate">
+                        {deal.category}
+                      </span>
+                      {deal.energyRating && <EnergyBadge rating={deal.energyRating} />}
+                    </div>
                     <button
                       type="button"
                       onClick={(e) => handleToggleWishlist(e, deal)}
@@ -457,19 +534,42 @@ export default function AktuelleAngebote() {
                         {deal.title}
                       </h4>
                     </Link>
+
+                    {/* Stock / Delivery Reassurance */}
+                    {deal.deliveryNote && (
+                      <div className="text-[10px] text-emerald-700 font-semibold flex items-center gap-1 mt-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="truncate">{deal.deliveryNote}</span>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Quick Add to Cart Button on Hover */}
+                  {/* Quick Add to Cart Button */}
                   <div className="mt-2 pt-2 border-t border-stone-100 flex items-center justify-between">
                     <button
                       type="button"
                       onClick={(e) => handleAddToCart(e, deal)}
-                      className="w-full text-center text-xs font-bold text-stone-700 hover:text-white hover:bg-[#107b46] py-1.5 rounded-lg border border-stone-200 hover:border-transparent transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                      className={`w-full text-center text-xs font-bold py-1.5 rounded-lg border transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                        recentlyAdded[deal.id]
+                          ? 'bg-[#107b46] text-white border-transparent'
+                          : 'text-stone-700 hover:text-white hover:bg-[#107b46] border-stone-200 hover:border-transparent'
+                      }`}
                     >
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                      </svg>
-                      <span>In den Korb</span>
+                      {recentlyAdded[deal.id] ? (
+                        <>
+                          <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>✓ Im Korb</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                          </svg>
+                          <span>In den Korb</span>
+                        </>
+                      )}
                     </button>
                   </div>
 

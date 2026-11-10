@@ -144,39 +144,52 @@ export default function HlgHero({ config, categories = [] }: HlgHeroProps) {
           />
 
           {/* Subtle gradient overlay to guarantee text legibility */}
-          <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/70 to-transparent lg:via-white/60 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/80 to-transparent lg:via-white/70 pointer-events-none" />
 
           {/* Banner Content Card */}
-          <div className="relative z-10 p-6 sm:p-9 max-w-xl">
-            {/* "Sonderangebot" Ribbon Tag */}
-            <div className="inline-flex items-center shadow-sm">
-              <span className="relative bg-[#e01b1b] text-white text-[11px] sm:text-xs font-black tracking-wider uppercase px-4 py-1 rounded-sm shadow-sm flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-                Sonderangebot
-              </span>
-            </div>
+          <div className="relative z-10 p-5 sm:p-8 max-w-xl">
+            {/* Frosted text container to maximize legibility without altering background photo */}
+            <div className="bg-white/75 backdrop-blur-[2px] rounded-2xl p-4 sm:p-5 shadow-xs border border-white/80 max-w-lg">
+              {/* "Sonderangebot" Ribbon Tag */}
+              <div className="inline-flex items-center shadow-xs">
+                <span className="relative bg-[#e01b1b] text-white text-[11px] sm:text-xs font-black tracking-wider uppercase px-3.5 py-1 rounded-sm shadow-sm flex items-center gap-1.5">
+                  <span className="text-amber-300">⚡</span>
+                  <span>Sonderangebot</span>
+                </span>
+              </div>
 
-            {/* Main Red Catchphrase (Exact client slogan) */}
-            <h1 className="text-2xl sm:text-3xl xl:text-4xl font-black text-[#dc2626] leading-[1.15] tracking-tight mt-4 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]">
-              Ihre hochwertigen Haushaltsgeräte zu den besten Preisen!
-            </h1>
+              {/* Main Red Catchphrase (Exact client slogan with crisp legibility) */}
+              <h1 className="text-2xl sm:text-3xl xl:text-4xl font-black text-[#dc2626] leading-[1.15] tracking-tight mt-3">
+                Ihre hochwertigen Haushaltsgeräte zu den besten Preisen!
+              </h1>
 
-            {/* Value Proposition Subtext (Potential UX Improvement) */}
-            <p className="text-xs sm:text-sm font-semibold text-stone-700 mt-2.5 max-w-md leading-relaxed">
-              Premium-Marken für Küche &amp; Haushalt. Bis zu 40% sparen • Sofort versandbereit • 2 Jahre Garantie.
-            </p>
+              {/* Value Proposition Subtext */}
+              <p className="text-xs sm:text-sm font-semibold text-stone-700 mt-2 max-w-md leading-relaxed">
+                Premium-Marken für Küche &amp; Haushalt. Bis zu 40% sparen • Sofort versandbereit • 2 Jahre Garantie.
+              </p>
 
-            {/* Yellow CTA Button "Angebote anzeigen" */}
-            <div className="mt-6 flex flex-wrap items-center gap-3">
-              <Link
-                href="/shop"
-                className="bg-[#f59e0b] hover:bg-[#d97706] active:bg-[#b45309] text-stone-950 font-extrabold text-sm sm:text-base px-7 py-3 rounded-full inline-flex items-center gap-2 shadow-md hover:shadow-lg transition-all hover:scale-105 active:scale-95 cursor-pointer"
-              >
-                <span>Angebote anzeigen</span>
-                <svg className="w-4 h-4 text-stone-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-              </Link>
+              {/* Trust Micro-Bullets */}
+              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] font-bold text-stone-600">
+                <span className="inline-flex items-center gap-1 text-[#107b46]">
+                  <span>✓</span> <span className="text-stone-700">Kostenloser Versand ab 50 €</span>
+                </span>
+                <span className="inline-flex items-center gap-1 text-[#107b46]">
+                  <span>✓</span> <span className="text-stone-700">2 Jahre Garantie</span>
+                </span>
+              </div>
+
+              {/* Yellow CTA Button "Angebote anzeigen" */}
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <Link
+                  href="/shop"
+                  className="bg-[#f59e0b] hover:bg-[#d97706] active:bg-[#b45309] text-stone-950 font-extrabold text-sm sm:text-base px-7 py-3 rounded-full inline-flex items-center gap-2 shadow-md hover:shadow-lg transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                >
+                  <span>Angebote anzeigen</span>
+                  <svg className="w-4 h-4 text-stone-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </Link>
+              </div>
             </div>
           </div>
         </div>

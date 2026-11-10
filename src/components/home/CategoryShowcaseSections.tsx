@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useWishlistStore } from '@/store/wishlistStore';
@@ -19,6 +19,34 @@ interface ProductItem {
   ratingScore?: string;
   image: string;
   slug: string;
+  energyRating?: string;
+  deliveryNote?: string;
+}
+
+// Official EU Energy Label Badge
+function EnergyBadge({ rating }: { rating?: string }) {
+  if (!rating) return null;
+  const colors: Record<string, { bg: string, text: string }> = {
+    'A': { bg: 'bg-[#009640]', text: 'text-white' },
+    'A+++': { bg: 'bg-[#009640]', text: 'text-white' },
+    'A+': { bg: 'bg-[#009640]', text: 'text-white' },
+    'B': { bg: 'bg-[#54b848]', text: 'text-white' },
+    'C': { bg: 'bg-[#bfd730]', text: 'text-stone-900' },
+    'D': { bg: 'bg-[#ffcc00]', text: 'text-stone-900' },
+    'E': { bg: 'bg-[#f5a623]', text: 'text-white' },
+    'F': { bg: 'bg-[#f05a28]', text: 'text-white' },
+    'G': { bg: 'bg-[#e30613]', text: 'text-white' },
+  };
+  const c = colors[rating] || { bg: 'bg-[#009640]', text: 'text-white' };
+  return (
+    <span
+      className={`inline-flex items-center gap-0.5 text-[9px] font-black px-1.5 py-0.5 rounded ${c.bg} ${c.text} shadow-2xs tracking-wider shrink-0`}
+      title={`EU-Energieeffizienzklasse ${rating}`}
+    >
+      <span>{rating}</span>
+      <span className="text-[7px] opacity-80">↗</span>
+    </span>
+  );
 }
 
 // 1. WASCHMASCHINEN (Row of 5)
@@ -33,6 +61,8 @@ const washingMachines: ProductItem[] = [
     ratingScore: '(4.80)',
     image: '/images/deals/bestseller-1.jpg',
     slug: 'bauknecht-wmt-7122-c-n-toplader',
+    energyRating: 'C',
+    deliveryNote: 'Auf Lager • 2-3 Werktage',
   },
   {
     id: 'wm-2',
@@ -44,6 +74,8 @@ const washingMachines: ProductItem[] = [
     ratingScore: '(5.00)',
     image: '/images/deals/bestseller-2.jpg',
     slug: 'bauknecht-bpw-814-a-frontlader',
+    energyRating: 'A',
+    deliveryNote: 'Auf Lager • 2-3 Werktage',
   },
   {
     id: 'wm-3',
@@ -55,6 +87,8 @@ const washingMachines: ProductItem[] = [
     ratingScore: '(4.95)',
     image: '/images/deals/deal-1.jpg',
     slug: 'miele-wca020-wcs-active',
+    energyRating: 'A',
+    deliveryNote: 'Kostenlose 2-Mann-Lieferung',
   },
   {
     id: 'wm-4',
@@ -66,6 +100,8 @@ const washingMachines: ProductItem[] = [
     ratingScore: '(4.70)',
     image: '/images/deals/bestseller-1.jpg',
     slug: 'samsung-ww90t534aax-autodose',
+    energyRating: 'A',
+    deliveryNote: 'Auf Lager • 2-3 Werktage',
   },
   {
     id: 'wm-5',
@@ -77,6 +113,8 @@ const washingMachines: ProductItem[] = [
     ratingScore: '(4.85)',
     image: '/images/deals/bestseller-2.jpg',
     slug: 'bauknecht-wm-7-m100-frontlader',
+    energyRating: 'B',
+    deliveryNote: 'Auf Lager • 2-3 Werktage',
   },
 ];
 
@@ -610,6 +648,7 @@ const gaming: ProductItem[] = [
 function ProductCard({ item }: { item: ProductItem }) {
   const wishlistStore = useWishlistStore();
   const cartStore = useCartStore();
+  const [isAdded, setIsAdded] = useState(false);
   const isWishlisted = wishlistStore.hasItem(item.id);
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
@@ -630,6 +669,8 @@ function ProductCard({ item }: { item: ProductItem }) {
       image: item.image,
       quantity: 1,
     });
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 1800);
     cartStore.setIsOpen(true);
     toast.success('In den Warenkorb gelegt');
   };
@@ -638,9 +679,12 @@ function ProductCard({ item }: { item: ProductItem }) {
     <div className="bg-white rounded-2xl border border-stone-200/80 p-3 sm:p-4 hover:shadow-lg hover:border-emerald-200 transition-all flex flex-col justify-between group relative">
       {/* Top: Category & Wishlist */}
       <div className="flex items-center justify-between gap-1 mb-1">
-        <span className="text-[10px] sm:text-[11px] font-semibold text-stone-400 uppercase tracking-wider truncate">
-          {item.category}
-        </span>
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="text-[10px] sm:text-[11px] font-semibold text-stone-400 uppercase tracking-wider truncate">
+            {item.category}
+          </span>
+          {item.energyRating && <EnergyBadge rating={item.energyRating} />}
+        </div>
         <button
           type="button"
           onClick={handleToggleWishlist}
@@ -706,6 +750,12 @@ function ProductCard({ item }: { item: ProductItem }) {
             {item.title}
           </h4>
         </Link>
+
+        {/* Stock / Delivery Reassurance */}
+        <div className="text-[10px] text-emerald-700 font-semibold flex items-center gap-1 mt-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="truncate">{item.deliveryNote || 'Auf Lager • 2-3 Werktage'}</span>
+        </div>
       </div>
 
       {/* Quick Add Button */}
@@ -713,12 +763,27 @@ function ProductCard({ item }: { item: ProductItem }) {
         <button
           type="button"
           onClick={handleAddToCart}
-          className="w-full text-center text-xs font-bold text-stone-700 hover:text-white hover:bg-[#107b46] py-1.5 rounded-lg border border-stone-200 hover:border-transparent transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+          className={`w-full text-center text-xs font-bold py-1.5 rounded-lg border transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+            isAdded
+              ? 'bg-[#107b46] text-white border-transparent'
+              : 'text-stone-700 hover:text-white hover:bg-[#107b46] border-stone-200 hover:border-transparent'
+          }`}
         >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-          </svg>
-          <span>In den Korb</span>
+          {isAdded ? (
+            <>
+              <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+              </svg>
+              <span>✓ Im Korb</span>
+            </>
+          ) : (
+            <>
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+              <span>In den Korb</span>
+            </>
+          )}
         </button>
       </div>
     </div>
@@ -733,14 +798,14 @@ function SectionHeader({ title, linkUrl }: { title: string; linkUrl: string }) {
         <h2 className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
           {title}
         </h2>
-        <div className="w-10 h-1 bg-[#107b46] rounded-full mt-2" />
+        <div className="w-12 h-1 bg-[#107b46] rounded-full mt-2" />
       </div>
       <Link
         href={linkUrl}
-        className="text-xs sm:text-sm font-bold text-stone-600 hover:text-[#107b46] transition-colors flex items-center gap-1 group pb-0.5"
+        className="text-xs sm:text-sm font-bold text-stone-700 hover:text-[#107b46] bg-stone-50 hover:bg-emerald-50 px-3 py-1.5 rounded-full transition-all flex items-center gap-1.5 group border border-stone-200/80 hover:border-emerald-300 shadow-2xs"
       >
         <span>Alle ansehen</span>
-        <span className="group-hover:translate-x-0.5 transition-transform">&gt;</span>
+        <span className="group-hover:translate-x-0.5 transition-transform text-[#107b46]">&rarr;</span>
       </Link>
     </div>
   );

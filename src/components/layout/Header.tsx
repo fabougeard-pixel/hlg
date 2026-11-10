@@ -291,9 +291,7 @@ export default function Header({
                   placeholder={searchPlaceholder}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => {
-                    if (searchQuery.length > 1) setShowSearchResults(true);
-                  }}
+                  onFocus={() => setShowSearchResults(true)}
                   className="flex-1 px-3 py-1 text-sm bg-transparent outline-none placeholder-stone-400 text-stone-800"
                 />
 
@@ -331,6 +329,43 @@ export default function Header({
                   )}
                 </button>
               </form>
+
+              {/* Popular Searches Dropdown when focused & empty */}
+              {showSearchResults && searchQuery.trim().length <= 1 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-stone-200 shadow-2xl rounded-2xl z-50 p-4 animate-in fade-in duration-150">
+                  <div className="text-[11px] font-bold text-stone-400 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                    <span>🔥 Beliebte Suchbegriffe</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      'Kaffeevollautomat',
+                      'Roborock S8',
+                      'Waschmaschine 9kg',
+                      'Side-by-Side',
+                      'Kenwood Titanium',
+                      'Induktionskochfeld',
+                      'PlayStation 5',
+                      'Geschirrspüler 60cm',
+                    ].map((term) => (
+                      <button
+                        key={term}
+                        type="button"
+                        onClick={() => {
+                          setSearchQuery(term);
+                          router.push(`/search?q=${encodeURIComponent(term)}`);
+                          setShowSearchResults(false);
+                        }}
+                        className="px-3 py-1.5 rounded-full bg-stone-100 hover:bg-emerald-50 text-stone-700 hover:text-[#107b46] text-xs font-semibold border border-stone-200/60 hover:border-emerald-300 transition-colors flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <svg className="w-3 h-3 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <span>{term}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Autocomplete Search Results Dropdown */}
               {showSearchResults && searchQuery.length > 1 && (

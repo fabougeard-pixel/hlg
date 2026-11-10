@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import Header from './Header';
 import Footer from './Footer';
 import CookieConsent from './CookieConsent';
+import MobileBottomBar from './MobileBottomBar';
 import MaintenanceView from '@/components/maintenance/MaintenanceView';
 
 type StoreLayoutProps = {
@@ -133,7 +134,7 @@ export default function StoreLayout({ children, settings, userRole }: StoreLayou
         allCategoriesBgColor={settings.allCategoriesBgColor}
         allCategoriesTextColor={settings.allCategoriesTextColor}
       />
-      <main className="flex-grow">
+      <main className="flex-grow pb-14 lg:pb-0">
         {children}
       </main>
       <Footer 
@@ -169,6 +170,7 @@ export default function StoreLayout({ children, settings, userRole }: StoreLayou
         footerPaymentOpay={settings.footerPaymentOpay}
         contactSlug={settings.contactSlug}
       />
+      <MobileBottomBar />
       <CookieConsent />
     </div>
   );
