@@ -52,9 +52,9 @@ async function getTransporter() {
     },
   });
 
-  const storeName = settings.STORE_NAME || settings.NEXT_PUBLIC_STORE_NAME || process.env.NEXT_PUBLIC_STORE_NAME || "Lenha & Carvão Silva Dias";
-  const storeEmail = settings.CONTACT_EMAIL_DISPLAY || settings.FOOTER_SUPPORT_EMAIL || 'info@lenhaecarvaosilvadias.com';
-  const storeAddress = settings.CONTACT_ADDRESS || settings.FOOTER_ADDRESS_1 || 'Alto Almosquia, 2750-000 Cascais – Portugal';
+  const storeName = settings.STORE_NAME || settings.NEXT_PUBLIC_STORE_NAME || process.env.NEXT_PUBLIC_STORE_NAME || "HLG Hausgeräte";
+  const storeEmail = settings.CONTACT_EMAIL_DISPLAY || settings.FOOTER_SUPPORT_EMAIL || 'info@hlg-hausgeraete.de';
+  const storeAddress = settings.CONTACT_ADDRESS || settings.FOOTER_ADDRESS_1 || 'Borseler Chaussee 123, 22453 Hamburg, Deutschland';
   const logo = settings.HEADER_LOGO_IMAGE || settings.STYLE2_LOGO || '';
 
   return {
@@ -133,9 +133,9 @@ export async function sendClientOrderConfirmation(order: any, userEmail: string,
   try {
     const { logo, storeName, storeEmail, storeAddress } = await getTransporter().catch(() => ({
       logo: '',
-      storeName: 'Lenha & Carvão Silva Dias',
-      storeEmail: 'info@lenhaecarvaosilvadias.com',
-      storeAddress: 'Alto Almosquia, 2750-000 Cascais – Portugal'
+      storeName: 'HLG Hausgeräte',
+      storeEmail: 'info@hlg-hausgeraete.de',
+      storeAddress: 'Borseler Chaussee 123, 22453 Hamburg'
     }));
     
     const logoHtml = logo
@@ -348,7 +348,7 @@ export async function sendAdminOrderNotification(order: any, adminEmail: string,
   try {
     const { logo, storeName } = await getTransporter().catch(() => ({
       logo: '',
-      storeName: 'Lenha & Carvão Silva Dias'
+      storeName: 'HLG Hausgeräte'
     }));
     
     const logoHtml = logo
@@ -518,9 +518,9 @@ export async function sendOrderStatusUpdate(order: any, userEmail: string, statu
   try {
     const { logo, storeName, storeEmail, storeAddress } = await getTransporter().catch(() => ({
       logo: '',
-      storeName: 'Lenha & Carvão Silva Dias',
-      storeEmail: 'info@lenhaecarvaosilvadias.com',
-      storeAddress: 'Alto Almosquia, 2750-000 Cascais – Portugal'
+      storeName: 'HLG Hausgeräte',
+      storeEmail: 'info@hlg-hausgeraete.de',
+      storeAddress: 'Borseler Chaussee 123, 22453 Hamburg'
     }));
     
     const logoHtml = logo
@@ -710,9 +710,9 @@ export async function sendAbandonedCartRecoveryEmail(cart: any, userEmail: strin
   try {
     const { logo, storeName, storeEmail, storeAddress } = await getTransporter().catch(() => ({
       logo: '',
-      storeName: 'Lenha & Carvão Silva Dias',
-      storeEmail: 'info@lenhaecarvaosilvadias.com',
-      storeAddress: 'Alto Almosquia, 2750-000 Cascais – Portugal'
+      storeName: 'HLG Hausgeräte',
+      storeEmail: 'info@hlg-hausgeraete.de',
+      storeAddress: 'Borseler Chaussee 123, 22453 Hamburg'
     }));
     
     const logoHtml = logo
@@ -838,8 +838,8 @@ export async function sendReviewRequestEmail(order: any, userEmail: string, user
   try {
     const { logo, storeName, storeAddress } = await getTransporter().catch(() => ({
       logo: '',
-      storeName: 'Lenha & Carvão Silva Dias',
-      storeAddress: 'Alto Almosquia, 2750-000 Cascais – Portugal'
+      storeName: 'HLG Hausgeräte',
+      storeAddress: 'Borseler Chaussee 123, 22453 Hamburg'
     }));
     
     const logoHtml = logo
@@ -945,8 +945,8 @@ export async function sendLowStockAlertEmail(
   try {
     const { logo, storeName, storeAddress } = await getTransporter().catch(() => ({
       logo: '',
-      storeName: 'Lenha & Carvão Silva Dias',
-      storeAddress: 'Alto Almosquia, 2750-000 Cascais – Portugal'
+      storeName: 'HLG Hausgeräte',
+      storeAddress: 'Borseler Chaussee 123, 22453 Hamburg'
     }));
     
     const logoHtml = logo
@@ -1003,8 +1003,8 @@ export async function sendAdminNewChatMessageEmail(
   try {
     const { logo, storeName, storeAddress } = await getTransporter().catch(() => ({
       logo: '',
-      storeName: 'Lenha & Carvão Silva Dias',
-      storeAddress: 'Alto Almosquia, 2750-000 Cascais – Portugal'
+      storeName: 'HLG Hausgeräte',
+      storeAddress: 'Borseler Chaussee 123, 22453 Hamburg'
     }));
     
     const logoHtml = logo
@@ -1066,9 +1066,9 @@ export async function sendNewsletterWelcomeEmail(userEmail: string) {
   try {
     const { logo, storeName, storeEmail, storeAddress } = await getTransporter().catch(() => ({
       logo: '',
-      storeName: 'Lenha & Carvão Silva Dias',
-      storeEmail: 'info@lenhaecarvaosilvadias.com',
-      storeAddress: 'Alto Almosquia, 2750-000 Cascais – Portugal'
+      storeName: 'HLG Hausgeräte',
+      storeEmail: 'info@hlg-hausgeraete.de',
+      storeAddress: 'Borseler Chaussee 123, 22453 Hamburg'
     }));
     
     const logoHtml = logo
@@ -1102,24 +1102,24 @@ export async function sendNewsletterWelcomeEmail(userEmail: string) {
           Insira o código no checkout da sua encomenda — sem valor mínimo de compra! 🛒
         </p>
         
-        <h3 style="font-size: 15px; font-weight: bold; margin-bottom: 12px; color: #0f172a; border-bottom: 2px solid #ea580c; padding-bottom: 6px;">
-          Vantagens Exclusivas da Newsletter Silva Dias:
+        <h3 style="font-size: 15px; font-weight: bold; margin-bottom: 12px; color: #0f172a; border-bottom: 2px solid #107b46; padding-bottom: 6px;">
+          Ihre exklusiven HLG Hausgeräte Vorteile:
         </h3>
         <ul style="font-size: 13px; color: #475569; padding-left: 20px; margin-bottom: 25px; line-height: 1.8;">
-          <li>✨ Campanhas promocionais sazonais e descontos exclusivos</li>
-          <li>🔥 Novidades sobre lenha de azinho, sobro e pellets certificados ENplus A1</li>
-          <li>💡 Dicas de especialistas sobre eficiência energética e manutenção de recuperadores e ar condicionado</li>
+          <li>✨ Exklusive Rabatte und Frühzugang zu Sonderangeboten</li>
+          <li>⚡ 2 Jahre Garantie auf alle Großgeräte</li>
+          <li>📦 Kostenloser und versicherter Versand direkt nach Hause</li>
         </ul>
         
         <div style="text-align: center; margin: 35px 0;">
-          <a href="https://lenhaecarvaosilvadias.com/shop" style="background-color: #ea580c; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px; display: inline-block;">
-            Explorar Produtos na Loja
+          <a href="https://hlg-hausgeraete.de/shop" style="background-color: #107b46; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px; display: inline-block;">
+            Produkte im Shop ansehen
           </a>
         </div>
         
         <div style="text-align: center; margin-top: 35px; margin-bottom: 25px; font-size: 13px; color: #475569;">
-          <p style="font-weight: bold; color: #ea580c; margin-bottom: 4px;">🔥 A Equipa de Lenha & Carvão Silva Dias</p>
-          <p style="margin-top: 0; font-size: 12px; color: #64748b;">Contacto: ${storeEmail}</p>
+          <p style="font-weight: bold; color: #107b46; margin-bottom: 4px;">HLG Hausgeräte Kundenservice</p>
+          <p style="margin-top: 0; font-size: 12px; color: #64748b;">Kontakt: ${storeEmail}</p>
         </div>
         
         <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: center; font-size: 11px; color: #94a3b8;">
@@ -1131,7 +1131,7 @@ export async function sendNewsletterWelcomeEmail(userEmail: string) {
 
     return sendEmail({
       to: userEmail,
-      subject: `Bem-vindo(a) à Silva Dias! O seu voucher de 25 € de desconto 🎁`,
+      subject: `Willkommen bei HLG Hausgeräte! Ihr 25 € Gutschein 🎁`,
       html
     });
   } catch (e) {

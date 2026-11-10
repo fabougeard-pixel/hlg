@@ -1,7 +1,7 @@
 import WishlistClient from './WishlistClient';
 import { getTranslations } from 'next-intl/server';
 
-const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Lenha & Carvao Silva Dias";
+const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "HLG Hausgeräte";
 
 export async function generateMetadata() {
   const t = await getTranslations('Wishlist');

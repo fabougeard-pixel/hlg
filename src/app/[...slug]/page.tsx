@@ -32,7 +32,7 @@ export async function generateMetadata({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Lenha & Carvão Silva Dias";
+  const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "HLG Hausgeräte";
 
   if (!slug || slug.length === 0) {
     return { title: `Página não encontrada - ${storeName}` };
@@ -142,13 +142,13 @@ export default async function CatchAllPage({
               <div className="relative z-10 max-w-4xl">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-600/20 border border-red-500/30 text-red-400 font-bold text-xs uppercase tracking-wider mb-4">
                   <span>{isLegalSlug ? '⚖️' : '📄'}</span>
-                  <span>{isLegalSlug ? 'Termos Oficiais & Transparência Silva Dias' : 'Informações Oficiais'}</span>
+                  <span>{isLegalSlug ? 'Rechtliche Informationen & Transparenz' : 'Offizielle Informationen'}</span>
                 </div>
                 <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight mb-3">
                   {page.title}
                 </h1>
                 <p className="text-stone-300 text-xs sm:text-sm leading-relaxed">
-                  Lenha & Carvão Silva Dias • Braga, Portugal • Encomendas seguras com rastreamento e entrega direta.
+                  HLG Hausgeräte • Borseler Chaussee 123, 22453 Hamburg, Deutschland • Zuverlässige Lieferung &amp; Kundenservice.
                 </p>
               </div>
             </div>
@@ -207,36 +207,36 @@ export default async function CatchAllPage({
                   Dúvidas sobre Devoluções, Garantias ou Faturas?
                 </h3>
                 <p className="text-stone-300 text-xs sm:text-sm max-w-2xl leading-relaxed">
-                  A nossa equipa em Braga está disponível para prestar esclarecimentos imediatos sobre qualquer procedimento ou encomenda.
+                  Unser Kundenservice steht Ihnen bei allen Fragen zu Lieferungen, Rückgaben und Garantien zur Seite.
                 </p>
               </div>
 
               <div className="flex flex-col sm:flex-row items-center gap-3.5 w-full sm:w-auto shrink-0">
                 <a
-                  href="mailto:cabeliminizenda@gmail.com"
-                  className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm whitespace-nowrap shadow-lg shadow-red-600/30 transition-all flex items-center justify-center gap-2.5 shrink-0"
+                  href="mailto:info@hlg-hausgeraete.de"
+                  className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-[#107b46] hover:bg-[#0d693b] text-white font-bold text-sm whitespace-nowrap shadow-lg shadow-emerald-900/30 transition-all flex items-center justify-center gap-2.5 shrink-0"
                 >
                   <svg className="w-4 h-4 shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
-                  <span>Enviar E-mail</span>
+                  <span>E-Mail senden</span>
                 </a>
                 <Link
-                  href="/contactos"
+                  href="/kontakt"
                   className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-white font-semibold text-sm whitespace-nowrap border border-stone-700 transition-all flex items-center justify-center gap-2.5 shrink-0"
                 >
                   <svg className="w-4 h-4 shrink-0 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
-                  <span>Página de Contactos</span>
+                  <span>Kontaktseite</span>
                 </Link>
               </div>
             </div>
 
-            {/* Livro de Reclamações Online Banner */}
+            {/* Bottom Copyright */}
             <div className="mt-8 pt-6 border-t border-stone-200/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-500 text-center sm:text-left">
               <div>
-                <span>© {new Date().getFullYear()} Lenha & Carvão Silva Dias. Todos os direitos reservados.</span>
+                <span>© {new Date().getFullYear()} HLG Hausgeräte. Alle Rechte vorbehalten.</span>
               </div>
               <div className="flex items-center gap-4">
                 <a

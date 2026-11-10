@@ -14,7 +14,7 @@ export default getRequestConfig(async () => {
   const isAdminRoute = pathname.startsWith('/admin');
 
   // Fetch settings from DB
-  let activeLanguage = 'pt';
+  let activeLanguage = 'de';
   let translationScope = 'all'; // 'frontend_only', 'admin_only', 'all'
 
   try {
@@ -28,7 +28,7 @@ export default getRequestConfig(async () => {
   }
 
   // Determine locale based on scope options
-  let locale = 'pt'; // default fallback for Lenha & Carvao Silva Dias
+  let locale = 'de'; // default fallback for HLG Hausgeräte
 
   if (translationScope === 'all') {
     locale = activeLanguage;

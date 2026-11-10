@@ -102,8 +102,8 @@ export default function BestDealsCard({
               type="button"
               onClick={handleToggleWishlist}
               className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${isWishlisted
-                ? 'bg-red-600 text-white shadow-red-500/30 ring-2 ring-red-400'
-                : 'bg-white/95 text-stone-700 hover:bg-red-600 hover:text-white border border-stone-200/80 hover:border-red-600'
+                  ? 'bg-red-600 text-white shadow-red-500/30 ring-2 ring-red-400'
+                  : 'bg-white/95 text-stone-700 hover:bg-red-600 hover:text-white border border-stone-200/80 hover:border-red-600'
                 }`}
               title={isWishlisted ? 'Remover dos Favoritos' : 'Adicionar aos Favoritos'}
               aria-label="Wishlist"

@@ -21,7 +21,7 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
-const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Lenha & Carvao Silva Dias";
+const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "HLG Hausgeräte";
 
 export async function generateMetadata(): Promise<Metadata> {
   const settingsDb = await prisma.setting.findMany({
@@ -29,10 +29,10 @@ export async function generateMetadata(): Promise<Metadata> {
   });
   
   const settingsMap = settingsDb.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
-  const faviconUrl = settingsMap['FAVICON_IMAGE'];
-  const title = settingsMap['HOME_META_TITLE'] || `${storeName} | E-commerce`;
-  const description = settingsMap['HOME_META_DESCRIPTION'] || "Découvrez notre vaste sélection de produits de haute qualité sur notre boutique en ligne complète.";
-  const ogImage = settingsMap['HEADER_LOGO_IMAGE'] || '/logo.jpg';
+  const faviconUrl = settingsMap['FAVICON_IMAGE'] || '/LOGO-HLG-HAUSGERAETE.png';
+  const title = settingsMap['HOME_META_TITLE'] || `${storeName} | Hochwertige Haushaltsgeräte zu besten Preisen`;
+  const description = settingsMap['HOME_META_DESCRIPTION'] || "Entdecken Sie hochwertige Haushaltsgeräte zu den besten Preisen bei HLG Hausgeräte. Waschmaschinen, Geschirrspüler, Kaffeemaschinen, Kühlschränke und mehr.";
+  const ogImage = settingsMap['HEADER_LOGO_IMAGE'] || '/LOGO-HLG-HAUSGERAETE.png';
 
   const baseUrl = SITE_URL;
 
@@ -94,13 +94,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     taxIncludedInPrice: settingsMap.TAX_INCLUDED_IN_PRICE === 'true',
     defaultVatRate: Number(settingsMap.DEFAULT_VAT_RATE) || 20,
   };
-  const contactSlug = settingsMap.CONTACT_SLUG || 'contactar-nos';
+  const contactSlug = settingsMap.CONTACT_SLUG || 'kontakt';
   const defaultMenuLinks = [
-    { label: 'Início', url: '/' },
-    { label: 'Loja', url: '/shop' },
-    { label: 'Devoluções', url: '/politica-de-devolucao-e-reembolso' },
-    { label: 'Expedição', url: '/politica-de-expedicao' },
-    { label: 'Contacto', url: `/${contactSlug}` },
+    { label: 'Startseite', url: '/' },
+    { label: 'Shop', url: '/shop' },
+    { label: 'Kontakt', url: `/${contactSlug}` },
+    { label: 'Rückgabe & Erstattung', url: '/rueckgabe-und-erstattung' },
   ];
 
   let menuLinks = defaultMenuLinks;
@@ -113,8 +112,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   }
   
   const defaultFooterColumns = [
-    { title: 'Contact Us', links: [{ label: 'About Us', url: '#' }, { label: 'Contact Us', url: '#' }] },
-    { title: 'Account', links: [{ label: 'Shop', url: '#' }, { label: 'Checkout', url: '#' }] }
+    { title: 'Kundenservice', links: [{ label: 'Kontakt', url: `/${contactSlug}` }, { label: 'Rückgabe & Erstattung', url: '/rueckgabe-und-erstattung' }] },
+    { title: 'Mein Konto', links: [{ label: 'Shop', url: '/shop' }, { label: 'Warenkorb', url: '/cart' }] }
   ];
   let footerColumns = defaultFooterColumns;
   try {
@@ -124,7 +123,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   } catch (e) {}
 
   const defaultTopBarLinks = [
-    { label: 'Rastrear Encomenda', icon: 'truck', url: '/order-tracking' },
+    { label: 'Bestellung verfolgen', icon: 'truck', url: '/order-tracking' },
   ];
   let topBarLinks = defaultTopBarLinks;
   try {
@@ -133,50 +132,48 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     }
   } catch (e) {}
 
-  // Remove Store location and ensure Order Tracking is in Portuguese
+  // Remove Store location and ensure Order Tracking is in German
   topBarLinks = (topBarLinks || [])
     .filter((link: any) => !link.label?.toLowerCase().includes('store') && !link.url?.includes('store-locator'))
     .map((link: any) => {
-      if (link.label?.toLowerCase().includes('order') || link.label?.toLowerCase().includes('track') || link.url?.includes('order-tracking')) {
-        return { ...link, label: 'Rastrear Encomenda' };
+      if (link.label?.toLowerCase().includes('order') || link.label?.toLowerCase().includes('track') || link.url?.includes('order-tracking') || link.label?.toLowerCase().includes('rastrear')) {
+        return { ...link, label: 'Bestellung verfolgen' };
       }
       return link;
     });
 
   const { newCount: newProductsCount, hotCount: hotProductsCount, saleCount: saleProductsCount } = await getCachedProductCounts();
 
-  const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "My Store";
-
   const storeSettings = {
-    announcement: settingsMap.HEADER_ANNOUNCEMENT_TEXT || settingsMap.HEADER_ANNOUNCEMENT || 'Envios para todo o Portugal Continental com descarga por plataforma elevatória',
-    logoImage: settingsMap.HEADER_LOGO_IMAGE && settingsMap.HEADER_LOGO_IMAGE !== '/logo.png' ? settingsMap.HEADER_LOGO_IMAGE : '',
-    supportPhone: settingsMap.FOOTER_SUPPORT_PHONE ?? settingsMap.HEADER_SUPPORT_PHONE ?? '+351 253 000 000',
-    supportEmail: settingsMap.FOOTER_SUPPORT_EMAIL ?? settingsMap.HEADER_SUPPORT_EMAIL ?? 'cabeliminizenda@gmail.com',
+    announcement: settingsMap.HEADER_ANNOUNCEMENT_TEXT || settingsMap.HEADER_ANNOUNCEMENT || 'Willkommen bei HLG Hausgeräte • Kostenloser Versand ab 50 € • 2 Jahre Garantie',
+    logoImage: settingsMap.HEADER_LOGO_IMAGE && settingsMap.HEADER_LOGO_IMAGE !== '/logo.png' && settingsMap.HEADER_LOGO_IMAGE !== '/logo.jpg' ? settingsMap.HEADER_LOGO_IMAGE : '/LOGO-HLG-HAUSGERAETE.png',
+    supportPhone: settingsMap.FOOTER_SUPPORT_PHONE ?? settingsMap.HEADER_SUPPORT_PHONE ?? '0800 123 4567',
+    supportEmail: settingsMap.FOOTER_SUPPORT_EMAIL ?? settingsMap.HEADER_SUPPORT_EMAIL ?? 'info@hlg-hausgeraete.de',
     menuLinks: menuLinks,
     topBarLinks: topBarLinks,
-    loginText: settingsMap.LOGIN_TEXT,
-    myAccountText: settingsMap.MY_ACCOUNT_TEXT,
-    adminDashboardText: settingsMap.ADMIN_DASHBOARD_TEXT,
+    loginText: settingsMap.LOGIN_TEXT || 'Anmelden',
+    myAccountText: settingsMap.MY_ACCOUNT_TEXT || 'Mein Konto',
+    adminDashboardText: settingsMap.ADMIN_DASHBOARD_TEXT || 'Admin-Dashboard',
     topBarBgColor: settingsMap.TOP_BAR_BG_COLOR || '#ffffff',
     topBarTextColor: settingsMap.TOP_BAR_TEXT_COLOR || '#4b5563',
-    footerBgColor: settingsMap.FOOTER_BG_COLOR || '#1C1917',
+    footerBgColor: settingsMap.FOOTER_BG_COLOR || '#0f172a',
     footerTextColor: settingsMap.FOOTER_TEXT_COLOR || '#d1d5db',
     footerHeadingColor: settingsMap.FOOTER_HEADING_COLOR || '#ffffff',
-    footerAddress1: settingsMap.FOOTER_ADDRESS_1 ?? 'Braga, Portugal Continental',
-    footerAddress2: settingsMap.FOOTER_ADDRESS_2 ?? 'Entregas regulares com camião plataforma em todo o território continental',
-    footerLocationsTitle: settingsMap.FOOTER_LOCATIONS_TITLE || 'Área de Entrega',
-    footerNewsletterTitle: settingsMap.FOOTER_NEWSLETTER_TITLE || 'Newsletter Silva Dias',
-    footerNewsletterText: settingsMap.FOOTER_NEWSLETTER_TEXT || 'Receba dicas sazonais de poupança térmica, novidades em biomassa e ofertas exclusivas antes do inverno.',
-    footerNewsletterPlaceholder: settingsMap.FOOTER_NEWSLETTER_PLACEHOLDER || 'O seu endereço de email...',
-    footerCallUsText: settingsMap.FOOTER_CALL_US_TEXT || 'Apoio ao Cliente',
-    footerCopyright: settingsMap.FOOTER_COPYRIGHT || `© 2026 ${storeName}. Todos os direitos reservados.`,
+    footerAddress1: settingsMap.FOOTER_ADDRESS_1 ?? 'Deutschland',
+    footerAddress2: settingsMap.FOOTER_ADDRESS_2 ?? 'Zuverlässige Lieferung direkt zu Ihnen nach Hause',
+    footerLocationsTitle: settingsMap.FOOTER_LOCATIONS_TITLE || 'Liefergebiet',
+    footerNewsletterTitle: settingsMap.FOOTER_NEWSLETTER_TITLE || 'HLG Hausgeräte Newsletter',
+    footerNewsletterText: settingsMap.FOOTER_NEWSLETTER_TEXT || 'Abonnieren Sie unseren Newsletter für exklusive Angebote und Gutscheine.',
+    footerNewsletterPlaceholder: settingsMap.FOOTER_NEWSLETTER_PLACEHOLDER || 'Ihre E-Mail-Adresse...',
+    footerCallUsText: settingsMap.FOOTER_CALL_US_TEXT || 'Kundenservice',
+    footerCopyright: settingsMap.FOOTER_COPYRIGHT || `© 2026 ${storeName}. Alle Rechte vorbehalten.`,
     footerSocialFacebook: settingsMap.FOOTER_SOCIAL_FACEBOOK || '#',
     footerSocialTwitter: settingsMap.FOOTER_SOCIAL_TWITTER || '#',
     footerSocialInstagram: settingsMap.FOOTER_SOCIAL_INSTAGRAM || '#',
     footerSocialLinkedin: settingsMap.FOOTER_SOCIAL_LINKEDIN || '#',
     footerColumns: footerColumns,
-    footerLogoImage: settingsMap.FOOTER_LOGO_IMAGE || '',
-    footerDescription: settingsMap.FOOTER_DESCRIPTION || 'A Lenha & Carvão Silva Dias é especialista em soluções de aquecimento a biomassa, pellets certificados ENplus A1, lenha selecionada, recuperadores de calor e salamandras de alto rendimento. Entregamos em todo o Portugal Continental com camião plataforma e serviço personalizado.',
+    footerLogoImage: settingsMap.FOOTER_LOGO_IMAGE || '/LOGO-HLG-HAUSGERAETE.png',
+    footerDescription: settingsMap.FOOTER_DESCRIPTION || 'HLG Hausgeräte ist Ihr zuverlässiger Fachhändler für moderne Haushaltsgeräte. Entdecken Sie erstklassige Waschmaschinen, Geschirrspüler, Herde, Kaffeemaschinen und Kühlgeräte führender Marken zu Spitzenpreisen.',
     footerShowAddress: settingsMap.FOOTER_SHOW_ADDRESS !== 'false',
     footerShowEmail: settingsMap.FOOTER_SHOW_EMAIL !== 'false',
     footerShowPhone: settingsMap.FOOTER_SHOW_PHONE !== 'false',
@@ -188,19 +185,19 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     footerPaymentOpay: settingsMap.FOOTER_PAYMENT_OPAY !== 'false',
     categories: await getCachedCategoriesTree(),
     maintenanceMode: settingsMap.MAINTENANCE_MODE === 'true',
-    maintenanceTitle: settingsMap.MAINTENANCE_TITLE || 'Loja em Manutenção',
-    maintenanceMessage: settingsMap.MAINTENANCE_MESSAGE || 'Estamos a atualizar o catálogo de aquecimento. Voltamos em breve!',
+    maintenanceTitle: settingsMap.MAINTENANCE_TITLE || 'Geschäft in Wartung',
+    maintenanceMessage: settingsMap.MAINTENANCE_MESSAGE || 'Wir aktualisieren derzeit unseren Katalog. Wir sind in Kürze wieder für Sie da!',
     maintenanceImage: settingsMap.MAINTENANCE_IMAGE || '',
     searchBorderColor: settingsMap.SEARCH_BORDER_COLOR || '#d1d5db',
-    searchPlaceholder: settingsMap.SEARCH_PLACEHOLDER || 'Pesquisar pellets, lenha, salamandras, recuperadores...',
-    searchBtnText: settingsMap.SEARCH_BTN_TEXT || 'Pesquisar',
-    searchBtnBgColor: settingsMap.SEARCH_BTN_BG_COLOR || '#c2410c',
+    searchPlaceholder: settingsMap.SEARCH_PLACEHOLDER || 'Produkt suchen .....',
+    searchBtnText: settingsMap.SEARCH_BTN_TEXT || 'Suchen',
+    searchBtnBgColor: settingsMap.SEARCH_BTN_BG_COLOR || '#f59e0b',
     searchBtnTextColor: settingsMap.SEARCH_BTN_TEXT_COLOR || '#111827',
     showNew: newProductsCount > 0,
     showHot: hotProductsCount >= 3,
     showSale: saleProductsCount > 0,
-    mobileAboutTitle: settingsMap.MOBILE_ABOUT_TITLE || 'Lenha & Carvão Silva Dias',
-    mobileAboutDesc: settingsMap.MOBILE_ABOUT_DESC || 'Especialistas em biomassa, lenha de qualidade superior, recuperadores e soluções térmicas sustentáveis em Portugal.',
+    mobileAboutTitle: settingsMap.MOBILE_ABOUT_TITLE || 'HLG Hausgeräte',
+    mobileAboutDesc: settingsMap.MOBILE_ABOUT_DESC || 'Ihre hochwertigen Haushaltsgeräte zu den besten Preisen!',
     mobileMenuLinks: (() => {
       try {
         return settingsMap.MOBILE_MENU_LINKS ? JSON.parse(settingsMap.MOBILE_MENU_LINKS) : menuLinks;
@@ -280,15 +277,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               "email": settingsMap.FOOTER_SUPPORT_EMAIL ?? settingsMap.HEADER_SUPPORT_EMAIL,
               "address": {
                 "@type": "PostalAddress",
-                "streetAddress": settingsMap.FOOTER_ADDRESS_1 || '',
+                "streetAddress": settingsMap.FOOTER_ADDRESS_1 || 'Borseler Chaussee 123',
                 "addressCountry": settingsMap.STORE_COUNTRY || "DE",
-                "addressLocality": "Langenhagen"
+                "addressLocality": "Hamburg"
               },
-              "description": "Ihr zuverlässiger Partner für Kaminholz, Holzpellets und Holzbriketts."
+              "description": "HLG Hausgeräte - Ihr Fachhändler für Haushaltsgeräte, Küchenmaschinen, Kaffeemaschinen und Unterhaltungselektronik."
             })
           }}
         />
-        <ThemeProvider themeColor={settingsMap.THEME_COLOR || '#c2410c'} />
+        <ThemeProvider themeColor={settingsMap.THEME_COLOR || '#107b46'} />
         <ZoomController />
         <NextIntlClientProvider messages={messages} locale={locale}>
           <PostHogProvider>
@@ -298,8 +295,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 {children}
                 <DeferredWidgets 
                   chatEnabled={settingsMap.CHAT_ENABLED !== 'false'} 
-                  chatStoreName={settingsMap.CHAT_STORE_NAME || settingsMap.STORE_NAME || 'Lenha & Carvao Silva Dias'} 
-                  chatStoreIcon={settingsMap.CHAT_STORE_ICON || settingsMap.HEADER_LOGO_IMAGE || settingsMap.FAVICON_IMAGE || '/logo.png'} 
+                  chatStoreName={settingsMap.CHAT_STORE_NAME || settingsMap.STORE_NAME || 'HLG Hausgeräte'} 
+                  chatStoreIcon={settingsMap.CHAT_STORE_ICON || settingsMap.HEADER_LOGO_IMAGE || settingsMap.FAVICON_IMAGE || '/LOGO-HLG-HAUSGERAETE.png'} 
                 />
               </StoreLayout>
             </CurrencyProvider>

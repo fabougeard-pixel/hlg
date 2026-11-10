@@ -21,13 +21,16 @@ type MobileSidebarProps = {
 };
 
 const defaultCategories = [
-  { name: 'Pellets & Lenha', slug: 'combustiveis', icon: '🪵' },
-  { name: 'Salamandras', slug: 'salamandras', icon: '🔥' },
-  { name: 'Recuperadores de Calor', slug: 'recuperadores-de-calor', icon: '🏠' },
-  { name: 'Fogões a Lenha', slug: 'fogoes-a-lenha', icon: '🍳' },
-  { name: 'Climatização & AC', slug: 'climatizacao', icon: '❄️' },
-  { name: 'Termoacumuladores', slug: 'termoacumuladores', icon: '💧' },
-  { name: 'Fornos a Lenha', slug: 'fornos-a-lenha', icon: '🍕' },
+  { name: 'Gaming', slug: 'gaming', icon: '🎮' },
+  { name: 'Geschirrspüler', slug: 'geschirrspueler', icon: '🍽️' },
+  { name: 'Herde', slug: 'herde', icon: '🍳' },
+  { name: 'Kaffeemaschinen', slug: 'kaffeemaschinen', icon: '☕' },
+  { name: 'Küchenmaschinen', slug: 'kuechenmaschinen', icon: '🥣' },
+  { name: 'Kühlen & Gefrieren', slug: 'kuehlen-gefrieren', icon: '❄️' },
+  { name: 'Staubsauger & Reiniger', slug: 'staubsauger-reiniger', icon: '🧹' },
+  { name: 'Waschmaschinen', slug: 'waschmaschinen', icon: '🧺' },
+  { name: 'Trockner', slug: 'trockner', icon: '💨' },
+  { name: 'Mikrowellen', slug: 'mikrowellen', icon: '📡' },
 ];
 
 export default function MobileSidebar({
@@ -65,11 +68,11 @@ export default function MobileSidebar({
 
   const displayCategories = categories && categories.length > 0 ? categories : defaultCategories;
 
-  // Filter out Home / Início from the rest of the desktop menu so it's not duplicated
+  // Filter out Home / Startseite from the rest of the desktop menu so it's not duplicated
   const isHomeLink = (url: string, label: string) => {
     const u = (url || '').trim().toLowerCase();
     const l = (label || '').trim().toLowerCase();
-    return u === '/' || l === 'início' || l === 'inicio' || l === 'home';
+    return u === '/' || l === 'início' || l === 'inicio' || l === 'home' || l === 'startseite';
   };
 
   const otherDesktopLinks = (menuLinks || []).filter(link => !isHomeLink(link.url, link.label));
@@ -91,42 +94,32 @@ export default function MobileSidebar({
   return (
     <div className="fixed inset-0 z-[100] flex lg:hidden">
       {/* Overlay backdrop */}
-      <div 
-        className="absolute inset-0 bg-stone-950/70 backdrop-blur-sm transition-opacity" 
+      <div
+        className="absolute inset-0 bg-stone-950/70 backdrop-blur-sm transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />
-      
+
       {/* Sidebar Panel */}
       <div className="relative w-[86%] max-w-sm bg-white h-full shadow-2xl flex flex-col overflow-y-auto animate-in slide-in-from-left duration-300 z-10">
-        
+
         {/* Top Header: Logo + Close Button */}
         <div className="p-5 border-b border-stone-200 flex items-center justify-between bg-stone-50/70">
           <Link href="/" onClick={onClose} className="block">
-            {logoImage && logoImage !== '/logo.png' && logoImage !== '/logo.jpg' ? (
-              <Image 
-                src={logoImage} 
-                alt="Silva Dias" 
-                width={190} 
-                height={60} 
-                className="object-contain" 
-                style={{ width: 'auto', height: `${logoHeight}px` }} 
-              />
-            ) : (
-              <div className="flex items-center gap-2.5">
-                <Image src="/logo-flame.png" alt="Silva Dias" width={32} height={52} className="h-8 w-auto object-contain shrink-0" />
-                <div>
-                  <span className="font-extrabold text-base tracking-tight text-stone-900 block leading-tight">LENHA &amp; CARVÃO</span>
-                  <span className="text-[10px] font-bold tracking-wider text-red-600 uppercase block">SILVA DIAS</span>
-                </div>
-              </div>
-            )}
+            <Image
+              src={logoImage && logoImage !== '/logo.png' && logoImage !== '/logo.jpg' ? logoImage : '/LOGO-HLG-HAUSGERAETE.png'}
+              alt="HLG Hausgeräte"
+              width={190}
+              height={60}
+              className="object-contain"
+              style={{ width: 'auto', height: `${logoHeight}px` }}
+            />
           </Link>
 
-          <button 
+          <button
             type="button"
             onClick={onClose}
-            aria-label="Fechar menu"
+            aria-label="Menü schließen"
             className="w-9 h-9 flex items-center justify-center text-stone-500 hover:text-stone-900 bg-white hover:bg-stone-200 border border-stone-200 rounded-full transition-colors cursor-pointer"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -140,12 +133,12 @@ export default function MobileSidebar({
           <Link
             href="/account"
             onClick={onClose}
-            className="flex items-center gap-2 p-2 bg-white rounded-xl border border-stone-200 text-xs font-bold text-stone-800 hover:border-red-400 hover:text-red-600 transition shadow-xs"
+            className="flex items-center gap-2 p-2 bg-white rounded-xl border border-stone-200 text-xs font-bold text-stone-800 hover:border-emerald-500 hover:text-[#107b46] transition shadow-xs"
           >
-            <svg className="w-4 h-4 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-[#107b46] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
-            <span className="truncate">Minha Conta</span>
+            <span className="truncate">Mein Konto</span>
           </Link>
 
           <button
@@ -154,16 +147,16 @@ export default function MobileSidebar({
               onClose();
               cartStore.setIsOpen(true);
             }}
-            className="flex items-center justify-between p-2 bg-white rounded-xl border border-stone-200 text-xs font-bold text-stone-800 hover:border-red-400 hover:text-red-600 transition shadow-xs cursor-pointer"
+            className="flex items-center justify-between p-2 bg-white rounded-xl border border-stone-200 text-xs font-bold text-stone-800 hover:border-emerald-500 hover:text-[#107b46] transition shadow-xs cursor-pointer"
           >
             <span className="flex items-center gap-2 truncate">
-              <svg className="w-4 h-4 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-[#107b46] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
-              <span>Carrinho</span>
+              <span>Warenkorb</span>
             </span>
             {mounted && cartStore.getTotalItems() > 0 && (
-              <span className="bg-red-600 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">
+              <span className="bg-[#107b46] text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">
                 {cartStore.getTotalItems()}
               </span>
             )}
@@ -173,28 +166,28 @@ export default function MobileSidebar({
         {/* Navigation Section */}
         <nav className="p-3.5 flex-1 overflow-y-auto">
           <ul className="space-y-1 pb-3">
-            {/* 1. Início */}
+            {/* 1. Startseite */}
             <li>
-              <Link 
+              <Link
                 href="/"
                 onClick={onClose}
-                className="flex items-center justify-between px-3.5 py-2.5 text-sm font-bold text-stone-800 hover:bg-red-50 hover:text-red-600 rounded-xl transition-colors"
+                className="flex items-center justify-between px-3.5 py-2.5 text-sm font-bold text-stone-800 hover:bg-emerald-50 hover:text-[#107b46] rounded-xl transition-colors"
               >
-                <span>Início</span>
+                <span>Startseite</span>
                 <span className="text-stone-400 text-xs">&rarr;</span>
               </Link>
             </li>
 
             {/* 2. Categorias de Produtos Accordion */}
             <li>
-              <button 
+              <button
                 type="button"
                 onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-                className="w-full flex items-center justify-between px-3.5 py-2.5 text-sm font-bold text-stone-900 bg-stone-100/90 hover:bg-red-50 hover:text-red-600 rounded-xl transition-colors cursor-pointer mt-1"
+                className="w-full flex items-center justify-between px-3.5 py-2.5 text-sm font-bold text-stone-900 bg-stone-100/90 hover:bg-emerald-50 hover:text-[#107b46] rounded-xl transition-colors cursor-pointer mt-1"
               >
                 <span className="flex items-center gap-2">
                   <span>📂</span>
-                  <span>Categorias de Produtos</span>
+                  <span>Alle Kategorien</span>
                 </span>
                 <svg className={`w-4 h-4 text-stone-500 transition-transform duration-200 ${isCategoriesOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
@@ -202,13 +195,13 @@ export default function MobileSidebar({
               </button>
 
               {isCategoriesOpen && (
-                <ul className="mt-1 ml-2 space-y-1 border-l-2 border-red-500/30 pl-2 py-1">
+                <ul className="mt-1 ml-2 space-y-1 border-l-2 border-emerald-500 pl-2 py-1">
                   {displayCategories.map((cat: any, idx: number) => (
                     <li key={cat.id || idx}>
-                      <Link 
+                      <Link
                         href={`/product-category/${cat.slug || cat.id}`}
                         onClick={onClose}
-                        className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-stone-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-stone-700 hover:text-[#107b46] hover:bg-emerald-50 rounded-lg transition-colors"
                       >
                         <span className="flex items-center gap-2">
                           {cat.icon && <span>{cat.icon}</span>}
@@ -227,10 +220,10 @@ export default function MobileSidebar({
             {/* 3. The rest of the main menu defined for Desktop */}
             {otherDesktopLinks.map((link, idx) => (
               <li key={`desktop-menu-${idx}`}>
-                <Link 
+                <Link
                   href={link.url}
                   onClick={onClose}
-                  className="flex items-center justify-between px-3.5 py-2.5 text-sm font-bold text-stone-800 hover:bg-red-50 hover:text-red-600 rounded-xl transition-colors"
+                  className="flex items-center justify-between px-3.5 py-2.5 text-sm font-bold text-stone-800 hover:bg-emerald-50 hover:text-[#107b46] rounded-xl transition-colors"
                 >
                   <span>{link.label}</span>
                   <span className="text-stone-400 text-xs">&rarr;</span>
@@ -240,14 +233,14 @@ export default function MobileSidebar({
           </ul>
         </nav>
 
-        {/* Contact & Support Details at the bottom - ONLY DISPLAY WHAT IS DEFINED */}
+        {/* Contact & Support Details at the bottom */}
         {hasAnyContact && (
           <div className="p-4 bg-stone-50 border-t border-stone-200 mt-auto text-xs space-y-2.5">
-            <p className="font-bold text-stone-900 uppercase tracking-wider text-[11px]">Apoio ao Cliente</p>
-            
+            <p className="font-bold text-stone-900 uppercase tracking-wider text-[11px]">Kundenservice</p>
+
             {hasPhone && (
-              <a href={`tel:${contactPhone.replace(/\s+/g, '')}`} className="flex items-center gap-2 text-stone-600 hover:text-red-600 transition">
-                <svg className="w-4 h-4 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <a href={`tel:${contactPhone.replace(/\s+/g, '')}`} className="flex items-center gap-2 text-stone-600 hover:text-[#107b46] transition">
+                <svg className="w-4 h-4 text-[#107b46] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                 </svg>
                 <span>{contactPhone}</span>
@@ -255,8 +248,8 @@ export default function MobileSidebar({
             )}
 
             {hasEmail && (
-              <a href={`mailto:${contactEmail}`} className="flex items-center gap-2 text-stone-600 hover:text-red-600 transition truncate">
-                <svg className="w-4 h-4 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <a href={`mailto:${contactEmail}`} className="flex items-center gap-2 text-stone-600 hover:text-[#107b46] transition truncate">
+                <svg className="w-4 h-4 text-[#107b46] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
                 <span className="truncate">{contactEmail}</span>

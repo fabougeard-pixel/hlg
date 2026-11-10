@@ -1,3 +1,7 @@
+import HlgHero from '@/components/home/HlgHero';
+import AktuelleAngebote from '@/components/home/AktuelleAngebote';
+import CategoryShowcaseSections from '@/components/home/CategoryShowcaseSections';
+import BrandShowcase from '@/components/home/BrandShowcase';
 import ThermalHero from '@/components/home/ThermalHero';
 import Newsletter from '@/components/home/Newsletter';
 import PromoBanners from '@/components/home/PromoBanners';
@@ -152,13 +156,13 @@ export default async function Home() {
       return {
         id: p.id,
         title: p.title,
-        subtitle: p.categoryName ? `${p.categoryName} • Alta Eficiência EcoDesign` : 'Qualidade Garantida Silva Dias',
+        subtitle: p.categoryName ? `${p.categoryName} • Höchste Energieeffizienz` : 'Geprüfte HLG Qualität',
         price: p.price,
         compareAtPrice: p.compareAtPrice,
         image: p.images[0],
-        badge: discountPct ? `POUPANÇA -${discountPct}%` : 'TOP VENDAS',
-        badgeTech: p.categoryName ? `🔥 ${p.categoryName}` : '🔥 Alto Rendimento',
-        badgeTech2: savings > 0 ? `Poupe ${savings.toFixed(2).replace('.', ',')} €` : 'Stock Garantido',
+        badge: discountPct ? `SPAREN -${discountPct}%` : 'BESTSELLER',
+        badgeTech: p.categoryName ? `✨ ${p.categoryName}` : '✨ Top Qualität',
+        badgeTech2: savings > 0 ? `Sie sparen ${savings.toFixed(2).replace('.', ',')} €` : 'Sofort lieferbar',
         categoryName: p.categoryName || ''
       };
     });
@@ -171,7 +175,10 @@ export default async function Home() {
       case 'Hero':
         return (
           <div key={section.id}>
-            <ThermalHero config={section.settings} showcaseProducts={heroShowcaseProducts} />
+            <HlgHero config={section.settings} />
+            <AktuelleAngebote />
+            <CategoryShowcaseSections />
+            <BrandShowcase />
             <TrustBar />
             <CategoryExplorer />
           </div>

@@ -32,10 +32,10 @@ const formatPaymentMethod = (method: string) => {
 
 export async function generateInvoicePDF(order: any): Promise<Buffer> {
   let logoBuffer: Buffer | null = null;
-  let storeName = 'Lenha & Carvão Silva Dias';
-  let companyName = 'SILVA DIAS – Comércio de Lenha e Carvão, Lda.';
-  let companyAddress = 'Alto Almosquia, 2750-000 Cascais – Portugal';
-  let companyEmail = 'info@lenhaecarvaosilvadias.com';
+  let storeName = 'HLG Hausgeräte';
+  let companyName = 'HLG Hausgeräte GmbH';
+  let companyAddress = 'Borseler Chaussee 123, 22453 Hamburg, Deutschland';
+  let companyEmail = 'info@hlg-hausgeraete.de';
   
   try {
     const settingsDb = await prisma.setting.findMany({

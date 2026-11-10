@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   
   const product = await getCachedProductBySlug(slug);
   
-  const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Lenha & Carvão Silva Dias";
+  const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "HLG Hausgeräte";
 
   if (!product) {
     return {
@@ -82,7 +82,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const { data: { user } } = await supabase.auth.getUser();
   const isLoggedIn = !!user;
 
-  const storeName = process.env.NEXT_PUBLIC_STORE_NAME || 'Lenha & Carvão Silva Dias';
+  const storeName = process.env.NEXT_PUBLIC_STORE_NAME || 'HLG Hausgeräte';
 
   const reviews = (product as any).reviews || [];
   const avgRating = reviews.length > 0
