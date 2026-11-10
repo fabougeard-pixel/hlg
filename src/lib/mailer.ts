@@ -878,8 +878,8 @@ export async function sendReviewRequestEmail(order: any, userEmail: string, user
               </table>
             </td>
             <td style="padding: 14px 0; text-align: right; vertical-align: middle;">
-              <a href="${storeUrl}/produto/${item.product?.slug || item.product?.id}" style="background-color: #ea580c; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 12px; display: inline-block;">
-                Avaliar Artigo
+              <a href="${storeUrl}/produkt/${item.product?.slug || item.product?.id}" style="background-color: #107b46; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 12px; display: inline-block;">
+                Bewerten
               </a>
             </td>
           </tr>

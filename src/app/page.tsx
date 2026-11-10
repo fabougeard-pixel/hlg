@@ -19,14 +19,9 @@ export const dynamic = 'force-dynamic';
 export default async function Home() {
   const settings = await import('@/lib/cache').then(m => m.getCachedSettings());
 
-  // Fetch thermal products from Prisma
+  // Fetch products from Prisma
   let formattedProducts: any[] = [];
-  let promoProducts: any[] = [];
-  let simulatorProducts = {
-    pallets: [] as any[],
-    fireplaces: [] as any[],
-    climate: [] as any[]
-  };
+  let dbBestsellers: any[] = [];
 
   try {
     const allDbProds = await prisma.product.findMany({
@@ -61,67 +56,27 @@ export default async function Home() {
       allCategories: p.categories.map(c => `${c.name} ${c.slug}`).join(' ')
     }));
 
-    promoProducts = formattedProducts.filter(p =>
-      (p.compareAtPrice && p.compareAtPrice > p.price) ||
-      (p.discountLabel && p.discountLabel.trim() !== '')
-    );
-
-    const classify = (p: any) => {
-      const t = p.title.toLowerCase();
-      if (
-        t.includes('salamandra') ||
-        t.includes('recuperador') ||
-        t.includes('lareira') ||
-        t.includes('fogão') ||
-        t.includes('fogao') ||
-        t.includes('forno') ||
-        t.includes('aquecedor') ||
-        t.includes('radiador') ||
-        t.includes('caldeira') ||
-        t.includes('cozinha') ||
-        t.includes('estufa')
-      ) {
-        return 'fireplaces';
-      }
-      if (
-        t.includes('ar condicionado') ||
-        t.includes('split') ||
-        t.includes('climatiz') ||
-        t.includes('desumidificador') ||
-        t.includes('ventilador') ||
-        t.includes('termoacumulador')
-      ) {
-        return 'climate';
-      }
-      if (
-        t.includes('palete') ||
-        t.includes('palet') ||
-        t.includes('pellet') ||
-        t.includes('lenha') ||
-        t.includes('big bag') ||
-        t.includes('aparas') ||
-        t.includes('carvão') ||
-        t.includes('carvao') ||
-        t.includes('bioetanol') ||
-        t.includes('combust')
-      ) {
-        return 'pallets';
-      }
-      return 'fireplaces';
-    };
-
-    for (const p of allDbProds) {
-      const type = classify(p);
-      simulatorProducts[type].push({
+    // Dynamic detection of best-selling products:
+    // Prioritize isBestSeller flag, then products with valid images and highest interest
+    const detectedBestsellers = allDbProds
+      .filter(p => p.isBestSeller)
+      .concat(allDbProds.filter(p => !p.isBestSeller && p.images && p.images.length > 0))
+      .slice(0, 6)
+      .map((p, idx) => ({
         id: p.id,
         title: p.title,
+        price: `${p.price.toFixed(2).replace('.', ',')}€`,
+        rawPrice: p.price,
+        image: p.images?.[0] || '/images/deals/bestseller-1.jpg',
         slug: p.slug,
-        price: p.price,
-        image: p.images?.[0] || '',
-        categoryName: p.categories?.[0]?.name || '',
-        brand: p.brand?.name || undefined,
-        sku: p.gtin || undefined
-      });
+        rank: idx + 1,
+        energyRating: p.title.match(/\b([A-G]|\bA\+{1,3})\b/i)?.[1]?.toUpperCase() || undefined,
+        rating: 5,
+        ratingScore: '(5.00)'
+      }));
+
+    if (detectedBestsellers.length > 0) {
+      dbBestsellers = detectedBestsellers;
     }
   } catch (e) {
     console.error('Failed to fetch products for homepage:', e);
@@ -185,7 +140,7 @@ export default async function Home() {
         return <HlgHero key={section.id} config={section.settings} />;
       case 'AktuelleAngebote':
       case 'BestDeals':
-        return <AktuelleAngebote key={section.id} />;
+        return <AktuelleAngebote key={section.id} dbBestsellers={dbBestsellers} />;
       case 'CategoryShowcase':
         return <CategoryShowcaseSections key={section.id} />;
       case 'BrandShowcase':

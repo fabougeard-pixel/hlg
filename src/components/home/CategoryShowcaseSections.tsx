@@ -700,7 +700,7 @@ function ProductCard({ item }: { item: ProductItem }) {
       </div>
 
       {/* Product Image */}
-      <Link href={`/produto/${item.slug}`} className="relative aspect-square w-full max-h-[120px] my-2 flex items-center justify-center overflow-hidden">
+      <Link href={`/produkt/${item.slug}`} className="relative aspect-square w-full max-h-[120px] my-2 flex items-center justify-center overflow-hidden">
         <Image
           src={item.image}
           alt={item.title}
@@ -745,7 +745,7 @@ function ProductCard({ item }: { item: ProductItem }) {
         </div>
 
         {/* Title */}
-        <Link href={`/produto/${item.slug}`}>
+        <Link href={`/produkt/${item.slug}`}>
           <h4 className="text-xs font-bold text-stone-800 line-clamp-2 mt-1 leading-snug group-hover:text-[#107b46] transition-colors">
             {item.title}
           </h4>
