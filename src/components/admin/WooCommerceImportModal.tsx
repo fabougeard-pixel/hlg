@@ -41,8 +41,8 @@ export default function WooCommerceImportModal() {
   const [importMode, setImportMode] = useState<ImportMode>('ALL');
 
   // Additional Data To Import
-  const [includeShipping, setIncludeShipping] = useState(true);
-  const [includeOrders, setIncludeOrders] = useState(true);
+  const [includeShipping, setIncludeShipping] = useState(false);
+  const [includeOrders, setIncludeOrders] = useState(false);
   const [includePages, setIncludePages] = useState(true);
   const [includeArticles, setIncludeArticles] = useState(true);
 
@@ -465,7 +465,7 @@ export default function WooCommerceImportModal() {
     <>
       <button 
         onClick={() => { resetModal(); setIsOpen(true); }}
-        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-md transition flex items-center space-x-2 shadow-sm"
+        className="bg-[#107b46] hover:bg-[#0d6338] text-white font-semibold px-4 py-2 rounded-md transition flex items-center space-x-2 shadow-sm"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
         <span>{t('import_woo_btn')}</span>
@@ -552,45 +552,60 @@ export default function WooCommerceImportModal() {
               {/* Import Mode Selector */}
               {credentialsVerified && !loading && (
                 <div className="space-y-3">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">Méthode d'importation</label>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">Import-Methode</label>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                     <button
                       type="button"
                       onClick={() => setImportMode('ALL')}
-                      className={`p-3 rounded-xl border text-left transition flex flex-col ${importMode === 'ALL' ? 'border-blue-600 bg-blue-50/50 ring-2 ring-blue-500/20' : 'border-gray-200 hover:bg-gray-50'}`}
+                      className={`p-3 rounded-xl border text-left transition flex flex-col ${importMode === 'ALL' ? 'border-[#107b46] bg-emerald-50/50 ring-2 ring-[#107b46]/20' : 'border-gray-200 hover:bg-gray-50'}`}
                     >
-                      <span className="font-bold text-xs text-gray-900">Tout importer</span>
-                      <span className="text-[10px] text-gray-500 mt-0.5">Tous les produits du catalogue</span>
+                      <span className="font-bold text-xs text-gray-900">Alle Produkte</span>
+                      <span className="text-[10px] text-gray-500 mt-0.5">Vollständiger Katalog mit Bildern & RankMath SEO</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setImportMode('CATEGORIES')}
-                      className={`p-3 rounded-xl border text-left transition flex flex-col ${importMode === 'CATEGORIES' ? 'border-blue-600 bg-blue-50/50 ring-2 ring-blue-500/20' : 'border-gray-200 hover:bg-gray-50'}`}
+                      className={`p-3 rounded-xl border text-left transition flex flex-col ${importMode === 'CATEGORIES' ? 'border-[#107b46] bg-emerald-50/50 ring-2 ring-[#107b46]/20' : 'border-gray-200 hover:bg-gray-50'}`}
                     >
-                      <span className="font-bold text-xs text-gray-900">Par catégorie</span>
-                      <span className="text-[10px] text-gray-500 mt-0.5">Sélectionner des catégories</span>
+                      <span className="font-bold text-xs text-gray-900">Nach Kategorie</span>
+                      <span className="text-[10px] text-gray-500 mt-0.5">Ausgewählte Kategorien importieren</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setImportMode('INDIVIDUAL')}
-                      className={`p-3 rounded-xl border text-left transition flex flex-col ${importMode === 'INDIVIDUAL' ? 'border-blue-600 bg-blue-50/50 ring-2 ring-blue-500/20' : 'border-gray-200 hover:bg-gray-50'}`}
+                      className={`p-3 rounded-xl border text-left transition flex flex-col ${importMode === 'INDIVIDUAL' ? 'border-[#107b46] bg-emerald-50/50 ring-2 ring-[#107b46]/20' : 'border-gray-200 hover:bg-gray-50'}`}
                     >
-                      <span className="font-bold text-xs text-gray-900">Produits au choix</span>
-                      <span className="text-[10px] text-gray-500 mt-0.5">Sélectionner individuellement</span>
+                      <span className="font-bold text-xs text-gray-900">Einzelauswahl</span>
+                      <span className="text-[10px] text-gray-500 mt-0.5">Produkte einzeln durchsuchen & wählen</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setImportMode('SEO_SYNC')}
-                      className={`p-3 rounded-xl border text-left transition flex flex-col ${importMode === 'SEO_SYNC' ? 'border-emerald-600 bg-emerald-50/50 ring-2 ring-emerald-500/20' : 'border-gray-200 hover:bg-gray-50'}`}
+                      className={`p-3 rounded-xl border text-left transition flex flex-col ${importMode === 'SEO_SYNC' ? 'border-[#107b46] bg-emerald-50/50 ring-2 ring-[#107b46]/20' : 'border-gray-200 hover:bg-gray-50'}`}
                     >
                       <span className="font-bold text-xs text-emerald-900 flex items-center gap-1">
-                        <span>🎯</span> Sincronizar SEO
+                        <span>🎯</span> SEO synchronisieren
                       </span>
-                      <span className="text-[10px] text-emerald-700 mt-0.5 font-medium">RankMath / Yoast (Rápido)</span>
+                      <span className="text-[10px] text-emerald-700 mt-0.5 font-medium">RankMath Metadaten (Schnell)</span>
                     </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Data Safety & Integrity Banner */}
+              {credentialsVerified && !loading && (
+                <div className="bg-emerald-50/80 border border-emerald-200 rounded-xl p-3 text-xs text-emerald-900 flex items-start gap-2.5">
+                  <span className="text-base shrink-0">🛡️</span>
+                  <div className="space-y-0.5">
+                    <span className="font-bold block text-emerald-950">Garantie für sauberen Import:</span>
+                    <span className="text-[11px] text-emerald-800 leading-relaxed block">
+                      Es werden <strong>ausschließlich reale Daten</strong> Ihrer WordPress/WooCommerce-API importiert. 
+                      Keine Erstellung von Dummy- oder fiktiven Inhalten. 
+                      Alle Medien behalten ihren <strong>echten Originaldateinamen</strong> ohne Zufallshashes.
+                    </span>
                   </div>
                 </div>
               )}
@@ -600,80 +615,80 @@ export default function WooCommerceImportModal() {
                 <div className="bg-stone-50 border border-stone-200 rounded-xl p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold uppercase tracking-wider text-stone-800">
-                      Dados Adicionais a Importar
+                      Zusätzliche Daten zum Importieren
                     </span>
-                    <span className="text-[10px] text-stone-500">Recuperação integral do site WordPress</span>
+                    <span className="text-[10px] text-stone-500">WordPress-Seiten &amp; RankMath SEO</span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    {/* 1. Shipping Zones & Methods */}
-                    <label className={`flex items-start gap-2.5 p-3 rounded-lg border cursor-pointer transition select-none ${includeShipping ? 'bg-red-50/50 border-red-300 ring-1 ring-red-400/20' : 'bg-white border-stone-200 hover:bg-stone-50'}`}>
-                      <input 
-                        type="checkbox"
-                        checked={includeShipping}
-                        onChange={(e) => setIncludeShipping(e.target.checked)}
-                        className="rounded text-red-600 focus:ring-red-500 h-4 w-4 mt-0.5"
-                      />
-                      <div className="text-xs">
-                        <span className="font-bold text-stone-900 block flex items-center gap-1.5">
-                          🚚 Zonas & Opções de Envio
-                        </span>
-                        <span className="text-[11px] text-stone-500 block mt-0.5">
-                          Zonas atendidas, custos por palete e métodos de entrega
-                        </span>
-                      </div>
-                    </label>
-
-                    {/* 2. Orders */}
-                    <label className={`flex items-start gap-2.5 p-3 rounded-lg border cursor-pointer transition select-none ${includeOrders ? 'bg-red-50/50 border-red-300 ring-1 ring-red-400/20' : 'bg-white border-stone-200 hover:bg-stone-50'}`}>
-                      <input 
-                        type="checkbox"
-                        checked={includeOrders}
-                        onChange={(e) => setIncludeOrders(e.target.checked)}
-                        className="rounded text-red-600 focus:ring-red-500 h-4 w-4 mt-0.5"
-                      />
-                      <div className="text-xs">
-                        <span className="font-bold text-stone-900 block flex items-center gap-1.5">
-                          📦 Encomendas & Histórico
-                        </span>
-                        <span className="text-[11px] text-stone-500 block mt-0.5">
-                          Recuperar encomendas anteriores, clientes e moradas
-                        </span>
-                      </div>
-                    </label>
-
-                    {/* 3. Pages */}
-                    <label className={`flex items-start gap-2.5 p-3 rounded-lg border cursor-pointer transition select-none ${includePages ? 'bg-red-50/50 border-red-300 ring-1 ring-red-400/20' : 'bg-white border-stone-200 hover:bg-stone-50'}`}>
+                    {/* 1. Pages */}
+                    <label className={`flex items-start gap-2.5 p-3 rounded-lg border cursor-pointer transition select-none ${includePages ? 'bg-emerald-50/50 border-emerald-300 ring-1 ring-emerald-500/20' : 'bg-white border-stone-200 hover:bg-stone-50'}`}>
                       <input 
                         type="checkbox"
                         checked={includePages}
                         onChange={(e) => setIncludePages(e.target.checked)}
-                        className="rounded text-red-600 focus:ring-red-500 h-4 w-4 mt-0.5"
+                        className="rounded text-[#107b46] focus:ring-[#107b46] h-4 w-4 mt-0.5"
                       />
                       <div className="text-xs">
                         <span className="font-bold text-stone-900 block flex items-center gap-1.5">
-                          📄 Páginas Institucionais
+                          📄 Statische Seiten (WordPress Pages)
                         </span>
                         <span className="text-[11px] text-stone-500 block mt-0.5">
-                          Políticas de devolução, termos e condições, contactos
+                          Übernehmen von Impressum, AGB, Datenschutz, Kontakt inkl. RankMath SEO
                         </span>
                       </div>
                     </label>
 
-                    {/* 4. Blog Articles */}
-                    <label className={`flex items-start gap-2.5 p-3 rounded-lg border cursor-pointer transition select-none ${includeArticles ? 'bg-red-50/50 border-red-300 ring-1 ring-red-400/20' : 'bg-white border-stone-200 hover:bg-stone-50'}`}>
+                    {/* 2. Blog Articles */}
+                    <label className={`flex items-start gap-2.5 p-3 rounded-lg border cursor-pointer transition select-none ${includeArticles ? 'bg-emerald-50/50 border-emerald-300 ring-1 ring-emerald-500/20' : 'bg-white border-stone-200 hover:bg-stone-50'}`}>
                       <input 
                         type="checkbox"
                         checked={includeArticles}
                         onChange={(e) => setIncludeArticles(e.target.checked)}
-                        className="rounded text-red-600 focus:ring-red-500 h-4 w-4 mt-0.5"
+                        className="rounded text-[#107b46] focus:ring-[#107b46] h-4 w-4 mt-0.5"
                       />
                       <div className="text-xs">
                         <span className="font-bold text-stone-900 block flex items-center gap-1.5">
-                          📝 Artigos & Dicas de Aquecimento
+                          📝 Blogartikel &amp; Ratgeber (WordPress Posts)
                         </span>
                         <span className="text-[11px] text-stone-500 block mt-0.5">
-                          Guias de biomassa, conselhos de manutenção e artigos
+                          Beiträge mit Bildern (Originalnamen), Kategorien, Autoren &amp; RankMath SEO
+                        </span>
+                      </div>
+                    </label>
+
+                    {/* 3. Shipping Zones & Methods */}
+                    <label className={`flex items-start gap-2.5 p-3 rounded-lg border cursor-pointer transition select-none ${includeShipping ? 'bg-emerald-50/50 border-emerald-300 ring-1 ring-emerald-500/20' : 'bg-white border-stone-200 hover:bg-stone-50'}`}>
+                      <input 
+                        type="checkbox"
+                        checked={includeShipping}
+                        onChange={(e) => setIncludeShipping(e.target.checked)}
+                        className="rounded text-[#107b46] focus:ring-[#107b46] h-4 w-4 mt-0.5"
+                      />
+                      <div className="text-xs">
+                        <span className="font-bold text-stone-900 block flex items-center gap-1.5">
+                          🚚 Versandzonen &amp; Tarife
+                        </span>
+                        <span className="text-[11px] text-stone-500 block mt-0.5">
+                          Belieferte Länder, Versandoptionen und Liefergebühren
+                        </span>
+                      </div>
+                    </label>
+
+                    {/* 4. Orders */}
+                    <label className={`flex items-start gap-2.5 p-3 rounded-lg border cursor-pointer transition select-none ${includeOrders ? 'bg-emerald-50/50 border-emerald-300 ring-1 ring-emerald-500/20' : 'bg-white border-stone-200 hover:bg-stone-50'}`}>
+                      <input 
+                        type="checkbox"
+                        checked={includeOrders}
+                        onChange={(e) => setIncludeOrders(e.target.checked)}
+                        className="rounded text-[#107b46] focus:ring-[#107b46] h-4 w-4 mt-0.5"
+                      />
+                      <div className="text-xs">
+                        <span className="font-bold text-stone-900 block flex items-center gap-1.5">
+                          📦 Bestellungen &amp; Historie (Optional)
+                        </span>
+                        <span className="text-[11px] text-stone-500 block mt-0.5">
+                          Alte Bestellungen und Kundendaten (Standardmäßig deaktiviert)
                         </span>
                       </div>
                     </label>
@@ -982,27 +997,27 @@ export default function WooCommerceImportModal() {
                   disabled={loading}
                   className="w-1/3 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl text-xs transition"
                 >
-                  Annuler
+                  Abbrechen
                 </button>
                 <button 
                   type="submit" 
                   disabled={loading || !credentialsVerified}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition disabled:opacity-50 flex justify-center items-center gap-2 shadow-sm"
+                  className="flex-1 bg-[#107b46] hover:bg-[#0d6338] text-white font-bold py-2.5 px-4 rounded-xl text-xs transition disabled:opacity-50 flex justify-center items-center gap-2 shadow-sm"
                 >
                   {loading ? (
                     <>
                       <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                      <span>Traitement en cours...</span>
+                      <span>Import läuft...</span>
                     </>
                   ) : (
                     <span>
                       {importMode === 'INDIVIDUAL' 
-                        ? `Importer les ${selectedProductIds.length} produit(s) sélectionné(s)`
+                        ? `Ausgewählte Produkte (${selectedProductIds.length}) importieren`
                         : importMode === 'CATEGORIES' 
-                          ? `Importer les catégories sélectionnées`
+                          ? `Ausgewählte Kategorien importieren`
                           : importMode === 'SEO_SYNC'
-                            ? `Sincronizar Meta Tags SEO RankMath`
-                            : `Importer tout le catalogue`}
+                            ? `RankMath SEO-Metadaten synchronisieren`
+                            : `Katalog, Seiten & Blogs importieren`}
                     </span>
                   )}
                 </button>

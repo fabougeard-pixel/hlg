@@ -15,19 +15,68 @@ cloudinary.config({
 });
 
 /**
- * Helper to upload an image from a URL to Cloudinary
+ * Helper to extract a clean original filename without random hash
  */
-async function uploadImageFromUrlToCloudinary(imageUrl: string): Promise<string | null> {
+function extractOriginalFilename(url: string, fallbackName?: string): string {
+  try {
+    const urlObj = new URL(url);
+    const pathname = urlObj.pathname;
+    const baseWithExt = pathname.split('/').pop() || '';
+    const lastDot = baseWithExt.lastIndexOf('.');
+    let base = lastDot > 0 ? baseWithExt.substring(0, lastDot) : baseWithExt;
+
+    // Remove WordPress thumbnail dimensions suffix like -1024x768 or -300x300
+    base = base.replace(/-\d+x\d+$/, '');
+    // Remove -scaled suffix
+    base = base.replace(/-scaled$/, '');
+
+    try {
+      base = decodeURIComponent(base);
+    } catch {}
+
+    const sanitized = slugify(base);
+    if (sanitized && sanitized.length > 1) {
+      return sanitized;
+    }
+  } catch (e) {
+    // URL parsing fallback
+  }
+
+  if (fallbackName) {
+    const sanitizedFallback = slugify(fallbackName);
+    if (sanitizedFallback && sanitizedFallback.length > 1) {
+      return sanitizedFallback;
+    }
+  }
+
+  return 'media-' + Date.now();
+}
+
+/**
+ * Helper to upload an image from a URL to Cloudinary preserving the original filename
+ */
+async function uploadImageFromUrlToCloudinary(
+  imageUrl: string,
+  preferredName?: string
+): Promise<string | null> {
   try {
     const response = await fetch(imageUrl);
     if (!response.ok) throw new Error(`Failed to fetch image: ${response.statusText}`);
 
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
+    const publicId = extractOriginalFilename(imageUrl, preferredName);
 
     return new Promise<string>((resolve, reject) => {
       cloudinary.uploader.upload_stream(
-        { folder: 'lenha/woocommerce-import' },
+        {
+          folder: 'hlg/woocommerce-import',
+          public_id: publicId,
+          use_filename: true,
+          unique_filename: false,
+          overwrite: true,
+          resource_type: 'auto'
+        },
         (error, result) => {
           if (error || !result) {
             console.error("Cloudinary upload error:", error);
@@ -44,48 +93,135 @@ async function uploadImageFromUrlToCloudinary(imageUrl: string): Promise<string 
   }
 }
 
-
 /**
  * Helper to extract RankMath and Yoast SEO metadata from WooCommerce product/category meta_data
+ * or WordPress page/post meta objects / root properties.
  */
 function extractRankMathSEO(
-  metaData: any[],
-  item: { name?: string; title?: string; description?: string; short_description?: string; price?: string | number },
-  storeName: string = 'Lenha & Carvão Silva Dias'
+  metaSource: any,
+  item: {
+    name?: string;
+    title?: string | { rendered?: string };
+    description?: string | { rendered?: string };
+    short_description?: string | { rendered?: string };
+    excerpt?: string | { rendered?: string };
+    price?: string | number;
+    yoast_head_json?: any;
+    head_tags?: any[];
+    rank_math_title?: string;
+    rank_math_description?: string;
+    rank_math_focus_keyword?: string;
+    meta?: any;
+    meta_data?: any[];
+  },
+  storeName: string = 'HLG Hausgeräte'
 ) {
-  if (!Array.isArray(metaData)) {
-    return { metaTitle: null, metaDescription: null, metaKeywords: null, gtin: null };
-  }
-
   let rawTitle: string | null = null;
   let rawDesc: string | null = null;
   let rawKeywords: string | null = null;
   let gtin: string | null = null;
 
-  for (const meta of metaData) {
-    if (!meta || !meta.key) continue;
-    const key = String(meta.key).trim().toLowerCase();
-    const val = typeof meta.value === 'string' ? meta.value.trim() : null;
-    if (!val) continue;
+  // 1. If metaSource or item.meta_data is an array of { key, value } (standard WooCommerce meta_data)
+  const metaArray = Array.isArray(metaSource) 
+    ? metaSource 
+    : (Array.isArray(item.meta_data) ? item.meta_data : null);
 
-    // RankMath fields
-    if (key === 'rank_math_title') rawTitle = val;
-    if (key === 'rank_math_description') rawDesc = val;
-    if (key === 'rank_math_focus_keyword') rawKeywords = val;
+  if (metaArray) {
+    for (const meta of metaArray) {
+      if (!meta || !meta.key) continue;
+      const key = String(meta.key).trim().toLowerCase();
+      const val = typeof meta.value === 'string' ? meta.value.trim() : null;
+      if (!val) continue;
 
-    // Yoast SEO fallback fields
-    if (!rawTitle && (key === '_yoast_wpseo_title' || key === 'yoast_wpseo_title')) rawTitle = val;
-    if (!rawDesc && (key === '_yoast_wpseo_metadesc' || key === 'yoast_wpseo_metadesc')) rawDesc = val;
-    if (!rawKeywords && (key === '_yoast_wpseo_focuskw' || key === 'yoast_wpseo_focuskw')) rawKeywords = val;
+      // RankMath fields
+      if (key === 'rank_math_title') rawTitle = val;
+      if (key === 'rank_math_description') rawDesc = val;
+      if (key === 'rank_math_focus_keyword') rawKeywords = val;
 
-    // GTIN / EAN / Barcode
-    if (!gtin && (key === '_gtin' || key === 'gtin' || key === '_ean' || key === 'ean' || key === '_barcode' || key === 'barcode' || key === 'hwp_gtin' || key === 'hwp_product_gtin')) {
-      gtin = val;
+      // Yoast SEO fallback fields
+      if (!rawTitle && (key === '_yoast_wpseo_title' || key === 'yoast_wpseo_title')) rawTitle = val;
+      if (!rawDesc && (key === '_yoast_wpseo_metadesc' || key === 'yoast_wpseo_metadesc')) rawDesc = val;
+      if (!rawKeywords && (key === '_yoast_wpseo_focuskw' || key === 'yoast_wpseo_focuskw')) rawKeywords = val;
+
+      // GTIN / EAN / Barcode
+      if (!gtin && (key === '_gtin' || key === 'gtin' || key === '_ean' || key === 'ean' || key === '_barcode' || key === 'barcode' || key === 'hwp_gtin' || key === 'hwp_product_gtin')) {
+        gtin = val;
+      }
     }
   }
 
-  const cleanName = unescapeHtml(item.name || item.title || '').trim();
-  const cleanExcerpt = (item.short_description || item.description || '')
+  // 2. If metaSource or item.meta is an object (standard WordPress REST API meta object)
+  const metaObj = (metaSource && typeof metaSource === 'object' && !Array.isArray(metaSource)) 
+    ? metaSource 
+    : (item.meta && typeof item.meta === 'object' && !Array.isArray(item.meta) ? item.meta : null);
+
+  if (metaObj) {
+    if (!rawTitle && typeof metaObj.rank_math_title === 'string' && metaObj.rank_math_title.trim()) {
+      rawTitle = metaObj.rank_math_title.trim();
+    }
+    if (!rawDesc && typeof metaObj.rank_math_description === 'string' && metaObj.rank_math_description.trim()) {
+      rawDesc = metaObj.rank_math_description.trim();
+    }
+    if (!rawKeywords && typeof metaObj.rank_math_focus_keyword === 'string' && metaObj.rank_math_focus_keyword.trim()) {
+      rawKeywords = metaObj.rank_math_focus_keyword.trim();
+    }
+    if (!rawTitle && typeof metaObj._yoast_wpseo_title === 'string' && metaObj._yoast_wpseo_title.trim()) {
+      rawTitle = metaObj._yoast_wpseo_title.trim();
+    }
+    if (!rawDesc && typeof metaObj._yoast_wpseo_metadesc === 'string' && metaObj._yoast_wpseo_metadesc.trim()) {
+      rawDesc = metaObj._yoast_wpseo_metadesc.trim();
+    }
+    if (!rawKeywords && typeof metaObj._yoast_wpseo_focuskw === 'string' && metaObj._yoast_wpseo_focuskw.trim()) {
+      rawKeywords = metaObj._yoast_wpseo_focuskw.trim();
+    }
+  }
+
+  // 3. Direct properties on item (e.g. item.rank_math_title)
+  if (!rawTitle && typeof item.rank_math_title === 'string' && item.rank_math_title.trim()) {
+    rawTitle = item.rank_math_title.trim();
+  }
+  if (!rawDesc && typeof item.rank_math_description === 'string' && item.rank_math_description.trim()) {
+    rawDesc = item.rank_math_description.trim();
+  }
+  if (!rawKeywords && typeof item.rank_math_focus_keyword === 'string' && item.rank_math_focus_keyword.trim()) {
+    rawKeywords = item.rank_math_focus_keyword.trim();
+  }
+
+  // 4. Fallback to yoast_head_json (often exposed by RankMath or Yoast)
+  if (item.yoast_head_json && typeof item.yoast_head_json === 'object') {
+    if (!rawTitle && item.yoast_head_json.title) {
+      rawTitle = String(item.yoast_head_json.title).trim();
+    }
+    if (!rawDesc && item.yoast_head_json.description) {
+      rawDesc = String(item.yoast_head_json.description).trim();
+    }
+    if (!rawDesc && item.yoast_head_json.og_description) {
+      rawDesc = String(item.yoast_head_json.og_description).trim();
+    }
+  }
+
+  // 5. Fallback to head_tags array
+  if (Array.isArray(item.head_tags)) {
+    for (const tag of item.head_tags) {
+      if (!rawTitle && tag.tag === 'title' && tag.content) {
+        rawTitle = String(tag.content).trim();
+      }
+      if (!rawDesc && tag.tag === 'meta' && tag.attributes?.name === 'description' && tag.attributes?.content) {
+        rawDesc = String(tag.attributes.content).trim();
+      }
+    }
+  }
+
+  // Helper to extract clean text from string or { rendered: string }
+  const getCleanText = (val: any): string => {
+    if (!val) return '';
+    if (typeof val === 'string') return val;
+    if (typeof val === 'object' && val.rendered) return String(val.rendered);
+    return String(val);
+  };
+
+  const cleanName = unescapeHtml(getCleanText(item.name || item.title)).trim();
+  const cleanExcerpt = getCleanText(item.short_description || item.excerpt || item.description)
     .replace(/<[^>]*>?/gm, '')
     .replace(/&nbsp;/g, ' ')
     .substring(0, 160)
@@ -106,15 +242,16 @@ function extractRankMathSEO(
       .replace(/%%primary_category%%/gi, '')
       .replace(/%category%/gi, '')
       .replace(/%%category%%/gi, '')
+      .replace(/%focuskw%/gi, rawKeywords || '')
       .replace(/%price%/gi, item.price ? `${item.price} €` : '')
       .replace(/\s+/g, ' ')
       .trim();
   };
 
   return {
-    metaTitle: replaceVars(rawTitle),
-    metaDescription: replaceVars(rawDesc),
-    metaKeywords: rawKeywords,
+    metaTitle: replaceVars(rawTitle) || (cleanName ? `${cleanName} | ${storeName}` : null),
+    metaDescription: replaceVars(rawDesc) || (cleanExcerpt ? cleanExcerpt : null),
+    metaKeywords: rawKeywords || null,
     gtin
   };
 }
@@ -653,22 +790,27 @@ async function processAndSaveWcProducts(
       // 4. Process Images
       const cloudinaryImageUrls: string[] = [];
       if (wcProduct.images && Array.isArray(wcProduct.images)) {
-        const uploadPromises = wcProduct.images.map(async (wcImg: any) => {
+        const uploadPromises = wcProduct.images.map(async (wcImg: any, idx: number) => {
           if (!wcImg.src) return null;
           try {
-            const secureUrl = await uploadImageFromUrlToCloudinary(wcImg.src);
+            const preferredName = wcImg.name ? unescapeHtml(wcImg.name) : `${baseSlug}-${idx + 1}`;
+            const secureUrl = await uploadImageFromUrlToCloudinary(wcImg.src, preferredName);
             if (secureUrl) {
+              const originalFileName = extractOriginalFilename(wcImg.src, preferredName);
               const imgAlt = wcImg.alt ? unescapeHtml(wcImg.alt) : decodedTitle;
+              const imgTitle = wcImg.name ? unescapeHtml(wcImg.name) : decodedTitle;
               await prisma.media.upsert({
                 where: { url: secureUrl },
                 update: {
-                  title: decodedTitle,
+                  title: imgTitle,
                   altText: imgAlt,
+                  legend: originalFileName,
                 },
                 create: {
                   url: secureUrl,
-                  title: decodedTitle,
+                  title: imgTitle,
                   altText: imgAlt,
+                  legend: originalFileName,
                 }
               });
               return secureUrl;
@@ -738,22 +880,29 @@ async function processAndSaveWcProducts(
                 let varImage = undefined;
                 if (wcVar.image && wcVar.image.src) {
                   try {
-                    const secureUrl = await uploadImageFromUrlToCloudinary(wcVar.image.src);
+                    const varOptions = Object.values(attrMap).filter(Boolean).join('-');
+                    const preferredVarName = wcVar.image.name 
+                      ? unescapeHtml(wcVar.image.name) 
+                      : `${baseSlug}-${varOptions || wcVar.id}`;
+                    const secureUrl = await uploadImageFromUrlToCloudinary(wcVar.image.src, preferredVarName);
                     if (secureUrl) {
                       varImage = secureUrl;
-                      const varOptions = Object.values(attrMap).filter(Boolean).join(', ');
-                      const varTitle = `${decodedTitle}${varOptions ? ` (${varOptions})` : ''}`;
+                      const varOptionsLabel = Object.values(attrMap).filter(Boolean).join(', ');
+                      const varTitle = `${decodedTitle}${varOptionsLabel ? ` (${varOptionsLabel})` : ''}`;
                       const varAlt = wcVar.image.alt ? unescapeHtml(wcVar.image.alt) : varTitle;
+                      const originalVarName = extractOriginalFilename(wcVar.image.src, preferredVarName);
                       await prisma.media.upsert({
                         where: { url: secureUrl },
                         update: {
                           title: varTitle,
                           altText: varAlt,
+                          legend: originalVarName,
                         },
                         create: {
                           url: secureUrl,
                           title: varTitle,
                           altText: varAlt,
+                          legend: originalVarName,
                         }
                       });
                     }
@@ -1059,7 +1208,7 @@ export async function importWooCommerceOrders(
       }
 
       for (const wcOrder of orders) {
-        const customerEmail = wcOrder.billing?.email || `customer-${wcOrder.customer_id || wcOrder.id}@lenhaecarvaosilvadias.com`;
+        const customerEmail = wcOrder.billing?.email || `customer-${wcOrder.customer_id || wcOrder.id}@hlg-hausgeraete.de`;
 
         let user = await prisma.user.findUnique({
           where: { email: customerEmail }
@@ -1233,6 +1382,13 @@ export async function importWordPressPages(
         const title = unescapeHtml(wpPage.title?.rendered || '');
         const slug = wpPage.slug || slugify(title);
         const content = wpPage.content?.rendered || '';
+        const excerpt = unescapeHtml(wpPage.excerpt?.rendered || '');
+
+        const seo = extractRankMathSEO(
+          wpPage.meta_data || wpPage.meta,
+          wpPage,
+          'HLG Hausgeräte'
+        );
 
         await prisma.page.upsert({
           where: { slug },
@@ -1241,8 +1397,9 @@ export async function importWordPressPages(
             desktopContent: content,
             mobileContent: content,
             isPublished: wpPage.status === 'publish',
-            metaTitle: title,
-            metaDescription: unescapeHtml(wpPage.excerpt?.rendered || '').slice(0, 160)
+            metaTitle: seo.metaTitle || (title ? `${title} | HLG Hausgeräte` : null),
+            metaDescription: seo.metaDescription || (excerpt ? excerpt.slice(0, 160) : null),
+            metaKeywords: seo.metaKeywords || null
           },
           create: {
             title,
@@ -1250,8 +1407,9 @@ export async function importWordPressPages(
             desktopContent: content,
             mobileContent: content,
             isPublished: wpPage.status === 'publish',
-            metaTitle: title,
-            metaDescription: unescapeHtml(wpPage.excerpt?.rendered || '').slice(0, 160)
+            metaTitle: seo.metaTitle || (title ? `${title} | HLG Hausgeräte` : null),
+            metaDescription: seo.metaDescription || (excerpt ? excerpt.slice(0, 160) : null),
+            metaKeywords: seo.metaKeywords || null
           }
         });
         totalImported++;
@@ -1311,9 +1469,59 @@ export async function importWordPressArticles(
 
         let imageUrl: string | null = null;
         const mediaSource = wpPost._embedded?.['wp:featuredmedia']?.[0]?.source_url;
+        const mediaDetails = wpPost._embedded?.['wp:featuredmedia']?.[0];
         if (mediaSource) {
-          imageUrl = await uploadImageFromUrlToCloudinary(mediaSource);
+          const preferredMediaName = mediaDetails?.slug || wpPost.slug || title;
+          imageUrl = await uploadImageFromUrlToCloudinary(mediaSource, preferredMediaName);
+          if (imageUrl) {
+            const originalMediaName = extractOriginalFilename(mediaSource, preferredMediaName);
+            const mediaAlt = mediaDetails?.alt_text ? unescapeHtml(mediaDetails.alt_text) : title;
+            const mediaTitle = mediaDetails?.title?.rendered ? unescapeHtml(mediaDetails.title.rendered) : title;
+            await prisma.media.upsert({
+              where: { url: imageUrl },
+              update: {
+                title: mediaTitle,
+                altText: mediaAlt,
+                legend: originalMediaName,
+              },
+              create: {
+                url: imageUrl,
+                title: mediaTitle,
+                altText: mediaAlt,
+                legend: originalMediaName,
+              }
+            });
+          }
         }
+
+        // Category & tags extraction from _embedded['wp:term']
+        let categoryName: string | null = null;
+        const tags: string[] = [];
+        if (wpPost._embedded?.['wp:term'] && Array.isArray(wpPost._embedded['wp:term'])) {
+          for (const terms of wpPost._embedded['wp:term']) {
+            if (Array.isArray(terms)) {
+              for (const term of terms) {
+                if (term.taxonomy === 'category' && !categoryName && term.name && term.name.toLowerCase() !== 'uncategorized' && term.name.toLowerCase() !== 'non classé') {
+                  categoryName = unescapeHtml(term.name);
+                } else if (term.taxonomy === 'post_tag' && term.name) {
+                  tags.push(unescapeHtml(term.name));
+                }
+              }
+            }
+          }
+        }
+
+        // Author name extraction from _embedded['author']
+        let authorName: string | null = null;
+        if (wpPost._embedded?.['author']?.[0]?.name) {
+          authorName = unescapeHtml(wpPost._embedded['author'][0].name);
+        }
+
+        const seo = extractRankMathSEO(
+          wpPost.meta_data || wpPost.meta,
+          wpPost,
+          'HLG Hausgeräte'
+        );
 
         await prisma.article.upsert({
           where: { slug },
@@ -1322,9 +1530,13 @@ export async function importWordPressArticles(
             content,
             excerpt,
             image: imageUrl,
+            category: categoryName || 'Ratgeber',
+            tags: tags,
+            authorName: authorName || 'HLG Redaktion',
             isPublished: wpPost.status === 'publish',
-            metaTitle: title,
-            metaDescription: excerpt.slice(0, 160)
+            metaTitle: seo.metaTitle || (title ? `${title} | HLG Hausgeräte` : null),
+            metaDescription: seo.metaDescription || (excerpt ? excerpt.slice(0, 160) : null),
+            metaKeywords: seo.metaKeywords || null
           },
           create: {
             title,
@@ -1332,9 +1544,13 @@ export async function importWordPressArticles(
             content,
             excerpt,
             image: imageUrl,
+            category: categoryName || 'Ratgeber',
+            tags: tags,
+            authorName: authorName || 'HLG Redaktion',
             isPublished: wpPost.status === 'publish',
-            metaTitle: title,
-            metaDescription: excerpt.slice(0, 160)
+            metaTitle: seo.metaTitle || (title ? `${title} | HLG Hausgeräte` : null),
+            metaDescription: seo.metaDescription || (excerpt ? excerpt.slice(0, 160) : null),
+            metaKeywords: seo.metaKeywords || null
           }
         });
         totalImported++;
@@ -1619,22 +1835,91 @@ export async function syncWooCommerceRankMathSEO(
       page++;
     }
 
+    // 3. Sync WordPress Pages SEO
+    let updatedPagesCount = 0;
+    try {
+      const pageResponse = await fetch(`${baseUrl}/wp-json/wp/v2/pages?per_page=100`, {
+        headers: { 'Authorization': authHeader, 'Content-Type': 'application/json' },
+        cache: 'no-store'
+      });
+      if (pageResponse.ok) {
+        const remotePages = await pageResponse.json();
+        if (Array.isArray(remotePages)) {
+          for (const wpPage of remotePages) {
+            const pageSeo = extractRankMathSEO(wpPage.meta_data || wpPage.meta, wpPage, 'HLG Hausgeräte');
+            const cleanSlug = wpPage.slug;
+            const existingPage = await prisma.page.findUnique({ where: { slug: cleanSlug } });
+            if (existingPage && (pageSeo.metaTitle || pageSeo.metaDescription || pageSeo.metaKeywords)) {
+              await prisma.page.update({
+                where: { id: existingPage.id },
+                data: {
+                  ...(pageSeo.metaTitle ? { metaTitle: pageSeo.metaTitle } : {}),
+                  ...(pageSeo.metaDescription ? { metaDescription: pageSeo.metaDescription } : {}),
+                  ...(pageSeo.metaKeywords ? { metaKeywords: pageSeo.metaKeywords } : {})
+                }
+              });
+              updatedPagesCount++;
+            }
+          }
+        }
+      }
+    } catch (pageErr) {
+      console.warn('RankMath sync pages skipped or failed:', pageErr);
+    }
+
+    // 4. Sync WordPress Blog Articles SEO
+    let updatedArticlesCount = 0;
+    try {
+      const postResponse = await fetch(`${baseUrl}/wp-json/wp/v2/posts?per_page=100`, {
+        headers: { 'Authorization': authHeader, 'Content-Type': 'application/json' },
+        cache: 'no-store'
+      });
+      if (postResponse.ok) {
+        const remotePosts = await postResponse.json();
+        if (Array.isArray(remotePosts)) {
+          for (const wpPost of remotePosts) {
+            const postSeo = extractRankMathSEO(wpPost.meta_data || wpPost.meta, wpPost, 'HLG Hausgeräte');
+            const cleanSlug = wpPost.slug;
+            const existingArticle = await prisma.article.findUnique({ where: { slug: cleanSlug } });
+            if (existingArticle && (postSeo.metaTitle || postSeo.metaDescription || postSeo.metaKeywords)) {
+              await prisma.article.update({
+                where: { id: existingArticle.id },
+                data: {
+                  ...(postSeo.metaTitle ? { metaTitle: postSeo.metaTitle } : {}),
+                  ...(postSeo.metaDescription ? { metaDescription: postSeo.metaDescription } : {}),
+                  ...(postSeo.metaKeywords ? { metaKeywords: postSeo.metaKeywords } : {})
+                }
+              });
+              updatedArticlesCount++;
+            }
+          }
+        }
+      }
+    } catch (postErr) {
+      console.warn('RankMath sync posts skipped or failed:', postErr);
+    }
+
     revalidatePath('/admin/products');
     revalidatePath('/admin/categories');
+    revalidatePath('/admin/pages');
+    revalidatePath('/admin/blogs');
+    revalidatePath('/blog');
     revalidatePath('/sitemap.xml');
 
     return {
       success: true,
       updatedProductsCount,
       updatedCategoriesCount,
+      updatedPagesCount,
+      updatedArticlesCount,
       totalProductsScanned,
-      message: `Sincronização SEO concluída com sucesso! ${updatedProductsCount} produtos e ${updatedCategoriesCount} categorias atualizados com os dados RankMath.`
+      message: `SEO-Synchronisierung erfolgreich abgeschlossen! ${updatedProductsCount} Produkte, ${updatedCategoriesCount} Kategorien, ${updatedPagesCount} Seiten und ${updatedArticlesCount} Blogartikel wurden mit den RankMath-Daten aktualisiert.`
     };
   } catch (error: any) {
     console.error('Error syncing RankMath SEO:', error);
     return {
       success: false,
-      message: error.message || 'Erro durante a sincronização dos dados SEO do RankMath.'
+      message: error.message || 'Fehler bei der Synchronisierung der RankMath SEO-Daten.'
     };
   }
 }
