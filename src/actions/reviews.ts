@@ -66,10 +66,10 @@ export async function submitReview(productId: string, rating: number, comment: s
     });
 
     revalidatePath(`/produkt/[slug]`, 'page');
-    revalidatePath(`/produto/[slug]`, 'page');
+    revalidatePath(`/produkt/[slug]`, 'page');
     revalidatePath(`/product/[slug]`, 'page');
     revalidatePath(`/account/reviews`);
-    
+
     return { success: true };
   } catch (error) {
     console.error("Erreur lors de l'ajout de l'avis:", error);
@@ -90,7 +90,7 @@ export async function toggleReviewApproval(reviewId: string, isApproved: boolean
 
   revalidatePath('/admin/reviews');
   revalidatePath(`/produkt/[slug]`, 'page');
-  revalidatePath(`/produto/[slug]`, 'page');
+  revalidatePath(`/produkt/[slug]`, 'page');
   revalidatePath(`/product/[slug]`, 'page');
 }
 
@@ -102,8 +102,8 @@ export async function updateReview(reviewId: string, rating: number, comment: st
 
   await prisma.review.update({
     where: { id: reviewId },
-    data: { 
-      rating: intRating, 
+    data: {
+      rating: intRating,
       comment: String(comment || '').trim().slice(0, 5000),
       createdAt: new Date(createdAtStr)
     }
@@ -111,7 +111,7 @@ export async function updateReview(reviewId: string, rating: number, comment: st
 
   revalidatePath('/admin/reviews');
   revalidatePath(`/produkt/[slug]`, 'page');
-  revalidatePath(`/produto/[slug]`, 'page');
+  revalidatePath(`/produkt/[slug]`, 'page');
   revalidatePath(`/product/[slug]`, 'page');
 }
 
@@ -125,6 +125,6 @@ export async function deleteReview(reviewId: string) {
 
   revalidatePath('/admin/reviews');
   revalidatePath(`/produkt/[slug]`, 'page');
-  revalidatePath(`/produto/[slug]`, 'page');
+  revalidatePath(`/produkt/[slug]`, 'page');
   revalidatePath(`/product/[slug]`, 'page');
 }

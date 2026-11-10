@@ -221,7 +221,7 @@ export default function ProductsTable({ products, categories }: { products: any[
                           <span className="text-gray-300">|</span>
                           <button onClick={() => handleDelete(product.id)} disabled={isLoading} className="text-red-600 hover:underline">{t("product_trash")}</button>
                           <span className="text-gray-300">|</span>
-                          <Link href={`/produto/${product.slug}`} target="_blank" className="text-blue-600 hover:underline">{t("product_view")}</Link>
+                          <Link href={`/produkt/${product.slug}`} target="_blank" className="text-blue-600 hover:underline">{t("product_view")}</Link>
                           <span className="text-gray-300">|</span>
                           <button onClick={() => handleDuplicate(product.id)} disabled={isLoading} className="text-blue-600 hover:underline">{t("product_duplicate")}</button>
                         </div>

@@ -236,8 +236,8 @@ export default function CheckoutClient({ settings, zones }: CheckoutClientProps)
   if (!isMounted) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-20 text-center">
-        <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-stone-600 font-medium text-sm">A carregar os detalhes da sua encomenda...</p>
+        <div className="w-12 h-12 border-4 border-[#107b46] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-stone-600 font-medium text-sm">Bestelldetails werden geladen...</p>
       </div>
     );
   }
@@ -246,51 +246,43 @@ export default function CheckoutClient({ settings, zones }: CheckoutClientProps)
     return (
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16 text-center">
         <div className="bg-white rounded-3xl p-8 sm:p-12 shadow-xl border border-stone-200/80 relative overflow-hidden">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-72 h-32 bg-red-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-72 h-32 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
-          <div className="w-20 h-20 mx-auto rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center mb-6 shadow-sm">
+          <div className="w-20 h-20 mx-auto rounded-2xl bg-emerald-50 border border-emerald-200 text-[#107b46] flex items-center justify-center mb-6 shadow-sm">
             <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
           </div>
 
-          <span className="inline-block px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-amber-100 text-amber-900 border border-amber-300 mb-3">
-            Acesso Condicionado ao Carrinho
+          <span className="inline-block px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-emerald-100 text-[#107b46] border border-emerald-300 mb-3">
+            Warenkorb leer
           </span>
 
           <h1 className="text-2xl sm:text-3xl font-extrabold text-stone-900 mb-3 tracking-tight">
-            O seu carrinho de compras está vazio
+            Ihr Warenkorb ist derzeit leer
           </h1>
 
           <p className="text-stone-600 text-base max-w-lg mx-auto leading-relaxed mb-8">
-            Para aceder à página de finalização de encomenda (Checkout), é obrigatório ter 
-            <strong className="text-stone-900 font-semibold"> pelo menos um produto adicionado ao seu carrinho</strong>. 
-            Consulte a nossa gama de produtos ou utilize o simulador de frete.
+            Um zur Kasse zu gelangen, legen Sie bitte mindestens einen Artikel in Ihren Warenkorb. 
+            Entdecken Sie unsere große Auswahl an hochwertigen Haushaltsgeräten.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto">
             <Link
               href="/shop"
-              className="w-full sm:w-auto flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-600/25 transition-all text-sm group"
+              className="w-full sm:w-auto flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#107b46] hover:bg-[#0d693b] text-white font-bold rounded-xl shadow-lg shadow-[#107b46]/25 transition-all text-sm group"
             >
-              <span>Ver Catálogo na Loja</span>
+              <span>Zum Online-Shop</span>
               <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
             </Link>
-
-            <Link
-              href="/#simulador-envio"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-stone-900 hover:bg-stone-800 text-white font-semibold rounded-xl transition text-sm"
-            >
-              <span>🚚 Simulador de Frete</span>
-            </Link>
           </div>
 
           <div className="mt-8 pt-6 border-t border-stone-100 text-xs text-stone-700 flex items-center justify-center gap-2">
-            <span>Precisa de apoio para encomendar?</span>
-            <Link href="/contactos" className="text-red-600 font-semibold hover:underline">
-              Contactar Apoio ao Cliente
+            <span>Benötigen Sie Hilfe bei Ihrer Bestellung?</span>
+            <Link href="/kontakt" className="text-[#107b46] font-semibold hover:underline">
+              Kundenservice kontaktieren
             </Link>
           </div>
         </div>

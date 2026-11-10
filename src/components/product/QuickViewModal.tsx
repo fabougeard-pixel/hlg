@@ -100,7 +100,7 @@ export default function QuickViewModal({ isOpen, onClose, product }: QuickViewMo
                   onClick={() => setActiveImage(idx)}
                   className={`w-16 h-16 flex-shrink-0 rounded-md border-2 overflow-hidden bg-white ${activeImage === idx ? 'border-orange-500' : 'border-gray-200 hover:border-gray-300'}`}
                 >
-                  <Image width={800} height={800} src={img} alt={`${product.title} - Miniatura ${idx + 1}`} title={`${product.title} - Miniatura ${idx + 1}`} className="w-full h-full object-contain p-1" />
+                  <Image width={800} height={800} src={img} alt={`${product.title} - Bild ${idx + 1}`} title={`${product.title} - Bild ${idx + 1}`} className="w-full h-full object-contain p-1" />
                 </button>
               ))}
             </div>
@@ -135,9 +135,9 @@ export default function QuickViewModal({ isOpen, onClose, product }: QuickViewMo
             
             <button 
               onClick={handleAddToCart}
-              className="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-md h-12 transition shadow-sm"
+              className="flex-1 bg-[#107b46] hover:bg-[#0d693b] text-white font-bold rounded-xl h-12 transition shadow-sm cursor-pointer"
             >
-              {t('add_to_cart')}
+              {t('add_to_cart') || 'In den Warenkorb'}
             </button>
           </div>
 

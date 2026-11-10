@@ -55,7 +55,7 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
     if (product.type === 'variable') {
       e.preventDefault();
       e.stopPropagation();
-      router.push(`/produto/${product.slug}`);
+      router.push(`/produkt/${product.slug}`);
       return;
     }
     e.preventDefault();
@@ -91,10 +91,10 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
           type="button"
           onClick={handleToggleWishlist}
           className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${isWishlisted
-              ? 'bg-red-600 text-white shadow-red-500/30 ring-2 ring-red-400'
-              : 'bg-white/95 text-stone-700 hover:bg-red-600 hover:text-white border border-stone-200/80 hover:border-red-600'
+              ? 'bg-[#dc2626] text-white shadow-red-500/30 ring-2 ring-red-400'
+              : 'bg-white/95 text-stone-700 hover:bg-[#dc2626] hover:text-white border border-stone-200/80 hover:border-red-600'
             }`}
-          title={isWishlisted ? (t('removed_from_wishlist') || 'Remover dos Favoritos') : (t('add_to_wishlist') || 'Adicionar aos Favoritos')}
+          title={isWishlisted ? (t('removed_from_wishlist') || 'Aus Favoriten entfernen') : (t('add_to_wishlist') || 'Zu Favoriten hinzufügen')}
           aria-label="Wishlist"
         >
           <svg className="w-4 h-4" fill={isWishlisted ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
@@ -105,8 +105,8 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
         <button
           type="button"
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsQuickViewOpen(true); }}
-          className="w-8 h-8 rounded-full bg-white/95 text-stone-700 hover:bg-red-600 hover:text-white border border-stone-200/80 hover:border-red-600 flex items-center justify-center transition-all shadow-md cursor-pointer"
-          title={t('quick_view') || 'Vista Rápida'}
+          className="w-8 h-8 rounded-full bg-white/95 text-stone-700 hover:bg-[#107b46] hover:text-white border border-stone-200/80 hover:border-[#107b46] flex items-center justify-center transition-all shadow-md cursor-pointer"
+          title={t('quick_view') || 'Schnellansicht'}
           aria-label="Quick View"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -121,7 +121,7 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
   if (view === 'list') {
     return (
       <div
-        onClick={() => router.push(`/produto/${product.slug}`)}
+        onClick={() => router.push(`/produkt/${product.slug}`)}
         className="group flex flex-col sm:flex-row bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
         style={borderColor ? { borderColor } : {}}
       >
@@ -164,7 +164,7 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
 
           <h3 className="text-lg font-bold text-gray-900 mb-2 transition-colors">
             <Link
-              href={`/produto/${product.slug}`}
+              href={`/produkt/${product.slug}`}
               className="hover:text-orange-600"
               onClick={(e) => e.stopPropagation()}
             >
@@ -210,7 +210,7 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
 
   return (
     <div
-      onClick={() => router.push(`/produto/${product.slug}`)}
+      onClick={() => router.push(`/produkt/${product.slug}`)}
       className="group flex flex-col h-full bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
       style={borderColor ? { borderColor } : {}}
     >
@@ -260,8 +260,8 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
           title={product.title}
         >
           <Link
-            href={`/produto/${product.slug}`}
-            className="hover:text-orange-600"
+            href={`/produkt/${product.slug}`}
+            className="hover:text-[#107b46]"
             onClick={(e) => e.stopPropagation()}
           >
             {product.title}
@@ -293,8 +293,8 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
             </span>
           </div>
           <button
-            className="w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center hover:bg-red-700 transition-colors duration-300 shadow-sm"
-            title={product.type === 'variable' ? t('select_options') : t('add_to_cart')}
+            className="w-8 h-8 bg-[#107b46] text-white rounded-full flex items-center justify-center hover:bg-[#0d693b] transition-colors duration-300 shadow-sm cursor-pointer"
+            title={product.type === 'variable' ? (t('select_options') || 'Optionen wählen') : (t('add_to_cart') || 'In den Warenkorb')}
             onClick={handleAddToCart}
           >
             {product.type === 'variable' ? (<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>) : (<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>)}

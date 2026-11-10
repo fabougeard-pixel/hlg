@@ -9,6 +9,7 @@ import ProductGridEditor from '@/components/admin/settings/ProductGridEditor';
 import PromoBannersEditor from '@/components/admin/settings/PromoBannersEditor';
 import LatestBlogsEditor from '@/components/admin/settings/LatestBlogsEditor';
 import FullWidthBannerEditor from '@/components/admin/settings/FullWidthBannerEditor';
+import AktuelleAngeboteEditor from '@/components/admin/settings/AktuelleAngeboteEditor';
 import Cookies from 'js-cookie';
 
 export type SectionType = 
@@ -294,8 +295,20 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
       );
     }
 
+    if (section.type === 'AktuelleAngebote') {
+      return (
+        <AktuelleAngeboteEditor
+          section={section}
+          previewMode={previewMode}
+          updateSectionSettings={updateSectionSettings}
+          handleUpload={handleUpload}
+          allProducts={allProducts}
+          goBack={() => setEditingId(null)}
+        />
+      );
+    }
+
     if (
-      section.type === 'AktuelleAngebote' ||
       section.type === 'CategoryShowcase' ||
       section.type === 'BrandShowcase' ||
       section.type === 'TrustBar' ||
@@ -546,7 +559,23 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
         <MediaPickerModal 
           onClose={() => setMediaPickerTarget(null)}
           onSelect={(url) => {
-            updateSectionSettings(mediaPickerTarget.sectionId, mediaPickerTarget.key, url);
+            if (mediaPickerTarget.key === 'spotlight_image') {
+              const sec = sections.find(s => s.id === mediaPickerTarget.sectionId);
+              const spotlight = sec?.settings?.spotlight || {};
+              updateSectionSettings(mediaPickerTarget.sectionId, 'spotlight', { ...spotlight, image: url });
+            } else if (mediaPickerTarget.key.startsWith('card_') && mediaPickerTarget.key.endsWith('_image')) {
+              const cardIdx = parseInt(mediaPickerTarget.key.split('_')[1], 10);
+              const sec = sections.find(s => s.id === mediaPickerTarget.sectionId);
+              const deals = [...(sec?.settings?.deals || [])];
+              if (deals[cardIdx]) {
+                deals[cardIdx] = { ...deals[cardIdx], image: url };
+              } else {
+                deals[cardIdx] = { image: url };
+              }
+              updateSectionSettings(mediaPickerTarget.sectionId, 'deals', deals);
+            } else {
+              updateSectionSettings(mediaPickerTarget.sectionId, mediaPickerTarget.key, url);
+            }
             setMediaPickerTarget(null);
           }}
         />

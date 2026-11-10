@@ -204,7 +204,7 @@ export default async function PreviewPage() {
         break;
       case 'AktuelleAngebote':
       case 'BestDeals':
-        content = <AktuelleAngebote />;
+        content = <AktuelleAngebote config={section.settings} />;
         break;
       case 'CategoryShowcase':
         content = <CategoryShowcaseSections />;

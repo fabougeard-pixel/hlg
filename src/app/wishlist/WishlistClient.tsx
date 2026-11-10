@@ -80,7 +80,7 @@ export default function WishlistClient() {
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {products.map(p => (
         <div key={p.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition group flex flex-col">
-          <Link href={`/produto/${p.slug}`} className="relative bg-gray-50 aspect-square p-4 flex items-center justify-center">
+          <Link href={`/produkt/${p.slug}`} className="relative bg-gray-50 aspect-square p-4 flex items-center justify-center">
             {p.images && p.images.length > 0 ? (
               <Image width={800} height={800} src={p.images[0]} alt={p.title} className="w-full h-full object-contain group-hover:scale-105 transition duration-300" />
             ) : (
@@ -88,7 +88,7 @@ export default function WishlistClient() {
             )}
           </Link>
           <div className="p-4 flex flex-col flex-1">
-            <Link href={`/produto/${p.slug}`}>
+            <Link href={`/produkt/${p.slug}`}>
               <p className="text-xs text-blue-500 font-semibold mb-1">{p.categories && p.categories.length > 0 ? p.categories[0].name : t('general')}</p>
               <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 mb-2 hover:text-orange-600">{p.title}</h3>
             </Link>

@@ -246,7 +246,7 @@ export default async function BestSeller({ config }: { config?: any }) {
             rating={bigProduct1?.rating || 0}
             ratingText={bigProduct1?.ratingText || ''}
             imageUrl={bigProduct1?.imageUrl}
-            linkUrl={bigProduct1 ? `/produto/${bigProduct1.slug}` : '#'}
+            linkUrl={bigProduct1 ? `/produkt/${bigProduct1.slug}` : '#'}
             borderColor={settings.BESTSELLER_CARD_BORDER_COLOR}
           />
         </div>
@@ -265,7 +265,7 @@ export default async function BestSeller({ config }: { config?: any }) {
                 rating={p?.rating || 0}
                 ratingText={p?.ratingText || ''}
                 imageUrl={p?.imageUrl}
-                linkUrl={p ? `/produto/${p.slug}` : '#'}
+                linkUrl={p ? `/produkt/${p.slug}` : '#'}
                 borderColor={settings.BESTSELLER_CARD_BORDER_COLOR}
               />
             );
@@ -283,7 +283,7 @@ export default async function BestSeller({ config }: { config?: any }) {
             rating={bigProduct2?.rating || 0}
             ratingText={bigProduct2?.ratingText || ''}
             imageUrl={bigProduct2?.imageUrl}
-            linkUrl={bigProduct2 ? `/produto/${bigProduct2.slug}` : '#'}
+            linkUrl={bigProduct2 ? `/produkt/${bigProduct2.slug}` : '#'}
             borderColor={settings.BESTSELLER_CARD_BORDER_COLOR}
           />
         </div>
@@ -302,7 +302,7 @@ export default async function BestSeller({ config }: { config?: any }) {
                 rating={p?.rating || 0}
                 ratingText={p?.ratingText || ''}
                 imageUrl={p?.imageUrl}
-                linkUrl={p ? `/produto/${p.slug}` : '#'}
+                linkUrl={p ? `/produkt/${p.slug}` : '#'}
                 borderColor={settings.BESTSELLER_CARD_BORDER_COLOR}
               />
             );

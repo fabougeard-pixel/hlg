@@ -436,7 +436,7 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
     });
     cartStore.setIsOpen(true);
 
-    setToastMessage(`✓ ${product.title} adicionado ao carrinho!`);
+    setToastMessage(`✓ ${product.title} in den Warenkorb gelegt!`);
     setTimeout(() => {
       setToastMessage(null);
     }, 3500);
@@ -589,7 +589,7 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
                           ? 'bg-red-600 text-white shadow-red-500/30 ring-2 ring-red-400'
                           : 'bg-white/95 text-stone-700 hover:bg-red-600 hover:text-white border border-stone-200/80 hover:border-red-600'
                           }`}
-                        title={wishlistStore.hasItem(prod.id) ? 'Remover dos Favoritos' : 'Adicionar aos Favoritos'}
+                        title={wishlistStore.hasItem(prod.id) ? 'Aus Favoriten entfernen' : 'Zu Favoriten hinzufügen'}
                         aria-label="Wishlist"
                       >
                         <svg className="w-4 h-4" fill={wishlistStore.hasItem(prod.id) ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
@@ -600,8 +600,8 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
                       <button
                         type="button"
                         onClick={(e) => handleOpenQuickView(e, prod)}
-                        className="w-8 h-8 rounded-full bg-white/95 text-stone-700 hover:bg-red-600 hover:text-white border border-stone-200/80 hover:border-red-600 flex items-center justify-center transition-all shadow-md cursor-pointer"
-                        title="Vista Rápida"
+                        className="w-8 h-8 rounded-full bg-white/95 text-stone-700 hover:bg-[#107b46] hover:text-white border border-stone-200/80 hover:border-[#107b46] flex items-center justify-center transition-all shadow-md cursor-pointer"
+                        title="Schnellansicht"
                         aria-label="Quick View"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -612,7 +612,7 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
                     </div>
 
                     {/* Resilient Product Image */}
-                    <Link href={`/produto/${prod.slug}`} className="w-full h-full block">
+                    <Link href={`/produkt/${prod.slug}`} className="w-full h-full block">
                       <ProductCardImage
                         src={prod.images && prod.images[0] ? prod.images[0] : undefined}
                         alt={prod.title}
@@ -629,8 +629,8 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
                       prod.categories.map((cat, idx) => (
                         <React.Fragment key={cat.slug || idx}>
                           <Link
-                            href={`/product-category/${cat.slug}`}
-                            className="hover:text-red-600 hover:underline transition-colors"
+                            href={`/kategorie/${cat.slug}`}
+                            className="hover:text-[#107b46] hover:underline transition-colors"
                             onClick={(e) => e.stopPropagation()}
                           >
                             {cat.name}
@@ -642,18 +642,18 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
                       ))
                     ) : prod.categorySlug ? (
                       <Link
-                        href={`/product-category/${prod.categorySlug}`}
-                        className="hover:text-red-600 hover:underline transition-colors"
+                        href={`/kategorie/${prod.categorySlug}`}
+                        className="hover:text-[#107b46] hover:underline transition-colors"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        {prod.categoryName || 'Soluções Térmicas'}
+                        {prod.categoryName || 'Haushaltsgeräte'}
                       </Link>
                     ) : (
-                      <span>{prod.categoryName || 'Soluções Térmicas'}</span>
+                      <span>{prod.categoryName || 'Haushaltsgeräte'}</span>
                     )}
                   </div>
-                  <Link href={`/produto/${prod.slug}`}>
-                    <h4 className="font-bold text-stone-900 text-sm mt-1 line-clamp-2 min-h-[40px] group-hover:text-red-600 transition-colors">
+                  <Link href={`/produkt/${prod.slug}`}>
+                    <h4 className="font-bold text-stone-900 text-sm mt-1 line-clamp-2 min-h-[40px] group-hover:text-[#107b46] transition-colors">
                       {prod.title}
                     </h4>
                   </Link>
@@ -670,24 +670,24 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
                   <div>
                     {prod.compareAtPrice && prod.compareAtPrice > prod.price && (
                       <span className="text-stone-400 line-through text-xs block font-medium">
-                        {prod.compareAtPrice.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
+                        {prod.compareAtPrice.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                       </span>
                     )}
                     <span className="text-stone-900 font-extrabold text-lg">
-                      {prod.price.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
+                      {prod.price.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                     </span>
                   </div>
 
                   <button
                     type="button"
                     onClick={() => handleAddToCart(prod)}
-                    className="px-3.5 py-2 bg-stone-900 hover:bg-red-600 text-white rounded-xl text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer flex items-center gap-1.5 group/btn"
-                    title={`Adicionar ${prod.title} ao carrinho`}
+                    className="px-3.5 py-2 bg-stone-900 hover:bg-[#107b46] text-white rounded-xl text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer flex items-center gap-1.5 group/btn"
+                    title={`${prod.title} in den Warenkorb legen`}
                   >
                     <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
-                    <span>Adicionar</span>
+                    <span>In den Warenkorb</span>
                   </button>
                 </div>
               </div>

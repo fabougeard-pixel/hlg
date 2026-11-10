@@ -55,7 +55,7 @@ export default async function AccountReviewsPage() {
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <h3 className="font-bold text-lg text-gray-900">
-                        <Link href={`/produto/${review.product.slug}`} className="hover:text-orange-600">
+                        <Link href={`/produkt/${review.product.slug}`} className="hover:text-orange-600">
                           {review.product.title}
                         </Link>
                       </h3>

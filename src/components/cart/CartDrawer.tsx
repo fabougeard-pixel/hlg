@@ -140,7 +140,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   </div>
                   
                   <div className="flex-1 flex flex-col">
-                    <Link href={`/produto/${item.productId}`} onClick={onClose} className="font-medium text-gray-900 text-sm hover:text-orange-700 line-clamp-2 leading-tight mb-2">
+                    <Link href={`/produkt/${item.productId}`} onClick={onClose} className="font-medium text-gray-900 text-sm hover:text-orange-700 line-clamp-2 leading-tight mb-2">
                       {item.title}
                     </Link>
                     

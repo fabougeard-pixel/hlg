@@ -127,7 +127,7 @@ export default function WishlistDrawer({ isOpen, onClose }: WishlistDrawerProps)
                     </div>
                     <div className="flex-1 min-w-0 flex flex-col justify-between">
                       <div className="flex justify-between items-start gap-2">
-                        <Link href={`/produto/${item.slug}`} onClick={onClose} className="font-semibold text-gray-900 truncate hover:text-orange-700">
+                        <Link href={`/produkt/${item.slug}`} onClick={onClose} className="font-semibold text-gray-900 truncate hover:text-orange-700">
                           {item.title}
                         </Link>
                         <button 

@@ -22,7 +22,7 @@ export default async function CheckoutPage() {
   });
 
   return (
-    <Suspense fallback={<div className="max-w-7xl mx-auto px-4 py-16 text-center text-stone-600 font-medium">A carregar checkout...</div>}>
+    <Suspense fallback={<div className="max-w-7xl mx-auto px-4 py-16 text-center text-stone-600 font-medium">Kasse wird geladen...</div>}>
       <CheckoutClient settings={paymentSettings} zones={zones} />
     </Suspense>
   );

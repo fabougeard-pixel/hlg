@@ -82,7 +82,7 @@ export default function ProductGridCard({
   };
 
   const navigateToProduct = () => {
-    router.push(`/produto/${product.slug}`);
+    router.push(`/produkt/${product.slug}`);
   };
 
   return (
@@ -214,7 +214,7 @@ export default function ProductGridCard({
             )}
           </div>
           <h3 className="text-sm font-semibold text-gray-800 leading-snug line-clamp-2 mb-2 transition" title={product.title}>
-            <Link href={`/produto/${product.slug}`} className="hover:text-orange-700" onClick={(e) => e.stopPropagation()}>
+            <Link href={`/produkt/${product.slug}`} className="hover:text-orange-700" onClick={(e) => e.stopPropagation()}>
               {product.title}
             </Link>
           </h3>

@@ -82,7 +82,7 @@ export default function CartPage() {
 
                       {/* Image */}
                       <div className="col-span-2 flex justify-center">
-                        <Link href={`/produto/${item.productId}`} className="w-20 h-20 bg-gray-50 border border-gray-200 flex items-center justify-center overflow-hidden">
+                        <Link href={`/produkt/${item.productId}`} className="w-20 h-20 bg-gray-50 border border-gray-200 flex items-center justify-center overflow-hidden">
                           {item.image ? (
                             <Image width={800} height={800} src={item.image} alt={item.title} className="max-w-full max-h-full object-contain" />
                           ) : (
@@ -93,7 +93,7 @@ export default function CartPage() {
 
                       {/* Title */}
                       <div className="col-span-4 text-center md:text-left">
-                        <Link href={`/produto/${item.productId}`} className="text-gray-800 hover:text-[#ff4500] font-medium text-sm">
+                        <Link href={`/produkt/${item.productId}`} className="text-gray-800 hover:text-[#ff4500] font-medium text-sm">
                           {item.title}
                         </Link>
                         {item.attributes && Object.keys(item.attributes).length > 0 && (

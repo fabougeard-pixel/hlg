@@ -140,7 +140,7 @@ export default async function Home() {
         return <HlgHero key={section.id} config={section.settings} />;
       case 'AktuelleAngebote':
       case 'BestDeals':
-        return <AktuelleAngebote key={section.id} dbBestsellers={dbBestsellers} />;
+        return <AktuelleAngebote key={section.id} dbBestsellers={dbBestsellers} config={section.settings} />;
       case 'CategoryShowcase':
         return <CategoryShowcaseSections key={section.id} />;
       case 'BrandShowcase':

@@ -75,7 +75,7 @@ export default function BestDealsCard({
   return (
     <>
       <div
-        onClick={() => router.push(`/produto/${product.slug || product.id}`)}
+        onClick={() => router.push(`/produkt/${product.slug || product.id}`)}
         className="flex-none w-[250px] md:w-[300px] p-5 flex flex-col group/card cursor-pointer hover:shadow-lg transition bg-white border rounded-lg snap-start relative"
         style={{ borderColor }}
       >
@@ -105,7 +105,7 @@ export default function BestDealsCard({
                   ? 'bg-red-600 text-white shadow-red-500/30 ring-2 ring-red-400'
                   : 'bg-white/95 text-stone-700 hover:bg-red-600 hover:text-white border border-stone-200/80 hover:border-red-600'
                 }`}
-              title={isWishlisted ? 'Remover dos Favoritos' : 'Adicionar aos Favoritos'}
+              title={isWishlisted ? 'Aus Favoriten entfernen' : 'Zu Favoriten hinzufügen'}
               aria-label="Wishlist"
             >
               <svg className="w-4 h-4" fill={isWishlisted ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
@@ -115,8 +115,8 @@ export default function BestDealsCard({
             <button
               type="button"
               onClick={handleQuickView}
-              className="w-8 h-8 rounded-full bg-white/95 text-stone-700 hover:bg-red-600 hover:text-white border border-stone-200/80 hover:border-red-600 flex items-center justify-center transition-all shadow-md cursor-pointer"
-              title="Vista Rápida"
+              className="w-8 h-8 rounded-full bg-white/95 text-stone-700 hover:bg-[#107b46] hover:text-white border border-stone-200/80 hover:border-[#107b46] flex items-center justify-center transition-all shadow-md cursor-pointer"
+              title="Schnellansicht"
               aria-label="Quick View"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -156,7 +156,7 @@ export default function BestDealsCard({
             )}
           </div>
           <h3 className="text-sm font-medium text-gray-900 line-clamp-2 mb-2 transition" title={product.title}>
-            <Link href={`/produto/${product.slug || product.id}`} className="hover:text-orange-600" onClick={(e) => e.stopPropagation()}>
+            <Link href={`/produkt/${product.slug || product.id}`} className="hover:text-orange-600" onClick={(e) => e.stopPropagation()}>
               {product.title}
             </Link>
           </h3>

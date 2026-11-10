@@ -204,7 +204,7 @@ export default async function OrderDetailsPage({
                       </div>
                     )}
                     <div>
-                      <Link href={`/produto/${item.product.slug}`} className="font-semibold text-sm text-gray-900 hover:text-orange-700 transition-colors">
+                      <Link href={`/produkt/${item.product.slug}`} className="font-semibold text-sm text-gray-900 hover:text-orange-700 transition-colors">
                         {item.product.title}
                       </Link>
                       {item.attributes && (

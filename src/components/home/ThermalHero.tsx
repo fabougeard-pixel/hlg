@@ -215,12 +215,12 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
 
   const showcaseImageFit = config?.showcaseImageFit === 'cover' ? 'cover' : 'contain';
   const showcaseBgImage = config?.showcaseBgImage || '';
-  const showcaseBtnText = config?.showcaseBtnText ?? 'Adicionar ao Carrinho';
+  const showcaseBtnText = config?.showcaseBtnText ?? 'In den Warenkorb';
 
   const savingsText = useMemo(() => {
     if (currentItem.compareAtPrice && currentItem.compareAtPrice > currentItem.price) {
       const diff = currentItem.compareAtPrice - currentItem.price;
-      return `Poupe ${diff.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}`;
+      return `Sie sparen ${diff.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}`;
     }
     return null;
   }, [currentItem]);
@@ -532,7 +532,7 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                       </svg>
-                      <span>Adicionado ao Carrinho!</span>
+                      <span>In den Warenkorb gelegt!</span>
                     </>
                   ) : (
                     <>
