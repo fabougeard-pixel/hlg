@@ -127,21 +127,30 @@ export default async function Home() {
     console.error('Failed to fetch products for homepage:', e);
   }
 
+  const DEFAULT_HLG_SECTIONS: SectionConfig[] = [
+    { id: 'sec_hero', type: 'Hero', name: 'Hero Banner & Kategorien', enabled: true, settings: {} },
+    { id: 'sec_deals', type: 'AktuelleAngebote', name: 'Aktuelle Angebote & Bestseller', enabled: true, settings: {} },
+    { id: 'sec_categories', type: 'CategoryShowcase', name: 'Top-Kategorien (Auswahl)', enabled: true, settings: {} },
+    { id: 'sec_brands', type: 'BrandShowcase', name: 'Marken & HLG Garantien', enabled: true, settings: {} },
+    { id: 'sec_trust', type: 'TrustBar', name: 'Vertrauensgarantien (TrustBar)', enabled: true, settings: {} },
+    { id: 'sec_blogs', type: 'HeatingGuideBlogs', name: 'HLG Magazin & Ratgeber', enabled: true, settings: { title: "HLG Magazin & Ratgeber" } },
+    { id: 'sec_newsletter', type: 'Newsletter', name: 'Newsletter', enabled: true, settings: {} }
+  ];
+
   let layout: SectionConfig[] = [];
   try {
     if (settings.HOMEPAGE_LAYOUT) {
       layout = JSON.parse(settings.HOMEPAGE_LAYOUT);
+      const hasHlgSections = layout.some(s => s.type === 'AktuelleAngebote' || s.type === 'CategoryShowcase');
+      if (!hasHlgSections) {
+        layout = DEFAULT_HLG_SECTIONS;
+      }
     } else {
-      layout = [
-        { id: 'sec_1', type: 'Hero', name: 'Hero', enabled: true, settings: {} },
-        { id: 'sec_featured', type: 'FeaturedProductTabs', name: 'Produtos em Destaque', enabled: true, settings: {} },
-        { id: 'sec_shipping', type: 'ShippingSimulator', name: 'Simulador de Envio', enabled: true, settings: {} },
-        { id: 'sec_blogs', type: 'HeatingGuideBlogs', name: 'Guia de Aquecimento', enabled: true, settings: {} },
-        { id: 'sec_newsletter', type: 'Newsletter', name: 'Newsletter', enabled: true, settings: {} }
-      ];
+      layout = DEFAULT_HLG_SECTIONS;
     }
   } catch (e) {
     console.error('Failed to parse HOMEPAGE_LAYOUT', e);
+    layout = DEFAULT_HLG_SECTIONS;
   }
 
   // Extract best selling products for Hero Showcase Card rotation
@@ -173,23 +182,18 @@ export default async function Home() {
   const renderSection = (section: SectionConfig) => {
     switch (section.type) {
       case 'Hero':
-        return (
-          <div key={section.id}>
-            <HlgHero config={section.settings} />
-            <AktuelleAngebote />
-            <CategoryShowcaseSections />
-            <BrandShowcase />
-            <TrustBar />
-            <CategoryExplorer />
-          </div>
-        );
-      case 'FeaturedProductTabs':
+        return <HlgHero key={section.id} config={section.settings} />;
+      case 'AktuelleAngebote':
       case 'BestDeals':
-      case 'ProductGrid':
-        return <FeaturedProductTabs key={section.id} initialProducts={promoProducts} />;
-      case 'ShippingSimulator':
-      case 'BestSeller':
-        return <ShippingSimulator key={section.id} productsData={simulatorProducts} />;
+        return <AktuelleAngebote key={section.id} />;
+      case 'CategoryShowcase':
+        return <CategoryShowcaseSections key={section.id} />;
+      case 'BrandShowcase':
+        return <BrandShowcase key={section.id} />;
+      case 'TrustBar':
+        return <TrustBar key={section.id} />;
+      case 'CategoryExplorer':
+        return <CategoryExplorer key={section.id} />;
       case 'HeatingGuideBlogs':
       case 'LatestBlogs':
         return <HeatingGuideBlogs key={section.id} />;

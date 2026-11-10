@@ -11,7 +11,23 @@ import LatestBlogsEditor from '@/components/admin/settings/LatestBlogsEditor';
 import FullWidthBannerEditor from '@/components/admin/settings/FullWidthBannerEditor';
 import Cookies from 'js-cookie';
 
-export type SectionType = 'Hero' | 'BestDeals' | 'BestSeller' | 'LatestBlogs' | 'Newsletter' | 'PromoBanners' | 'ProductGrid' | 'FullWidthBanner' | 'FeaturedProductTabs' | 'ShippingSimulator' | 'HeatingGuideBlogs';
+export type SectionType = 
+  | 'Hero' 
+  | 'AktuelleAngebote' 
+  | 'CategoryShowcase' 
+  | 'BrandShowcase' 
+  | 'TrustBar' 
+  | 'CategoryExplorer'
+  | 'HeatingGuideBlogs' 
+  | 'Newsletter' 
+  | 'PromoBanners' 
+  | 'ProductGrid' 
+  | 'FullWidthBanner' 
+  | 'FeaturedProductTabs' 
+  | 'ShippingSimulator'
+  | 'BestDeals' 
+  | 'BestSeller' 
+  | 'LatestBlogs';
 
 export interface SectionConfig {
   id: string;
@@ -22,11 +38,13 @@ export interface SectionConfig {
 }
 
 const DEFAULT_SECTIONS: SectionConfig[] = [
-  { id: 'sec_1', type: 'Hero', name: 'Main Header (Hero)', enabled: true, settings: {} },
-  { id: 'sec_featured', type: 'FeaturedProductTabs', name: 'Produtos em Destaque', enabled: true, settings: { title: "Produtos em Destaque" } },
-  { id: 'sec_shipping', type: 'ShippingSimulator', name: 'Simulador de Envio de Paletes', enabled: true, settings: {} },
-  { id: 'sec_blogs', type: 'HeatingGuideBlogs', name: 'Dicas & Artigos - Guia de Aquecimento', enabled: true, settings: { title: "Dicas & Artigos" } },
-  { id: 'sec_newsletter', type: 'Newsletter', name: 'Newsletter Subscription', enabled: true, settings: {} }
+  { id: 'sec_hero', type: 'Hero', name: 'Hero Banner & Kategorien', enabled: true, settings: {} },
+  { id: 'sec_deals', type: 'AktuelleAngebote', name: 'Aktuelle Angebote & Bestseller', enabled: true, settings: {} },
+  { id: 'sec_categories', type: 'CategoryShowcase', name: 'Top-Kategorien (Kaffee, Kühlen, Waschen, Saugen)', enabled: true, settings: {} },
+  { id: 'sec_brands', type: 'BrandShowcase', name: 'Marken & HLG Garantien', enabled: true, settings: {} },
+  { id: 'sec_trust', type: 'TrustBar', name: 'Vertrauensgarantien (TrustBar)', enabled: true, settings: {} },
+  { id: 'sec_blogs', type: 'HeatingGuideBlogs', name: 'HLG Magazin & Ratgeber', enabled: true, settings: { title: "HLG Magazin & Ratgeber" } },
+  { id: 'sec_newsletter', type: 'Newsletter', name: 'Newsletter Registrierung', enabled: true, settings: {} }
 ];
 
 export default function LandingForm({ initialSettings, categories }: { initialSettings: Record<string, string>, categories: any[] }) {
@@ -35,7 +53,9 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
   const [sections, setSections] = useState<SectionConfig[]>(() => {
     try {
       if (initialSettings.HOMEPAGE_LAYOUT) {
-        return JSON.parse(initialSettings.HOMEPAGE_LAYOUT);
+        const parsed = JSON.parse(initialSettings.HOMEPAGE_LAYOUT);
+        const hasHlg = Array.isArray(parsed) && parsed.some((s: any) => s.type === 'AktuelleAngebote' || s.type === 'CategoryShowcase');
+        if (hasHlg) return parsed;
       }
       return DEFAULT_SECTIONS;
     } catch {
@@ -274,26 +294,42 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
       );
     }
 
-    if (section.type === 'FeaturedProductTabs' || section.type === 'ShippingSimulator' || section.type === 'HeatingGuideBlogs') {
+    if (
+      section.type === 'AktuelleAngebote' ||
+      section.type === 'CategoryShowcase' ||
+      section.type === 'BrandShowcase' ||
+      section.type === 'TrustBar' ||
+      section.type === 'HeatingGuideBlogs' ||
+      section.type === 'CategoryExplorer' ||
+      section.type === 'FeaturedProductTabs' ||
+      section.type === 'ShippingSimulator'
+    ) {
       return (
-        <div className="p-4 bg-gray-50 border rounded-xl text-xs text-gray-600 space-y-3">
+        <div className="p-4 bg-gray-50 border rounded-xl text-xs text-gray-700 space-y-3">
           <div className="flex items-center gap-2 text-stone-900 font-bold text-sm">
-            <span>🔥</span>
+            <span>⚙️</span>
             <span>{section.name}</span>
           </div>
-          <p className="leading-relaxed">
-            Esta secção especializada em aquecimento a biomassa e equipamentos térmicos está integrada e ativa na loja.
+          <p className="leading-relaxed text-stone-600">
+            Diese HLG Hausgeräte Sektion ist live geschaltet und synchronisiert sich automatisch mit Ihrem Katalog und Ihren Angeboten.
           </p>
-          <div className="p-2.5 bg-white border border-stone-200 rounded-lg text-stone-700">
-            <span className="font-semibold block mb-0.5">Gestão de Conteúdo:</span>
-            Os produtos e artigos são alimentados automaticamente a partir do catálogo e do blog.
+          <div className="p-3 bg-white border border-stone-200 rounded-lg space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-stone-800">Status der Sektion:</span>
+              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${section.enabled ? 'bg-emerald-100 text-emerald-800' : 'bg-stone-200 text-stone-700'}`}>
+                {section.enabled ? 'Aktiviert' : 'Deaktiviert'}
+              </span>
+            </div>
+            <p className="text-[11px] text-stone-500">
+              Sie können diese Sektion in der Hauptliste per Klick auf das Augen-Symbol ein- oder ausblenden sowie ihre Position mit den Pfeiltasten nach oben oder unten verschieben.
+            </p>
           </div>
           <button 
             type="button" 
             onClick={() => setEditingId(null)}
-            className="w-full py-2 bg-stone-800 hover:bg-stone-900 text-white font-medium rounded-lg transition-colors"
+            className="w-full py-2 bg-[#107b46] hover:bg-[#0d693b] text-white font-bold rounded-lg transition-colors cursor-pointer"
           >
-            Voltar à lista de secções
+            &larr; Zurück zur Sektionsliste
           </button>
         </div>
       );
@@ -351,8 +387,20 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
                 </select>
               </div>
 
-              <p className="text-[11px] leading-tight text-gray-500 mb-4">{t('click_section_preview')}</p>
+              <p className="text-[11px] leading-tight text-gray-500 mb-3">{t('click_section_preview')}</p>
               
+              <div className="flex items-center justify-between mb-2 px-1">
+                <span className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">Sektionen ({sections.length})</span>
+                <button
+                  type="button"
+                  onClick={() => setSections(DEFAULT_SECTIONS)}
+                  className="text-[10px] text-[#107b46] hover:underline font-bold cursor-pointer"
+                  title="HLG Standard-Sektionen wiederherstellen"
+                >
+                  🔄 HLG Layout laden
+                </button>
+              </div>
+
               <div className="space-y-3 mb-6">
                 {sections.map((section, index) => (
                   <div key={section.id} className={`flex flex-col border rounded p-2 transition ${!section.enabled ? 'bg-gray-50 opacity-60' : 'bg-white hover:border-gray-300'}`}>

@@ -815,27 +815,7 @@ export default function CategoryShowcaseSections() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12 font-sans">
       
-      {/* 1. WASCHMASCHINEN */}
-      <section>
-        <SectionHeader title="WASCHMASCHINEN" linkUrl="/shop?category=waschmaschinen" />
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4">
-          {washingMachines.map((item) => (
-            <ProductCard key={item.id} item={item} />
-          ))}
-        </div>
-      </section>
-
-      {/* 2. GESCHIRRSPÜLER */}
-      <section>
-        <SectionHeader title="GESCHIRRSPÜLER" linkUrl="/shop?category=geschirrspueler" />
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 sm:gap-4">
-          {dishwashers.map((item) => (
-            <ProductCard key={item.id} item={item} />
-          ))}
-        </div>
-      </section>
-
-      {/* 3. KAFFEEMASCHINEN (With Split Banner on Left) */}
+      {/* 1. KAFFEEMASCHINEN (Mit Split-Banner links & 4 Top-Modellen) */}
       <section>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
           {/* Left Dark Coffee Banner */}
@@ -848,7 +828,10 @@ export default function CategoryShowcaseSections() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-stone-950/95 via-stone-950/40 to-transparent" />
             <div className="relative z-10 text-white">
-              <h3 className="text-xl sm:text-2xl font-black text-red-600 leading-tight drop-shadow-sm mb-3">
+              <span className="inline-block bg-[#107b46] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full mb-2 uppercase tracking-wider">
+                Barista Qualität
+              </span>
+              <h3 className="text-xl sm:text-2xl font-black text-white leading-tight drop-shadow-sm mb-3">
                 Die besten Kaffeemaschinen zum besten Preis!
               </h3>
               <Link
@@ -863,7 +846,7 @@ export default function CategoryShowcaseSections() {
 
           {/* Right 4 Coffee Machines */}
           <div className="lg:col-span-9 flex flex-col justify-between">
-            <SectionHeader title="KAFFEEMASCHINEN" linkUrl="/shop?category=kaffeemaschinen" />
+            <SectionHeader title="Kaffeemaschinen & Vollautomaten" linkUrl="/shop?category=kaffeemaschinen" />
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 sm:gap-4 flex-1">
               {coffeeMachines.map((item) => (
                 <ProductCard key={item.id} item={item} />
@@ -873,27 +856,17 @@ export default function CategoryShowcaseSections() {
         </div>
       </section>
 
-      {/* 4. STAUBSAUGER & REINIGER (2 rows of 4) */}
+      {/* 2. WASCHMASCHINEN & WASCHTROCKNER */}
       <section>
-        <SectionHeader title="Staubsauger & Reiniger" linkUrl="/shop?category=staubsauger-reiniger" />
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-4">
-          {vacuums.map((item) => (
+        <SectionHeader title="Waschmaschinen & Frontlader" linkUrl="/shop?category=waschmaschinen" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4">
+          {washingMachines.map((item) => (
             <ProductCard key={item.id} item={item} />
           ))}
         </div>
       </section>
 
-      {/* 5. KÜCHENMASCHINEN (2 rows of 3) */}
-      <section>
-        <SectionHeader title="Küchenmaschinen" linkUrl="/shop?category=kuechenmaschinen" />
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-4">
-          {kitchenAppliances.map((item) => (
-            <ProductCard key={item.id} item={item} />
-          ))}
-        </div>
-      </section>
-
-      {/* 6. KÜHLEN & GEFRIEREN (With Split Banner on Left) */}
+      {/* 3. KÜHLEN & GEFRIEREN (Mit Split-Banner links & 6 Modellen) */}
       <section>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
           {/* Left Fridge Lifestyle Banner */}
@@ -924,7 +897,7 @@ export default function CategoryShowcaseSections() {
 
           {/* Right 6 Refrigerators (2x3) */}
           <div className="lg:col-span-9 flex flex-col justify-between">
-            <SectionHeader title="Kühlen & Gefrieren" linkUrl="/shop?category=kuehlen-gefrieren" />
+            <SectionHeader title="Kühlen & Gefrieren (Side-by-Side & Kombi)" linkUrl="/shop?category=kuehlen-gefrieren" />
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-4 flex-1">
               {fridges.map((item) => (
                 <ProductCard key={item.id} item={item} />
@@ -934,23 +907,144 @@ export default function CategoryShowcaseSections() {
         </div>
       </section>
 
-      {/* 7. WASCHTROCKNER (2 rows of 4) */}
+      {/* 4. STAUBSAUGER & SAUGROBOTER (1 Reihe mit 4 Top-Modellen) */}
       <section>
-        <SectionHeader title="WASCHTROCKNER" linkUrl="/shop?category=waschtrockner" />
+        <SectionHeader title="Staubsauger & Reinigungsroboter" linkUrl="/shop?category=staubsauger-reiniger" />
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-4">
-          {washerDryers.map((item) => (
+          {vacuums.slice(0, 4).map((item) => (
             <ProductCard key={item.id} item={item} />
           ))}
         </div>
       </section>
 
-      {/* 8. GAMING (2 rows of 4) */}
-      <section>
-        <SectionHeader title="GAMING" linkUrl="/shop?category=gaming" />
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-4">
-          {gaming.map((item) => (
-            <ProductCard key={item.id} item={item} />
-          ))}
+      {/* 5. WEITERE KATEGORIEN ENTDECKEN (Kompakte Schnell-Galerie Option B) */}
+      <section className="bg-gradient-to-br from-stone-50 to-emerald-50/40 border border-stone-200/80 rounded-3xl p-6 sm:p-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+          <div>
+            <span className="text-xs font-black text-[#107b46] uppercase tracking-wider">
+              Sortiment im Überblick
+            </span>
+            <h2 className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight mt-1">
+              Weitere Gerätekategorien entdecken
+            </h2>
+            <p className="text-xs sm:text-sm text-stone-600 mt-1 max-w-xl">
+              Entdecken Sie unser gesamtes Portfolio führender Hersteller – sofort lieferbar mit 2 Jahren Garantie.
+            </p>
+          </div>
+          <Link
+            href="/shop"
+            className="bg-[#107b46] hover:bg-[#0d693b] text-white text-xs sm:text-sm font-bold px-5 py-2.5 rounded-full inline-flex items-center gap-2 transition-all shadow-sm shrink-0 self-start sm:self-auto"
+          >
+            <span>Gesamten Shop ansehen</span>
+            <span>&rarr;</span>
+          </Link>
+        </div>
+
+        {/* 4 Compact Category Cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Card 1: Geschirrspüler */}
+          <Link
+            href="/shop?category=geschirrspueler"
+            className="group bg-white rounded-2xl border border-stone-200/90 p-4 hover:shadow-md hover:border-emerald-300 transition-all flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <span className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center text-lg">
+                🍽️
+              </span>
+              <span className="text-[11px] font-bold text-stone-400 group-hover:text-[#107b46] transition-colors">
+                Ab 299,79 €
+              </span>
+            </div>
+            <div>
+              <h3 className="font-extrabold text-stone-900 text-sm group-hover:text-[#107b46] transition-colors">
+                Geschirrspüler
+              </h3>
+              <p className="text-[11px] text-stone-500 mt-0.5">
+                Vollintegriert, Einbau &amp; Tischgeräte
+              </p>
+            </div>
+            <div className="mt-3 pt-2 border-t border-stone-100 flex items-center text-xs font-bold text-[#107b46] group-hover:translate-x-1 transition-transform">
+              <span>Modelle ansehen &rarr;</span>
+            </div>
+          </Link>
+
+          {/* Card 2: Küchenmaschinen */}
+          <Link
+            href="/shop?category=kuechenmaschinen"
+            className="group bg-white rounded-2xl border border-stone-200/90 p-4 hover:shadow-md hover:border-emerald-300 transition-all flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <span className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center text-lg">
+                🥣
+              </span>
+              <span className="text-[11px] font-bold text-stone-400 group-hover:text-[#107b46] transition-colors">
+                Ab 232,82 €
+              </span>
+            </div>
+            <div>
+              <h3 className="font-extrabold text-stone-900 text-sm group-hover:text-[#107b46] transition-colors">
+                Küchenmaschinen
+              </h3>
+              <p className="text-[11px] text-stone-500 mt-0.5">
+                Kenwood, KitchenAid &amp; Zubehör
+              </p>
+            </div>
+            <div className="mt-3 pt-2 border-t border-stone-100 flex items-center text-xs font-bold text-[#107b46] group-hover:translate-x-1 transition-transform">
+              <span>Modelle ansehen &rarr;</span>
+            </div>
+          </Link>
+
+          {/* Card 3: Herde & Kochfelder */}
+          <Link
+            href="/shop?category=herde"
+            className="group bg-white rounded-2xl border border-stone-200/90 p-4 hover:shadow-md hover:border-emerald-300 transition-all flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <span className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center text-lg">
+                🍳
+              </span>
+              <span className="text-[11px] font-bold text-stone-400 group-hover:text-[#107b46] transition-colors">
+                Ab 350,79 €
+              </span>
+            </div>
+            <div>
+              <h3 className="font-extrabold text-stone-900 text-sm group-hover:text-[#107b46] transition-colors">
+                Herde &amp; Induktion
+              </h3>
+              <p className="text-[11px] text-stone-500 mt-0.5">
+                Induktionskochfelder &amp; Backöfen
+              </p>
+            </div>
+            <div className="mt-3 pt-2 border-t border-stone-100 flex items-center text-xs font-bold text-[#107b46] group-hover:translate-x-1 transition-transform">
+              <span>Modelle ansehen &rarr;</span>
+            </div>
+          </Link>
+
+          {/* Card 4: Gaming & Konsolen */}
+          <Link
+            href="/shop?category=gaming"
+            className="group bg-white rounded-2xl border border-stone-200/90 p-4 hover:shadow-md hover:border-emerald-300 transition-all flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <span className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center text-lg">
+                🎮
+              </span>
+              <span className="text-[11px] font-bold text-stone-400 group-hover:text-[#107b46] transition-colors">
+                Ab 199,00 €
+              </span>
+            </div>
+            <div>
+              <h3 className="font-extrabold text-stone-900 text-sm group-hover:text-[#107b46] transition-colors">
+                Gaming &amp; Unterhaltung
+              </h3>
+              <p className="text-[11px] text-stone-500 mt-0.5">
+                PS5, Switch OLED, Xbox &amp; VR
+              </p>
+            </div>
+            <div className="mt-3 pt-2 border-t border-stone-100 flex items-center text-xs font-bold text-[#107b46] group-hover:translate-x-1 transition-transform">
+              <span>Modelle ansehen &rarr;</span>
+            </div>
+          </Link>
         </div>
       </section>
 

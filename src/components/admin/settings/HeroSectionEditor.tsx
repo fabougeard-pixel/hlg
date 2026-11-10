@@ -93,15 +93,18 @@ export default function HeroSectionEditor({
                   <div className="flex-1 space-y-2">
                     <input
                       type="text"
-                      value={settings.bgImageUrl ?? 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1600'}
-                      onChange={(e) => handleFieldChange('bgImageUrl', e.target.value)}
-                      placeholder="URL da Imagem..."
-                      className="w-full text-xs p-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500"
+                      value={settings.bannerImage ?? settings.bgImageUrl ?? '/images/hero-appliances.jpg'}
+                      onChange={(e) => {
+                        handleFieldChange('bannerImage', e.target.value);
+                        handleFieldChange('bgImageUrl', e.target.value);
+                      }}
+                      placeholder="URL des Banner-Bildes..."
+                      className="w-full text-xs p-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-emerald-500"
                     />
                     <button
                       type="button"
-                      onClick={() => handleUpload(section.id, 'bgImageUrl')}
-                      className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-md shadow-sm transition-colors flex items-center gap-1.5"
+                      onClick={() => handleUpload(section.id, 'bannerImage')}
+                      className="px-3 py-1.5 bg-[#107b46] hover:bg-[#0d693b] text-white text-xs font-semibold rounded-md shadow-sm transition-colors flex items-center gap-1.5"
                     >
                       <span>🖼️</span> Carregar / Escolher Fundo
                     </button>
@@ -387,45 +390,43 @@ export default function HeroSectionEditor({
           {openSection === 'titles' && (
             <div className="p-4 space-y-4 bg-white">
               <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">Badge de Campanha</label>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Badge-Text (z.B. Sonderangebot)</label>
                 <input
                   type="text"
-                  value={settings.campaignBadge ?? 'Campanha de Inverno 2026 • Stock Garantido em Armazém'}
-                  onChange={(e) => handleFieldChange('campaignBadge', e.target.value)}
-                  placeholder="Ex: Campanha de Inverno..."
+                  value={settings.badgeText ?? settings.campaignBadge ?? 'Sonderangebot'}
+                  onChange={(e) => {
+                    handleFieldChange('badgeText', e.target.value);
+                    handleFieldChange('campaignBadge', e.target.value);
+                  }}
+                  placeholder="Ex: Sonderangebot"
                   className="w-full text-xs p-2 border rounded"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">Título Principal (Linha 1)</label>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Haupt-Slogan (Roter Titel)</label>
                 <input
                   type="text"
-                  value={settings.titlePrefix ?? 'Promoção de Inverno!'}
-                  onChange={(e) => handleFieldChange('titlePrefix', e.target.value)}
-                  placeholder="Ex: Promoção de Inverno!"
-                  className="w-full text-xs p-2 border rounded font-bold"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">Título em Dégradé (Linha 2)</label>
-                <input
-                  type="text"
-                  value={settings.titleGradient ?? 'FOGÃO A PELLETS & LENHA'}
-                  onChange={(e) => handleFieldChange('titleGradient', e.target.value)}
-                  placeholder="Ex: FOGÃO A PELLETS & LENHA"
+                  value={settings.title ?? settings.titleGradient ?? 'Ihre hochwertigen Haushaltsgeräte zu den besten Preisen!'}
+                  onChange={(e) => {
+                    handleFieldChange('title', e.target.value);
+                    handleFieldChange('titleGradient', e.target.value);
+                  }}
+                  placeholder="Ex: Ihre hochwertigen Haushaltsgeräte zu den besten Preisen!"
                   className="w-full text-xs p-2 border rounded font-extrabold text-red-600"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">Texto Descritivo</label>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Untertitel &amp; Beschreibung</label>
                 <textarea
                   rows={3}
-                  value={settings.description ?? 'Rendimento térmico máximo, economia comprovada e conforto para toda a família. Descubra a gama completa de equipamentos certificados Eco-Design com entrega direta em sua casa.'}
-                  onChange={(e) => handleFieldChange('description', e.target.value)}
-                  placeholder="Descrição..."
+                  value={settings.subtitle ?? settings.description ?? 'Premium-Marken für Küche & Haushalt. Bis zu 40% sparen • Sofort versandbereit • 2 Jahre Garantie.'}
+                  onChange={(e) => {
+                    handleFieldChange('subtitle', e.target.value);
+                    handleFieldChange('description', e.target.value);
+                  }}
+                  placeholder="Beschreibung..."
                   className="w-full text-xs p-2 border rounded leading-relaxed"
                 />
               </div>
@@ -456,42 +457,35 @@ export default function HeroSectionEditor({
 
           {openSection === 'buttons' && (
             <div className="p-4 space-y-3 bg-white">
-              {/* Botão 1 */}
-              <div className="p-3 bg-red-50/60 rounded-xl border border-red-100 space-y-2">
-                <span className="text-xs font-bold text-red-700 block">🔴 Botão 1 (Catálogo / Ofertas)</span>
-                <input
-                  type="text"
-                  value={settings.cta1Text ?? 'Ver Ofertas em Destaque'}
-                  onChange={(e) => handleFieldChange('cta1Text', e.target.value)}
-                  placeholder="Texto do botão"
-                  className="w-full text-xs p-2 border rounded"
-                />
-                <input
-                  type="text"
-                  value={settings.cta1Link ?? '/shop'}
-                  onChange={(e) => handleFieldChange('cta1Link', e.target.value)}
-                  placeholder="URL (/shop)"
-                  className="w-full text-xs p-2 border rounded"
-                />
-              </div>
-
-              {/* Botão 2 */}
-              <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 space-y-2">
-                <span className="text-xs font-bold text-stone-700 block">🚚 Botão 2 (Simulador Envio)</span>
-                <input
-                  type="text"
-                  value={settings.cta2Text ?? 'Calcular Envio de Palete'}
-                  onChange={(e) => handleFieldChange('cta2Text', e.target.value)}
-                  placeholder="Texto do botão"
-                  className="w-full text-xs p-2 border rounded"
-                />
-                <input
-                  type="text"
-                  value={settings.cta2Link ?? '#simulador-envio'}
-                  onChange={(e) => handleFieldChange('cta2Link', e.target.value)}
-                  placeholder="Âncora (#simulador-envio)"
-                  className="w-full text-xs p-2 border rounded"
-                />
+              {/* Haupt-CTA-Button */}
+              <div className="p-3 bg-amber-50/70 rounded-xl border border-amber-200 space-y-2">
+                <span className="text-xs font-bold text-stone-900 block">🟡 Gelber CTA-Button (Haupt-Aktion)</span>
+                <div>
+                  <label className="text-[11px] font-semibold text-stone-600 block mb-1">Button-Text</label>
+                  <input
+                    type="text"
+                    value={settings.ctaText ?? settings.cta1Text ?? 'Angebote anzeigen'}
+                    onChange={(e) => {
+                      handleFieldChange('ctaText', e.target.value);
+                      handleFieldChange('cta1Text', e.target.value);
+                    }}
+                    placeholder="Angebote anzeigen"
+                    className="w-full text-xs p-2 border rounded font-bold"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-semibold text-stone-600 block mb-1">Ziel-Link</label>
+                  <input
+                    type="text"
+                    value={settings.ctaUrl ?? settings.cta1Link ?? '/shop'}
+                    onChange={(e) => {
+                      handleFieldChange('ctaUrl', e.target.value);
+                      handleFieldChange('cta1Link', e.target.value);
+                    }}
+                    placeholder="URL (/shop)"
+                    className="w-full text-xs p-2 border rounded"
+                  />
+                </div>
               </div>
             </div>
           )}

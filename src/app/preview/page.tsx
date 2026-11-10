@@ -1,4 +1,7 @@
-import ThermalHero from '@/components/home/ThermalHero';
+import HlgHero from '@/components/home/HlgHero';
+import AktuelleAngebote from '@/components/home/AktuelleAngebote';
+import CategoryShowcaseSections from '@/components/home/CategoryShowcaseSections';
+import BrandShowcase from '@/components/home/BrandShowcase';
 import FeaturedProductTabs from '@/components/home/FeaturedProductTabs';
 import ShippingSimulator from '@/components/home/ShippingSimulator';
 import HeatingGuideBlogs from '@/components/home/HeatingGuideBlogs';
@@ -27,17 +30,38 @@ export default async function PreviewPage() {
   let layoutCookieStr = draftLayoutSetting?.value || '';
   // We can use the draft font if needed later
 
+  const DEFAULT_HLG_SECTIONS: SectionConfig[] = [
+    { id: 'sec_hero', type: 'Hero', name: 'Hero Banner & Kategorien', enabled: true, settings: {} },
+    { id: 'sec_deals', type: 'AktuelleAngebote', name: 'Aktuelle Angebote & Bestseller', enabled: true, settings: {} },
+    { id: 'sec_categories', type: 'CategoryShowcase', name: 'Top-Kategorien (Auswahl)', enabled: true, settings: {} },
+    { id: 'sec_brands', type: 'BrandShowcase', name: 'Marken & HLG Garantien', enabled: true, settings: {} },
+    { id: 'sec_trust', type: 'TrustBar', name: 'Vertrauensgarantien (TrustBar)', enabled: true, settings: {} },
+    { id: 'sec_blogs', type: 'HeatingGuideBlogs', name: 'HLG Magazin & Ratgeber', enabled: true, settings: { title: "HLG Magazin & Ratgeber" } },
+    { id: 'sec_newsletter', type: 'Newsletter', name: 'Newsletter', enabled: true, settings: {} }
+  ];
+
   let layout: SectionConfig[] = [];
   if (layoutCookieStr) {
     try {
       layout = JSON.parse(layoutCookieStr);
+      const hasHlg = layout.some(s => s.type === 'AktuelleAngebote' || s.type === 'CategoryShowcase');
+      if (!hasHlg) layout = DEFAULT_HLG_SECTIONS;
     } catch (e) {
       console.error(e);
+      layout = DEFAULT_HLG_SECTIONS;
     }
   } else {
     const settings = await getSettings();
     if (settings.HOMEPAGE_LAYOUT) {
-      layout = JSON.parse(settings.HOMEPAGE_LAYOUT);
+      try {
+        layout = JSON.parse(settings.HOMEPAGE_LAYOUT);
+        const hasHlg = layout.some(s => s.type === 'AktuelleAngebote' || s.type === 'CategoryShowcase');
+        if (!hasHlg) layout = DEFAULT_HLG_SECTIONS;
+      } catch {
+        layout = DEFAULT_HLG_SECTIONS;
+      }
+    } else {
+      layout = DEFAULT_HLG_SECTIONS;
     }
   }
 
@@ -176,40 +200,33 @@ export default async function PreviewPage() {
     let content = null;
     switch (section.type) {
       case 'Hero':
-        content = (
-          <div>
-            <ThermalHero config={section.settings} showcaseProducts={heroShowcaseProducts} isPreview={true} sectionId={section.id} />
-            <TrustBar />
-            <CategoryExplorer />
-          </div>
-        );
+        content = <HlgHero config={section.settings} />;
         break;
-      case 'FeaturedProductTabs':
-        content = <FeaturedProductTabs initialProducts={promoProducts} />;
+      case 'AktuelleAngebote':
+      case 'BestDeals':
+        content = <AktuelleAngebote />;
         break;
-      case 'ShippingSimulator':
-        content = <ShippingSimulator productsData={simulatorProducts} />;
+      case 'CategoryShowcase':
+        content = <CategoryShowcaseSections />;
+        break;
+      case 'BrandShowcase':
+        content = <BrandShowcase />;
+        break;
+      case 'TrustBar':
+        content = <TrustBar />;
+        break;
+      case 'CategoryExplorer':
+        content = <CategoryExplorer />;
         break;
       case 'HeatingGuideBlogs':
-        content = <HeatingGuideBlogs />;
-        break;
-      case 'BestDeals':
-        content = <BestDeals config={section.settings} />;
-        break;
-      case 'BestSeller':
-        content = <BestSeller config={section.settings} />;
-        break;
       case 'LatestBlogs':
-        content = <LatestBlogs config={section.settings} />;
+        content = <HeatingGuideBlogs />;
         break;
       case 'Newsletter':
         content = <Newsletter config={section.settings} />;
         break;
       case 'PromoBanners':
         content = <PromoBanners config={section.settings} />;
-        break;
-      case 'ProductGrid':
-        content = <ProductGrid config={section.settings} />;
         break;
       case 'FullWidthBanner':
         content = <FullWidthBanner config={section.settings} />;

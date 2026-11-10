@@ -136,8 +136,8 @@ export default function HlgHero({ config, categories = [] }: HlgHeroProps) {
         <div className="lg:col-span-6 xl:col-span-6 relative rounded-2xl overflow-hidden shadow-sm border border-stone-200/80 min-h-[420px] sm:min-h-[460px] flex items-center">
           {/* Background Appliance Ensemble Image */}
           <Image
-            src="/images/hero-appliances.jpg"
-            alt="Ihre hochwertigen Haushaltsgeräte zu den besten Preisen"
+            src={config?.bannerImage || config?.bgImageUrl || '/images/hero-appliances.jpg'}
+            alt={config?.title || "Ihre hochwertigen Haushaltsgeräte zu den besten Preisen"}
             fill
             priority
             className="object-cover object-center scale-100 group-hover:scale-105 transition-transform duration-700"
@@ -154,37 +154,37 @@ export default function HlgHero({ config, categories = [] }: HlgHeroProps) {
               <div className="inline-flex items-center shadow-xs">
                 <span className="relative bg-[#e01b1b] text-white text-[11px] sm:text-xs font-black tracking-wider uppercase px-3.5 py-1 rounded-sm shadow-sm flex items-center gap-1.5">
                   <span className="text-amber-300">⚡</span>
-                  <span>Sonderangebot</span>
+                  <span>{config?.badgeText || config?.campaignBadge || 'Sonderangebot'}</span>
                 </span>
               </div>
 
               {/* Main Red Catchphrase (Exact client slogan with crisp legibility) */}
               <h1 className="text-2xl sm:text-3xl xl:text-4xl font-black text-[#dc2626] leading-[1.15] tracking-tight mt-3">
-                Ihre hochwertigen Haushaltsgeräte zu den besten Preisen!
+                {config?.title || config?.titleGradient || 'Ihre hochwertigen Haushaltsgeräte zu den besten Preisen!'}
               </h1>
 
               {/* Value Proposition Subtext */}
               <p className="text-xs sm:text-sm font-semibold text-stone-700 mt-2 max-w-md leading-relaxed">
-                Premium-Marken für Küche &amp; Haushalt. Bis zu 40% sparen • Sofort versandbereit • 2 Jahre Garantie.
+                {config?.subtitle || config?.description || 'Premium-Marken für Küche & Haushalt. Bis zu 40% sparen • Sofort versandbereit • 2 Jahre Garantie.'}
               </p>
 
               {/* Trust Micro-Bullets */}
               <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] font-bold text-stone-600">
                 <span className="inline-flex items-center gap-1 text-[#107b46]">
-                  <span>✓</span> <span className="text-stone-700">Kostenloser Versand ab 50 €</span>
+                  <span>✓</span> <span className="text-stone-700">{config?.trustBadge1 || 'Kostenloser Versand ab 50 €'}</span>
                 </span>
                 <span className="inline-flex items-center gap-1 text-[#107b46]">
-                  <span>✓</span> <span className="text-stone-700">2 Jahre Garantie</span>
+                  <span>✓</span> <span className="text-stone-700">{config?.trustBadge2 || '2 Jahre Garantie'}</span>
                 </span>
               </div>
 
               {/* Yellow CTA Button "Angebote anzeigen" */}
               <div className="mt-4 flex flex-wrap items-center gap-3">
                 <Link
-                  href="/shop"
+                  href={config?.ctaUrl || config?.buttonLink || '/shop'}
                   className="bg-[#f59e0b] hover:bg-[#d97706] active:bg-[#b45309] text-stone-950 font-extrabold text-sm sm:text-base px-7 py-3 rounded-full inline-flex items-center gap-2 shadow-md hover:shadow-lg transition-all hover:scale-105 active:scale-95 cursor-pointer"
                 >
-                  <span>Angebote anzeigen</span>
+                  <span>{config?.ctaText || config?.buttonText || 'Angebote anzeigen'}</span>
                   <svg className="w-4 h-4 text-stone-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                   </svg>
@@ -198,7 +198,7 @@ export default function HlgHero({ config, categories = [] }: HlgHeroProps) {
         <div className="lg:col-span-3 hidden lg:flex flex-col relative rounded-2xl overflow-hidden shadow-sm border border-stone-200/80 min-h-[420px] sm:min-h-[460px] group">
           {/* Coffee machine photo */}
           <Image
-            src="/images/hero-coffee-machine.jpg"
+            src={config?.sideCardImage || config?.showcaseBgImage || '/images/hero-coffee-machine.jpg'}
             alt="Kaffeevollautomaten Highlight"
             fill
             className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
@@ -210,23 +210,23 @@ export default function HlgHero({ config, categories = [] }: HlgHeroProps) {
           {/* Top Badge */}
           <div className="relative z-10 p-5">
             <span className="inline-block bg-white/95 backdrop-blur-sm text-stone-900 font-extrabold text-[10px] uppercase tracking-wider px-3 py-1 rounded-full shadow-md">
-              ★ Bestseller der Woche
+              {config?.sideCardBadge || '★ Bestseller der Woche'}
             </span>
           </div>
 
           {/* Bottom Card Content */}
           <div className="relative z-10 mt-auto p-5 text-white">
             <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider block">
-              Genuss auf Knopfdruck
+              {config?.sideCardCategory || 'Genuss auf Knopfdruck'}
             </span>
             <h4 className="text-lg font-black tracking-tight leading-tight mt-1">
-              Kaffeevollautomaten
+              {config?.sideCardTitle || 'Kaffeevollautomaten'}
             </h4>
             <p className="text-xs text-stone-300 mt-1 line-clamp-2">
-              Perfekter Barista-Kaffee für Ihr Zuhause mit intuitiver Touch-Bedienung.
+              {config?.sideCardSubtitle || 'Perfekter Barista-Kaffee für Ihr Zuhause mit intuitiver Touch-Bedienung.'}
             </p>
             <Link
-              href="/shop?category=kaffeemaschinen"
+              href={config?.sideCardUrl || '/shop?category=kaffeemaschinen'}
               className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-amber-400 hover:text-amber-300 transition-colors"
             >
               <span>Geräte entdecken</span>
