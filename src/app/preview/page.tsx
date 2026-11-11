@@ -107,8 +107,8 @@ export default async function PreviewPage() {
       allCategories: p.categories.map(c => `${c.name} ${c.slug}`).join(' ')
     }));
 
-    promoProducts = formattedProducts.filter(p => 
-      (p.compareAtPrice && p.compareAtPrice > p.price) || 
+    promoProducts = formattedProducts.filter(p =>
+      (p.compareAtPrice && p.compareAtPrice > p.price) ||
       (p.discountLabel && p.discountLabel.trim() !== '')
     );
 
@@ -185,13 +185,13 @@ export default async function PreviewPage() {
       return {
         id: p.id,
         title: p.title,
-        subtitle: p.categoryName ? `${p.categoryName} • Alta Eficiência EcoDesign` : 'Qualidade Garantida Silva Dias',
+        subtitle: p.categoryName ? `${p.categoryName} • Hohe Energieeffizienz` : 'Geprüfte HLG Qualität',
         price: p.price,
         compareAtPrice: p.compareAtPrice,
         image: p.images[0],
-        badge: discountPct ? `POUPANÇA -${discountPct}%` : 'TOP VENDAS',
-        badgeTech: p.categoryName ? `🔥 ${p.categoryName}` : '🔥 Alto Rendimento',
-        badgeTech2: savings > 0 ? `Poupe ${savings.toFixed(2).replace('.', ',')} €` : 'Stock Garantido',
+        badge: discountPct ? `SPAREN -${discountPct}%` : 'BESTSELLER',
+        badgeTech: p.categoryName ? `🔥 ${p.categoryName}` : '🔥 Top-Leistung',
+        badgeTech2: savings > 0 ? `Sie sparen ${savings.toFixed(2).replace('.', ',')} €` : 'Auf Lager',
         categoryName: p.categoryName || ''
       };
     });
@@ -200,7 +200,7 @@ export default async function PreviewPage() {
     let content = null;
     switch (section.type) {
       case 'Hero':
-        content = <HlgHero config={section.settings} />;
+        content = <HlgHero config={section.settings} isPreview={true} sectionId={section.id} />;
         break;
       case 'AktuelleAngebote':
       case 'BestDeals':

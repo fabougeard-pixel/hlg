@@ -54,12 +54,17 @@ const nextConfig: NextConfig = {
       },
       {
         source: '/product/:path*',
-        destination: '/produto/:path*',
+        destination: '/produkt/:path*',
         permanent: true,
       },
       {
         source: '/produit/:path*',
-        destination: '/produto/:path*',
+        destination: '/produkt/:path*',
+        permanent: true,
+      },
+      {
+        source: '/produto/:path*',
+        destination: '/produkt/:path*',
         permanent: true,
       },
       {

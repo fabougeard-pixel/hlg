@@ -12,22 +12,22 @@ import FullWidthBannerEditor from '@/components/admin/settings/FullWidthBannerEd
 import AktuelleAngeboteEditor from '@/components/admin/settings/AktuelleAngeboteEditor';
 import Cookies from 'js-cookie';
 
-export type SectionType = 
-  | 'Hero' 
-  | 'AktuelleAngebote' 
-  | 'CategoryShowcase' 
-  | 'BrandShowcase' 
-  | 'TrustBar' 
+export type SectionType =
+  | 'Hero'
+  | 'AktuelleAngebote'
+  | 'CategoryShowcase'
+  | 'BrandShowcase'
+  | 'TrustBar'
   | 'CategoryExplorer'
-  | 'HeatingGuideBlogs' 
-  | 'Newsletter' 
-  | 'PromoBanners' 
-  | 'ProductGrid' 
-  | 'FullWidthBanner' 
-  | 'FeaturedProductTabs' 
+  | 'HeatingGuideBlogs'
+  | 'Newsletter'
+  | 'PromoBanners'
+  | 'ProductGrid'
+  | 'FullWidthBanner'
+  | 'FeaturedProductTabs'
   | 'ShippingSimulator'
-  | 'BestDeals' 
-  | 'BestSeller' 
+  | 'BestDeals'
+  | 'BestSeller'
   | 'LatestBlogs';
 
 export interface SectionConfig {
@@ -72,7 +72,7 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
   const [globalFont, setGlobalFont] = useState(initialSettings.GLOBAL_FONT_FAMILY || 'Inter');
   const [allProducts, setAllProducts] = useState<any[]>([]);
   const [productSearch, setProductSearch] = useState('');
-  const [mediaPickerTarget, setMediaPickerTarget] = useState<{sectionId: string, key: string} | null>(null);
+  const [mediaPickerTarget, setMediaPickerTarget] = useState<{ sectionId: string, key: string } | null>(null);
 
   useEffect(() => {
     getMinimalProducts().then(setAllProducts).catch(console.error);
@@ -98,7 +98,7 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
         }).catch(err => console.error('Failed to update preview cache', err));
       }
     }, 300); // 300ms debounce
-    
+
     return () => clearTimeout(timer);
   }, [sections, globalFont]);
 
@@ -164,7 +164,7 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
     const newSec: SectionConfig = {
       ...original,
       id: 'sec_' + Date.now(),
-      name: `${original.name || original.type} (Copie)`,
+      name: `${original.name || original.type} (Kopie)`,
       settings: JSON.parse(JSON.stringify(original.settings)) // Deep copy settings
     };
     const newSections = [...sections];
@@ -208,9 +208,9 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
     } else if (type === 'BestSeller') {
       newSec.settings = { title: "New Selection", filterType: 'POPULAR', categoryId: '' };
     } else if (type === 'ProductGrid') {
-      newSec.settings = { 
-        title: "Ride-on Mowers", 
-        filterType: 'LATEST', 
+      newSec.settings = {
+        title: "Ride-on Mowers",
+        filterType: 'LATEST',
         categoryId: '',
         variant: '1',
         cardBorderColor: '#ea580c',
@@ -236,7 +236,7 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
 
     if (section.type === 'ProductGrid' || section.type === 'BestDeals' || section.type === 'BestSeller') {
       return (
-        <ProductGridEditor 
+        <ProductGridEditor
           section={section}
           previewMode={previewMode}
           updateSectionSettings={updateSectionSettings}
@@ -250,11 +250,11 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
 
     if (section.type === 'Hero') {
       return (
-        <HeroSectionEditor 
-          section={section} 
-          previewMode={previewMode} 
-          updateSectionSettings={updateSectionSettings} 
-          handleUpload={handleUpload} 
+        <HeroSectionEditor
+          section={section}
+          previewMode={previewMode}
+          updateSectionSettings={updateSectionSettings}
+          handleUpload={handleUpload}
           editingBlockNum={editingBlockNum}
         />
       );
@@ -337,8 +337,8 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
               Sie können diese Sektion in der Hauptliste per Klick auf das Augen-Symbol ein- oder ausblenden sowie ihre Position mit den Pfeiltasten nach oben oder unten verschieben.
             </p>
           </div>
-          <button 
-            type="button" 
+          <button
+            type="button"
             onClick={() => setEditingId(null)}
             className="w-full py-2 bg-[#107b46] hover:bg-[#0d693b] text-white font-bold rounded-lg transition-colors cursor-pointer"
           >
@@ -347,7 +347,7 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
         </div>
       );
     }
-    
+
     return null;
   };
 
@@ -379,9 +379,9 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
               <div className="mb-6 bg-white p-3 border rounded shadow-sm">
                 <h4 className="font-bold text-xs text-gray-800 mb-2 border-b pb-1">{t('global_settings')}</h4>
                 <label className="block text-xs font-medium mb-1">{t('font_family')}</label>
-                <select 
-                  value={globalFont} 
-                  onChange={e => setGlobalFont(e.target.value)} 
+                <select
+                  value={globalFont}
+                  onChange={e => setGlobalFont(e.target.value)}
                   className="w-full border rounded px-2 py-1 text-sm focus:border-orange-500 outline-none"
                 >
                   <option value="Inter">Inter (Default)</option>
@@ -401,7 +401,7 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
               </div>
 
               <p className="text-[11px] leading-tight text-gray-500 mb-3">{t('click_section_preview')}</p>
-              
+
               <div className="flex items-center justify-between mb-2 px-1">
                 <span className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">Sektionen ({sections.length})</span>
                 <button
@@ -484,9 +484,9 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
                     </button>
                     <div className="flex-grow min-w-0 flex items-center gap-1.5">
                       <span className="px-1 py-0.5 bg-orange-100 text-orange-700 text-[9px] font-bold uppercase tracking-wider rounded shrink-0 hidden sm:inline-block">{section.type}</span>
-                      <input 
-                        type="text" 
-                        value={section.name} 
+                      <input
+                        type="text"
+                        value={section.name}
                         onChange={e => updateSectionName(section.id, e.target.value)}
                         className="text-xs font-bold border-b border-transparent hover:border-gray-200 focus:border-orange-500 outline-none bg-transparent w-full truncate transition-colors py-0.5"
                         placeholder="Name..."
@@ -517,22 +517,22 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
       <div className="flex-grow w-full relative z-10 bg-gray-200 flex flex-col items-center">
         {/* Device Toggle Bar */}
         <div className="w-full bg-white border-b flex justify-center items-center py-2 gap-2 shadow-sm z-20">
-          <button 
-            onClick={() => setPreviewMode('desktop')} 
+          <button
+            onClick={() => setPreviewMode('desktop')}
             className={`p-2 rounded transition-colors flex items-center justify-center ${previewMode === 'desktop' ? 'bg-orange-100 text-orange-700' : 'text-gray-500 hover:bg-gray-100'}`}
             title="Desktop Preview"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
           </button>
-          <button 
-            onClick={() => setPreviewMode('tablet')} 
+          <button
+            onClick={() => setPreviewMode('tablet')}
             className={`p-2 rounded transition-colors flex items-center justify-center ${previewMode === 'tablet' ? 'bg-orange-100 text-orange-700' : 'text-gray-500 hover:bg-gray-100'}`}
             title="Tablet Preview"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
           </button>
-          <button 
-            onClick={() => setPreviewMode('mobile')} 
+          <button
+            onClick={() => setPreviewMode('mobile')}
             className={`p-2 rounded transition-colors flex items-center justify-center ${previewMode === 'mobile' ? 'bg-orange-100 text-orange-700' : 'text-gray-500 hover:bg-gray-100'}`}
             title="Mobile Preview"
           >
@@ -544,37 +544,58 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
         <div className={`flex-grow relative transition-all duration-500 ease-in-out ${previewMode === 'desktop' ? 'w-full' : previewMode === 'tablet' ? 'w-[768px] shadow-2xl my-4 rounded-xl overflow-hidden border-8 border-gray-800' : 'w-[375px] shadow-2xl my-4 rounded-3xl overflow-hidden border-[12px] border-gray-800'}`}>
           {previewMode === 'mobile' && (
             <div className="absolute top-0 inset-x-0 h-6 bg-gray-800 z-30 flex justify-center rounded-b-xl">
-               <div className="w-24 h-4 bg-black rounded-b-xl"></div>
+              <div className="w-24 h-4 bg-black rounded-b-xl"></div>
             </div>
           )}
-          <iframe 
-            ref={iframeRef} 
-            src="/preview" 
-            className="w-full h-full bg-white" 
-            title="Live Preview" 
+          <iframe
+            ref={iframeRef}
+            src="/preview"
+            className="w-full h-full bg-white"
+            title="Live Preview"
           />
         </div>
       </div>
       {mediaPickerTarget && (
-        <MediaPickerModal 
+        <MediaPickerModal
           onClose={() => setMediaPickerTarget(null)}
           onSelect={(url) => {
-            if (mediaPickerTarget.key === 'spotlight_image') {
-              const sec = sections.find(s => s.id === mediaPickerTarget.sectionId);
-              const spotlight = sec?.settings?.spotlight || {};
-              updateSectionSettings(mediaPickerTarget.sectionId, 'spotlight', { ...spotlight, image: url });
-            } else if (mediaPickerTarget.key.startsWith('card_') && mediaPickerTarget.key.endsWith('_image')) {
-              const cardIdx = parseInt(mediaPickerTarget.key.split('_')[1], 10);
-              const sec = sections.find(s => s.id === mediaPickerTarget.sectionId);
-              const deals = [...(sec?.settings?.deals || [])];
-              if (deals[cardIdx]) {
-                deals[cardIdx] = { ...deals[cardIdx], image: url };
+            const { sectionId, key } = mediaPickerTarget;
+            const sec = sections.find(s => s.id === sectionId);
+            const secSettings = sec?.settings || {};
+
+            if (key.startsWith('aktuelle_')) {
+              const parts = key.split('_'); // e.g. aktuelle_WASCHEN_spotlight or aktuelle_GAMING_card_2
+              const tabKey = parts[1];
+              const isSpot = parts[2] === 'spotlight';
+              const cardIdx = parts[2] === 'card' ? parseInt(parts[3], 10) : -1;
+
+              if (tabKey === 'ALL') {
+                if (isSpot) {
+                  updateSectionSettings(sectionId, 'spotlight', { ...(secSettings.spotlight || {}), image: url });
+                } else if (cardIdx >= 0) {
+                  const deals = Array.isArray(secSettings.deals) ? [...secSettings.deals] : [];
+                  deals[cardIdx] = { ...(deals[cardIdx] || {}), image: url };
+                  updateSectionSettings(sectionId, 'deals', deals);
+                }
               } else {
-                deals[cardIdx] = { image: url };
+                const prevTabs = secSettings.tabsConfig || {};
+                const prevTab = prevTabs[tabKey] || {};
+                if (isSpot) {
+                  updateSectionSettings(sectionId, 'tabsConfig', {
+                    ...prevTabs,
+                    [tabKey]: { ...prevTab, spotlight: { ...(prevTab.spotlight || {}), image: url } }
+                  });
+                } else if (cardIdx >= 0) {
+                  const deals = Array.isArray(prevTab.deals) ? [...prevTab.deals] : [];
+                  deals[cardIdx] = { ...(deals[cardIdx] || {}), image: url };
+                  updateSectionSettings(sectionId, 'tabsConfig', {
+                    ...prevTabs,
+                    [tabKey]: { ...prevTab, deals }
+                  });
+                }
               }
-              updateSectionSettings(mediaPickerTarget.sectionId, 'deals', deals);
             } else {
-              updateSectionSettings(mediaPickerTarget.sectionId, mediaPickerTarget.key, url);
+              updateSectionSettings(sectionId, key, url);
             }
             setMediaPickerTarget(null);
           }}

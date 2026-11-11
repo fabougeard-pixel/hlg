@@ -6,39 +6,16 @@ import Image from 'next/image';
 import { useWishlistStore } from '@/store/wishlistStore';
 import { useCartStore } from '@/store/cartStore';
 import toast from 'react-hot-toast';
+import {
+  BestsellerItem,
+  DealItem,
+  TabFilterKey,
+  ANGEBOTE_FILTER_TABS,
+  DEFAULT_BESTSELLERS,
+  resolveTabOffers,
+} from './aktuelleAngeboteData';
 
-export interface BestsellerItem {
-  id: string;
-  title: string;
-  price: string;
-  rawPrice: number;
-  rating?: number;
-  ratingScore?: string;
-  image: string;
-  slug: string;
-  energyRating?: string;
-  rank?: number;
-}
-
-export interface DealItem {
-  id: string;
-  category: string;
-  categorySlug: string;
-  title: string;
-  price: string;
-  rawPrice: number;
-  compareAtPrice: string;
-  discount: string;
-  savings?: string;
-  rating: number;
-  ratingScore: string;
-  image: string;
-  slug: string;
-  energyRating?: string;
-  deliveryNote?: string;
-  warrantyNote?: string;
-  department: 'WASCHEN' | 'SAUGEN' | 'KUECHE' | 'KUEHLEN' | 'GAMING' | 'KAFFEE';
-}
+export type { BestsellerItem, DealItem };
 
 // Official EU Energy Label Badge
 function EnergyBadge({ rating }: { rating?: string }) {
@@ -77,820 +54,50 @@ function StarRating({ score }: { score?: string }) {
           </svg>
         ))}
       </div>
-      {score && (
-        <span className="text-[10px] text-stone-400 font-medium">{score}</span>
-      )}
+      {score && <span className="text-[10px] text-stone-400 font-medium">{score}</span>}
     </div>
   );
 }
 
-// -------------------------------------------------------------
-// DATA PER CATEGORY (Spotlight + 6 Small Cards for each pill)
-// -------------------------------------------------------------
-
-// 1. ALLE ANGEBOTE (Default from Capture)
-const defaultAlleSpotlight: DealItem = {
-  id: 'deal-spotlight',
-  category: 'Kaffeemaschinen',
-  categorySlug: 'kaffeemaschinen',
-  title: 'DELONGHI La Specialista Maestro Cold Brew EC9865.M Espressomaschine Silber/Schwarz',
-  price: '1 322,90€',
-  rawPrice: 1322.90,
-  compareAtPrice: '1 599,00€',
-  discount: '-17%',
-  savings: '276,10€',
-  rating: 5,
-  ratingScore: '(5.00)',
-  image: '/images/deals/deal-spotlight.jpg',
-  slug: 'delonghi-la-specialista-maestro-cold-brew',
-  deliveryNote: 'Kostenlose',
-  warrantyNote: '2 Jahre',
-  department: 'KAFFEE',
-};
-
-const defaultAlleGrid: DealItem[] = [
-  {
-    id: 'deal-1',
-    category: 'Waschtrockner',
-    categorySlug: 'waschtrockner',
-    title: 'SIEMENS WN54C2A40 iQ700 Waschtrockner 10/6 kg',
-    price: '861,94€',
-    rawPrice: 861.94,
-    compareAtPrice: '1 124,90€',
-    discount: '-23%',
-    savings: '262,96€',
-    rating: 5,
-    ratingScore: '(5.00)',
-    image: '/images/deals/deal-1.jpg',
-    slug: 'siemens-wn54c2a40-iq700-waschtrockner',
-    energyRating: 'A',
-    deliveryNote: 'Lieferung bis zum Verwendungsort',
-    department: 'WASCHEN',
-  },
-  {
-    id: 'deal-2',
-    category: 'Staubsauger & Reiniger',
-    categorySlug: 'staubsauger-reiniger',
-    title: 'ROBOROCK S8 MAXV ULTRA WEISS MIT ALL-IN-ONE DOCK',
-    price: '1 303,80€',
-    rawPrice: 1303.80,
-    compareAtPrice: '1 740,55€',
-    discount: '-25%',
-    savings: '436,75€',
-    rating: 5,
-    ratingScore: '(4.80)',
-    image: '/images/deals/deal-2.jpg',
-    slug: 'roborock-s8-maxv-ultra-weiss',
-    deliveryNote: 'Sofort lieferbar • 1-2 Werktage',
-    department: 'SAUGEN',
-  },
-  {
-    id: 'deal-3',
-    category: 'Gaming',
-    categorySlug: 'gaming',
-    title: 'NINTENDO Switch (OLED-Modell) Neon-Rot/Neon-Blau',
-    price: '271,90€',
-    rawPrice: 271.90,
-    compareAtPrice: '350,93€',
-    discount: '-23%',
-    savings: '79,03€',
-    rating: 5,
-    ratingScore: '(4.94)',
-    image: '/images/deals/deal-3.jpg',
-    slug: 'nintendo-switch-oled-modell-neon-rot-neon-blau',
-    deliveryNote: 'Sofort lieferbar',
-    department: 'GAMING',
-  },
-  {
-    id: 'deal-4',
-    category: 'Kleine Haushaltsgeräte',
-    categorySlug: 'kuechenmaschinen',
-    title: 'KENWOOD Titanium Chef Patissier XL KWL90.594SI',
-    price: '729,60€',
-    rawPrice: 729.60,
-    compareAtPrice: '955,80€',
-    discount: '-24%',
-    savings: '226,20€',
-    rating: 5,
-    ratingScore: '(4.63)',
-    image: '/images/deals/deal-4.jpg',
-    slug: 'kenwood-titanium-chef-patissier-xl',
-    deliveryNote: 'Auf Lager • 2-3 Werktage',
-    department: 'KUECHE',
-  },
-  {
-    id: 'deal-5',
-    category: 'Kleine Haushaltsgeräte',
-    categorySlug: 'kuechenmaschinen',
-    title: 'KENWOOD Titanium Chef Patissier XL mit Zubehör',
-    price: '461,90€',
-    rawPrice: 461.90,
-    compareAtPrice: '749,93€',
-    discount: '-38%',
-    savings: '288,03€',
-    rating: 5,
-    ratingScore: '(4.80)',
-    image: '/images/deals/deal-5.jpg',
-    slug: 'kenwood-titanium-chef-patissier-xl-zubehoer',
-    deliveryNote: 'Auf Lager • 2-3 Werktage',
-    department: 'KUECHE',
-  },
-  {
-    id: 'deal-6',
-    category: 'Kühlen & Gefrieren',
-    categorySlug: 'kuehlen-gefrieren',
-    title: 'HAIER HSR5918DIPB SBS 90 SERIE 5 Side-by-Side',
-    price: '836,89€',
-    rawPrice: 836.89,
-    compareAtPrice: '1 108,79€',
-    discount: '-25%',
-    savings: '271,90€',
-    rating: 5,
-    ratingScore: '(5.00)',
-    image: '/images/deals/deal-6.jpg',
-    slug: 'haier-hsr5918dipb-sbs-90-serie-5',
-    energyRating: 'E',
-    deliveryNote: 'Kostenlose 2-Mann-Lieferung',
-    department: 'KUEHLEN',
-  },
-];
-
-// 2. WASCHEN & TROCKNEN
-const waschenSpotlight: DealItem = {
-  id: 'waschen-spotlight',
-  category: 'Waschtrockner',
-  categorySlug: 'waschtrockner',
-  title: 'SIEMENS WN54C2A40 iQ700 Waschtrockner (10 kg Waschen / 6 kg Trocknen, A)',
-  price: '861,94€',
-  rawPrice: 861.94,
-  compareAtPrice: '1 124,90€',
-  discount: '-23%',
-  savings: '262,96€',
-  rating: 5,
-  ratingScore: '(5.00)',
-  image: '/images/deals/deal-1.jpg',
-  slug: 'siemens-wn54c2a40-iq700-waschtrockner',
-  energyRating: 'A',
-  deliveryNote: 'Kostenlose',
-  warrantyNote: '2 Jahre',
-  department: 'WASCHEN',
-};
-
-const waschenGrid: DealItem[] = [
-  {
-    id: 'wasch-1',
-    category: 'Waschmaschinen',
-    categorySlug: 'waschmaschinen',
-    title: 'SIEMENS WG44B2FCB iQ700 Waschmaschine 9kg 1257 U/Min.',
-    price: '699,90€',
-    rawPrice: 699.90,
-    compareAtPrice: '899,00€',
-    discount: '-22%',
-    rating: 5,
-    ratingScore: '(4.95)',
-    image: 'https://res.cloudinary.com/lrknfak7/image/upload/v1794335627/hlg/woocommerce-import/siemens-wg44b2fcb-iq700-waschmaschine-9-kg-1257-umin-a-1.jpg',
-    slug: 'siemens-wg44b2fcb-iq700-waschmaschine-9-kg-1257-u-min-a',
-    energyRating: 'A',
-    deliveryNote: 'Auf Lager • 2-3 Werktage',
-    department: 'WASCHEN',
-  },
-  {
-    id: 'wasch-2',
-    category: 'Waschtrockner',
-    categorySlug: 'waschtrockner',
-    title: 'CANDY CBD 485D1E/1-S Waschtrockner 8 kg / 5 kg',
-    price: '466,29€',
-    rawPrice: 466.29,
-    compareAtPrice: '599,00€',
-    discount: '-22%',
-    rating: 5,
-    ratingScore: '(4.80)',
-    image: '/images/deals/bestseller-2.jpg',
-    slug: 'candy-cbd-485d1e-1-s-waschtrockner-8-kg-5-kg',
-    energyRating: 'D',
-    deliveryNote: 'Sofort versandfertig',
-    department: 'WASCHEN',
-  },
-  {
-    id: 'wasch-3',
-    category: 'Waschmaschinen',
-    categorySlug: 'waschmaschinen',
-    title: 'HAIER HW100-BP14929 I-PRO SERIE 1 Waschmaschine 10kg',
-    price: '411,90€',
-    rawPrice: 411.90,
-    compareAtPrice: '549,00€',
-    discount: '-25%',
-    rating: 5,
-    ratingScore: '(4.88)',
-    image: 'https://res.cloudinary.com/lrknfak7/image/upload/v1794335251/hlg/woocommerce-import/haier-hw100-bp14929-i-pro-serie-1-waschmaschine-10-kg-1330-umin-a-1-1.jpg',
-    slug: 'haier-hw100-bp14929-i-pro-serie-1-waschmaschine-10-kg-1330-u-min-a-2',
-    energyRating: 'A',
-    deliveryNote: 'Kostenlose 2-Mann-Lieferung',
-    department: 'WASCHEN',
-  },
-  {
-    id: 'wasch-4',
-    category: 'Waschmaschinen',
-    categorySlug: 'waschmaschinen',
-    title: 'GORENJE WNEI94APS Waschmaschine 9kg 1400 U/Min.',
-    price: '263,94€',
-    rawPrice: 263.94,
-    compareAtPrice: '349,00€',
-    discount: '-24%',
-    rating: 5,
-    ratingScore: '(4.70)',
-    image: 'https://res.cloudinary.com/lrknfak7/image/upload/v1794335507/hlg/woocommerce-import/gorenje-wnei94aps-waschmaschine-9-kg-1400-umin-a-1.jpg',
-    slug: 'gorenje-wnei94aps-waschmaschine-9-kg-1400-u-min-a',
-    energyRating: 'A',
-    deliveryNote: 'Auf Lager',
-    department: 'WASCHEN',
-  },
-  {
-    id: 'wasch-5',
-    category: 'Waschmaschinen',
-    categorySlug: 'waschmaschinen',
-    title: 'MIELE WWE460 WPS PWash&8kg W1 White Edition Waschmaschine',
-    price: '996,99€',
-    rawPrice: 996.99,
-    compareAtPrice: '1 199,00€',
-    discount: '-17%',
-    rating: 5,
-    ratingScore: '(5.00)',
-    image: 'https://res.cloudinary.com/lrknfak7/image/upload/v1794335321/hlg/woocommerce-import/miele-wwe460-wps-pwash8kg-w1-white-edition-waschmaschine-8-kg-1400-umin-a-flusenfilter-fremdkoerperfilter-1.jpg',
-    slug: 'miele-wwe460-wps-pwash8kg-w1-white-edition-waschmaschine-8-kg-1400-u-min-a-flusenfilter-fremdkoerperfilter',
-    energyRating: 'A',
-    deliveryNote: 'Premium-Lieferung inklusive',
-    department: 'WASCHEN',
-  },
-  {
-    id: 'wasch-6',
-    category: 'Waschmaschinen',
-    categorySlug: 'waschmaschinen',
-    title: 'BOSCH WGB244040 Serie 8 Waschmaschine 9 kg',
-    price: '564,70€',
-    rawPrice: 564.70,
-    compareAtPrice: '729,00€',
-    discount: '-23%',
-    rating: 5,
-    ratingScore: '(4.90)',
-    image: 'https://res.cloudinary.com/lrknfak7/image/upload/v1794335423/hlg/woocommerce-import/bosch-wgb244040-serie-8-waschmaschine-9-kg-1257-umin-a-1.jpg',
-    slug: 'bosch-wgb244040-serie-8-waschmaschine-9-kg-1257-u-min-a',
-    energyRating: 'A',
-    deliveryNote: 'Auf Lager • 2-3 Werktage',
-    department: 'WASCHEN',
-  },
-];
-
-// 3. STAUBSAUGER
-const saugenSpotlight: DealItem = {
-  id: 'saugen-spotlight',
-  category: 'Staubsauger & Reiniger',
-  categorySlug: 'staubsauger-reiniger',
-  title: 'ROBOROCK S8 MAXV ULTRA WEISS MIT ALL-IN-ONE DOCK',
-  price: '1 303,80€',
-  rawPrice: 1303.80,
-  compareAtPrice: '1 740,55€',
-  discount: '-25%',
-  savings: '436,75€',
-  rating: 5,
-  ratingScore: '(4.80)',
-  image: '/images/deals/deal-2.jpg',
-  slug: 'roborock-s8-maxv-ultra-weiss',
-  deliveryNote: 'Kostenlose',
-  warrantyNote: '2 Jahre',
-  department: 'SAUGEN',
-};
-
-const saugenGrid: DealItem[] = [
-  {
-    id: 'saug-1',
-    category: 'Staubsauger & Reiniger',
-    categorySlug: 'staubsauger-reiniger',
-    title: 'TONI HOMI M30 Saugroboter mit Wischfunktion',
-    price: '184,80€',
-    rawPrice: 184.80,
-    compareAtPrice: '249,00€',
-    discount: '-26%',
-    rating: 5,
-    ratingScore: '(4.70)',
-    image: 'https://res.cloudinary.com/lrknfak7/image/upload/v1794334346/hlg/woocommerce-import/toni-homi-m30-saugroboter-mit-wischfunktion-1.jpg',
-    slug: 'toni-homi-m30-saugroboter-mit-wischfunktion',
-    deliveryNote: 'Sofort lieferbar',
-    department: 'SAUGEN',
-  },
-  {
-    id: 'saug-2',
-    category: 'Staubsauger & Reiniger',
-    categorySlug: 'staubsauger-reiniger',
-    title: 'ROBOROCK S8 Pro Ultra Saugroboter Schwarz',
-    price: '999,00€',
-    rawPrice: 999.00,
-    compareAtPrice: '1 299,00€',
-    discount: '-23%',
-    rating: 5,
-    ratingScore: '(4.92)',
-    image: '/images/deals/deal-2.jpg',
-    slug: 'roborock-s8-maxv-ultra-weiss',
-    deliveryNote: 'Auf Lager • Expressversand',
-    department: 'SAUGEN',
-  },
-  {
-    id: 'saug-3',
-    category: 'Staubsauger & Reiniger',
-    categorySlug: 'staubsauger-reiniger',
-    title: 'DREAME L20 Ultra Complete Saugroboter mit Wischarm',
-    price: '899,00€',
-    rawPrice: 899.00,
-    compareAtPrice: '1 199,00€',
-    discount: '-25%',
-    rating: 5,
-    ratingScore: '(4.85)',
-    image: 'https://res.cloudinary.com/lrknfak7/image/upload/v1794334346/hlg/woocommerce-import/toni-homi-m30-saugroboter-mit-wischfunktion-2.jpg',
-    slug: 'dreame-l20-ultra-complete',
-    deliveryNote: 'Sofort lieferbar',
-    department: 'SAUGEN',
-  },
-  {
-    id: 'saug-4',
-    category: 'Staubsauger & Reiniger',
-    categorySlug: 'staubsauger-reiniger',
-    title: 'ROWENTA X-Force Flex 14.60 Akku-Staubsauger',
-    price: '329,90€',
-    rawPrice: 329.90,
-    compareAtPrice: '449,00€',
-    discount: '-27%',
-    rating: 5,
-    ratingScore: '(4.75)',
-    image: 'https://res.cloudinary.com/lrknfak7/image/upload/v1794334347/hlg/woocommerce-import/toni-homi-m30-saugroboter-mit-wischfunktion-4.jpg',
-    slug: 'rowenta-x-force-flex-14-60',
-    deliveryNote: 'Auf Lager • 2-3 Werktage',
-    department: 'SAUGEN',
-  },
-  {
-    id: 'saug-5',
-    category: 'Staubsauger & Reiniger',
-    categorySlug: 'staubsauger-reiniger',
-    title: 'DYSON V15 Detect Absolute Akku-Staubsauger',
-    price: '649,00€',
-    rawPrice: 649.00,
-    compareAtPrice: '799,00€',
-    discount: '-19%',
-    rating: 5,
-    ratingScore: '(4.94)',
-    image: 'https://res.cloudinary.com/lrknfak7/image/upload/v1794334347/hlg/woocommerce-import/toni-homi-m30-saugroboter-mit-wischfunktion-6.jpg',
-    slug: 'dyson-v15-detect-absolute',
-    deliveryNote: 'Kostenlose Lieferung',
-    department: 'SAUGEN',
-  },
-  {
-    id: 'saug-6',
-    category: 'Staubsauger & Reiniger',
-    categorySlug: 'staubsauger-reiniger',
-    title: 'XIAOMI Robot Vacuum X10+ All-in-One Station',
-    price: '499,00€',
-    rawPrice: 499.00,
-    compareAtPrice: '649,00€',
-    discount: '-23%',
-    rating: 5,
-    ratingScore: '(4.80)',
-    image: 'https://res.cloudinary.com/lrknfak7/image/upload/v1794334346/hlg/woocommerce-import/toni-homi-m30-saugroboter-mit-wischfunktion-3.jpg',
-    slug: 'xiaomi-robot-vacuum-x10-plus',
-    deliveryNote: 'Sofort lieferbar',
-    department: 'SAUGEN',
-  },
-];
-
-// 4. KÜCHENGERÄTE
-const kuecheSpotlight: DealItem = {
-  id: 'kueche-spotlight',
-  category: 'Kaffeemaschinen',
-  categorySlug: 'kaffeemaschinen',
-  title: 'DELONGHI La Specialista Maestro Cold Brew EC9865.M Espressomaschine Silber/Schwarz',
-  price: '1 322,90€',
-  rawPrice: 1322.90,
-  compareAtPrice: '1 599,00€',
-  discount: '-17%',
-  savings: '276,10€',
-  rating: 5,
-  ratingScore: '(5.00)',
-  image: '/images/deals/deal-spotlight.jpg',
-  slug: 'delonghi-la-specialista-maestro-cold-brew',
-  deliveryNote: 'Kostenlose',
-  warrantyNote: '2 Jahre',
-  department: 'KAFFEE',
-};
-
-const kuecheGrid: DealItem[] = [
-  {
-    id: 'kuech-1',
-    category: 'Kleine Haushaltsgeräte',
-    categorySlug: 'kuechenmaschinen',
-    title: 'KENWOOD Titanium Chef Patissier XL KWL90.594SI',
-    price: '729,60€',
-    rawPrice: 729.60,
-    compareAtPrice: '955,80€',
-    discount: '-24%',
-    rating: 5,
-    ratingScore: '(4.63)',
-    image: '/images/deals/deal-4.jpg',
-    slug: 'kenwood-titanium-chef-patissier-xl',
-    deliveryNote: 'Auf Lager • 2-3 Werktage',
-    department: 'KUECHE',
-  },
-  {
-    id: 'kuech-2',
-    category: 'Kleine Haushaltsgeräte',
-    categorySlug: 'kuechenmaschinen',
-    title: 'KENWOOD Titanium Chef Patissier XL mit Zubehör',
-    price: '461,90€',
-    rawPrice: 461.90,
-    compareAtPrice: '749,93€',
-    discount: '-38%',
-    rating: 5,
-    ratingScore: '(4.80)',
-    image: '/images/deals/deal-5.jpg',
-    slug: 'kenwood-titanium-chef-patissier-xl-zubehoer',
-    deliveryNote: 'Auf Lager • 2-3 Werktage',
-    department: 'KUECHE',
-  },
-  {
-    id: 'kuech-3',
-    category: 'Küchenmaschinen',
-    categorySlug: 'kuechenmaschinen',
-    title: 'KITCHENAID Artisan Küchenmaschine 4.8L Liebesapfelrot',
-    price: '232,82€',
-    rawPrice: 232.82,
-    compareAtPrice: '349,00€',
-    discount: '-33%',
-    rating: 5,
-    ratingScore: '(5.00)',
-    image: '/images/deals/bestseller-5.jpg',
-    slug: 'kitchenaid-artisan-rot',
-    deliveryNote: 'Sofort lieferbar',
-    department: 'KUECHE',
-  },
-  {
-    id: 'kuech-4',
-    category: 'Küchenmaschinen',
-    categorySlug: 'kuechenmaschinen',
-    title: 'KITCHENAID 5KSM175PS Artisan Küchenmaschine Guacamole',
-    price: '529,80€',
-    rawPrice: 529.80,
-    compareAtPrice: '699,00€',
-    discount: '-24%',
-    rating: 5,
-    ratingScore: '(5.00)',
-    image: '/images/deals/bestseller-6.jpg',
-    slug: 'kitchenaid-artisan-gruen',
-    deliveryNote: 'Auf Lager',
-    department: 'KUECHE',
-  },
-  {
-    id: 'kuech-5',
-    category: 'Kaffeemaschinen',
-    categorySlug: 'kaffeemaschinen',
-    title: 'JURA E6 (ECS) Kaffeevollautomat Piano White',
-    price: '652,70€',
-    rawPrice: 652.70,
-    compareAtPrice: '849,00€',
-    discount: '-23%',
-    rating: 5,
-    ratingScore: '(4.67)',
-    image: '/images/deals/bestseller-4.jpg',
-    slug: 'jura-e6-ecs-kaffeevollautomat',
-    deliveryNote: 'Kostenlose Lieferung',
-    department: 'KUECHE',
-  },
-  {
-    id: 'kuech-6',
-    category: 'Herde & Kochfelder',
-    categorySlug: 'herde',
-    title: 'AEG IKE 64450 XB Induktionskochfeld 60cm',
-    price: '350,79€',
-    rawPrice: 350.79,
-    compareAtPrice: '489,00€',
-    discount: '-28%',
-    rating: 5,
-    ratingScore: '(4.50)',
-    image: '/images/deals/bestseller-3.jpg',
-    slug: 'aeg-ike-64450-xb-induktionskochfeld',
-    energyRating: 'A+',
-    deliveryNote: 'Auf Lager • 2-3 Werktage',
-    department: 'KUECHE',
-  },
-];
-
-// 5. KÜHLEN
-const kuehlenSpotlight: DealItem = {
-  id: 'kuehlen-spotlight',
-  category: 'Kühlen & Gefrieren',
-  categorySlug: 'kuehlen-gefrieren',
-  title: 'HAIER HSR5918DIPB SBS 90 SERIE 5 Side-by-Side Kühl-Gefrierkombination',
-  price: '836,89€',
-  rawPrice: 836.89,
-  compareAtPrice: '1 108,79€',
-  discount: '-25%',
-  savings: '271,90€',
-  rating: 5,
-  ratingScore: '(5.00)',
-  image: '/images/deals/deal-6.jpg',
-  slug: 'haier-hsr5918dipb-sbs-90-serie-5',
-  energyRating: 'E',
-  deliveryNote: 'Kostenlose',
-  warrantyNote: '2 Jahre',
-  department: 'KUEHLEN',
-};
-
-const kuehlenGrid: DealItem[] = [
-  {
-    id: 'kuehl-1',
-    category: 'Kühlen & Gefrieren',
-    categorySlug: 'kuehlen-gefrieren',
-    title: 'SAMSUNG RS67A8810S9 Side-by-Side SpaceMax No Frost',
-    price: '949,00€',
-    rawPrice: 949.00,
-    compareAtPrice: '1 299,00€',
-    discount: '-27%',
-    rating: 5,
-    ratingScore: '(4.90)',
-    image: '/images/deals/deal-6.jpg',
-    slug: 'haier-hsr5918dipb-sbs-90-serie-5',
-    energyRating: 'E',
-    deliveryNote: 'Kostenlose 2-Mann-Lieferung',
-    department: 'KUEHLEN',
-  },
-  {
-    id: 'kuehl-2',
-    category: 'Kühlen & Gefrieren',
-    categorySlug: 'kuehlen-gefrieren',
-    title: 'LIEBHERR CNd 5203 Plus Kühl-Gefrierkombination',
-    price: '729,00€',
-    rawPrice: 729.00,
-    compareAtPrice: '949,00€',
-    discount: '-23%',
-    rating: 5,
-    ratingScore: '(4.95)',
-    image: '/images/deals/deal-6.jpg',
-    slug: 'haier-hsr5918dipb-sbs-90-serie-5',
-    energyRating: 'D',
-    deliveryNote: 'Auf Lager • 2-3 Werktage',
-    department: 'KUEHLEN',
-  },
-  {
-    id: 'kuehl-3',
-    category: 'Kühlen & Gefrieren',
-    categorySlug: 'kuehlen-gefrieren',
-    title: 'BOSCH KGN39VWEA Serie 4 Kühl-Gefrierkombination',
-    price: '569,90€',
-    rawPrice: 569.90,
-    compareAtPrice: '749,00€',
-    discount: '-24%',
-    rating: 5,
-    ratingScore: '(4.80)',
-    image: '/images/deals/deal-6.jpg',
-    slug: 'haier-hsr5918dipb-sbs-90-serie-5',
-    energyRating: 'E',
-    deliveryNote: 'Auf Lager',
-    department: 'KUEHLEN',
-  },
-  {
-    id: 'kuehl-4',
-    category: 'Kühlen & Gefrieren',
-    categorySlug: 'kuehlen-gefrieren',
-    title: 'BAUKNECHT KSN 19 A2+ IN Side-by-Side Edelstahl-Optik',
-    price: '799,00€',
-    rawPrice: 799.00,
-    compareAtPrice: '1 099,00€',
-    discount: '-27%',
-    rating: 5,
-    ratingScore: '(4.75)',
-    image: '/images/deals/deal-6.jpg',
-    slug: 'haier-hsr5918dipb-sbs-90-serie-5',
-    energyRating: 'E',
-    deliveryNote: 'Kostenlose Lieferung',
-    department: 'KUEHLEN',
-  },
-  {
-    id: 'kuehl-5',
-    category: 'Kühlen & Gefrieren',
-    categorySlug: 'kuehlen-gefrieren',
-    title: 'SIEMENS KG39N2LEA iQ300 Kühl-Gefrierkombination',
-    price: '589,00€',
-    rawPrice: 589.00,
-    compareAtPrice: '779,00€',
-    discount: '-24%',
-    rating: 5,
-    ratingScore: '(4.85)',
-    image: '/images/deals/deal-6.jpg',
-    slug: 'haier-hsr5918dipb-sbs-90-serie-5',
-    energyRating: 'E',
-    deliveryNote: 'Sofort versandfertig',
-    department: 'KUEHLEN',
-  },
-  {
-    id: 'kuehl-6',
-    category: 'Kühlen & Gefrieren',
-    categorySlug: 'kuehlen-gefrieren',
-    title: 'GORENJE NRK6192AXL4 NoFrost Plus Kühlkombination',
-    price: '419,90€',
-    rawPrice: 419.90,
-    compareAtPrice: '549,00€',
-    discount: '-24%',
-    rating: 5,
-    ratingScore: '(4.70)',
-    image: '/images/deals/deal-6.jpg',
-    slug: 'haier-hsr5918dipb-sbs-90-serie-5',
-    energyRating: 'E',
-    deliveryNote: 'Auf Lager',
-    department: 'KUEHLEN',
-  },
-];
-
-// 6. GAMING
-const gamingSpotlight: DealItem = {
-  id: 'gaming-spotlight',
-  category: 'Gaming',
-  categorySlug: 'gaming',
-  title: 'NINTENDO Switch (OLED-Modell) Neon-Rot/Neon-Blau mit 7-Zoll OLED',
-  price: '271,90€',
-  rawPrice: 271.90,
-  compareAtPrice: '350,93€',
-  discount: '-23%',
-  savings: '79,03€',
-  rating: 5,
-  ratingScore: '(4.94)',
-  image: '/images/deals/deal-3.jpg',
-  slug: 'nintendo-switch-oled-modell-neon-rot-neon-blau',
-  deliveryNote: 'Kostenlose',
-  warrantyNote: '2 Jahre',
-  department: 'GAMING',
-};
-
-const gamingGrid: DealItem[] = [
-  {
-    id: 'game-1',
-    category: 'Gaming',
-    categorySlug: 'gaming',
-    title: 'NINTENDO SWITCH LITE GRAU Handheld Konsole',
-    price: '211,80€',
-    rawPrice: 211.80,
-    compareAtPrice: '249,00€',
-    discount: '-15%',
-    rating: 5,
-    ratingScore: '(4.85)',
-    image: 'https://res.cloudinary.com/lrknfak7/image/upload/v1794334458/hlg/woocommerce-import/nintendo-switch-lite-grau-1.jpg',
-    slug: 'nintendo-switch-lite-grau',
-    deliveryNote: 'Sofort lieferbar',
-    department: 'GAMING',
-  },
-  {
-    id: 'game-2',
-    category: 'Gaming',
-    categorySlug: 'gaming',
-    title: 'NINTENDO SWITCH GRAU Konsole mit Joy-Con',
-    price: '230,92€',
-    rawPrice: 230.92,
-    compareAtPrice: '289,00€',
-    discount: '-20%',
-    rating: 5,
-    ratingScore: '(4.80)',
-    image: 'https://res.cloudinary.com/lrknfak7/image/upload/v1794334454/hlg/woocommerce-import/nintendo-switch-grau-1.jpg',
-    slug: 'nintendo-switch-grau',
-    deliveryNote: 'Auf Lager • 2-3 Werktage',
-    department: 'GAMING',
-  },
-  {
-    id: 'game-3',
-    category: 'Gaming',
-    categorySlug: 'gaming',
-    title: 'NINTENDO Switch Lite Gelb Handheld Edition',
-    price: '174,60€',
-    rawPrice: 174.60,
-    compareAtPrice: '229,00€',
-    discount: '-24%',
-    rating: 5,
-    ratingScore: '(4.78)',
-    image: 'https://res.cloudinary.com/lrknfak7/image/upload/v1794334437/hlg/woocommerce-import/nintendo-switch-lite-gelb-1.jpg',
-    slug: 'nintendo-switch-lite-gelb',
-    deliveryNote: 'Sofort lieferbar',
-    department: 'GAMING',
-  },
-  {
-    id: 'game-4',
-    category: 'Gaming',
-    categorySlug: 'gaming',
-    title: 'SONY PLAYSTATION 4 1 TB PRO BLACK Standalone Konsole',
-    price: '214,99€',
-    rawPrice: 214.99,
-    compareAtPrice: '299,00€',
-    discount: '-28%',
-    rating: 5,
-    ratingScore: '(4.70)',
-    image: 'https://res.cloudinary.com/lrknfak7/image/upload/v1794334532/hlg/woocommerce-import/asset-mp-107802474.jpg',
-    slug: 'sony-playstation-4-1-tb-pro-black-standalone',
-    deliveryNote: 'Auf Lager',
-    department: 'GAMING',
-  },
-  {
-    id: 'game-5',
-    category: 'Gaming',
-    categorySlug: 'gaming',
-    title: 'PLAYSTATION 5 DualSense Wireless-Controller Midnight Black',
-    price: '59,99€',
-    rawPrice: 59.99,
-    compareAtPrice: '74,99€',
-    discount: '-20%',
-    rating: 5,
-    ratingScore: '(4.92)',
-    image: '/images/deals/deal-3.jpg',
-    slug: 'nintendo-switch-oled-modell-neon-rot-neon-blau',
-    deliveryNote: 'Sofort lieferbar',
-    department: 'GAMING',
-  },
-  {
-    id: 'game-6',
-    category: 'Gaming',
-    categorySlug: 'gaming',
-    title: 'NINTENDO Switch Pro Controller Schwarz Wireless',
-    price: '54,90€',
-    rawPrice: 54.90,
-    compareAtPrice: '69,99€',
-    discount: '-22%',
-    rating: 5,
-    ratingScore: '(4.88)',
-    image: '/images/deals/deal-3.jpg',
-    slug: 'nintendo-switch-oled-modell-neon-rot-neon-blau',
-    deliveryNote: 'Auf Lager',
-    department: 'GAMING',
-  },
-];
-
-// Fallback Bestsellers from capture without rank numbering
-const defaultBestsellersList: BestsellerItem[] = [
-  {
-    id: 'bs-1',
-    title: 'BAUKNECHT Waschmaschine Frontlader 8kg',
-    price: '319,80€',
-    rawPrice: 319.80,
-    image: '/images/deals/bestseller-1.jpg',
-    slug: 'bauknecht-waschmaschine-frontlader-8kg',
-    energyRating: 'A',
-    rating: 5,
-    ratingScore: '(5.00)',
-  },
-  {
-    id: 'bs-2',
-    title: 'CANDY CBD 485D1E/1-S Waschtrockner',
-    price: '466,29€',
-    rawPrice: 466.29,
-    image: '/images/deals/bestseller-2.jpg',
-    slug: 'candy-cbd-485d1e-1-s-waschtrockner-8-kg-5-kg',
-    energyRating: 'D',
-    rating: 5,
-    ratingScore: '(4.80)',
-  },
-  {
-    id: 'bs-3',
-    title: 'AEG IKE 64450 XB Induktionskochfeld 60cm',
-    price: '350,79€',
-    rawPrice: 350.79,
-    rating: 5,
-    ratingScore: '(4.50)',
-    image: '/images/deals/bestseller-3.jpg',
-    slug: 'aeg-ike-64450-xb-induktionskochfeld',
-    energyRating: 'A+',
-  },
-  {
-    id: 'bs-4',
-    title: 'JURA E6 (ECS) Kaffeevollautomat Piano White',
-    price: '652,70€',
-    rawPrice: 652.70,
-    rating: 5,
-    ratingScore: '(4.67)',
-    image: '/images/deals/bestseller-4.jpg',
-    slug: 'jura-e6-ecs-kaffeevollautomat',
-  },
-  {
-    id: 'bs-5',
-    title: 'KITCHENAID Artisan Küchenmaschine 4.8L Liebesapfelrot',
-    price: '232,82€',
-    rawPrice: 232.82,
-    rating: 5,
-    ratingScore: '(5.00)',
-    image: '/images/deals/bestseller-5.jpg',
-    slug: 'kitchenaid-artisan-rot',
-  },
-  {
-    id: 'bs-6',
-    title: 'KITCHENAID 5KSM175PS Artisan Küchenmaschine Guacamole',
-    price: '529,80€',
-    rawPrice: 529.80,
-    rating: 5,
-    ratingScore: '(5.00)',
-    image: '/images/deals/bestseller-6.jpg',
-    slug: 'kitchenaid-artisan-gruen',
-  },
-];
+function ProductImageBox({
+  src,
+  alt,
+  sizes,
+  priority = false,
+  className = '',
+}: {
+  src?: string;
+  alt: string;
+  sizes: string;
+  priority?: boolean;
+  className?: string;
+}) {
+  if (!src) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-stone-50 text-stone-300 rounded-xl">
+        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+          />
+        </svg>
+      </div>
+    );
+  }
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      sizes={sizes}
+      quality={90}
+      priority={priority}
+      className={className}
+    />
+  );
+}
 
 interface AktuelleAngeboteProps {
   dbBestsellers?: BestsellerItem[];
@@ -900,7 +107,7 @@ interface AktuelleAngeboteProps {
 export default function AktuelleAngebote({ dbBestsellers, config }: AktuelleAngeboteProps) {
   const wishlistStore = useWishlistStore();
   const cartStore = useCartStore();
-  const [filterDepartment, setFilterDepartment] = useState<string>('ALL');
+  const [filterDepartment, setFilterDepartment] = useState<TabFilterKey>('ALL');
   const [quickViewProduct, setQuickViewProduct] = useState<DealItem | null>(null);
 
   // Live Countdown Timer for Deal of the Day (counts down to midnight)
@@ -948,7 +155,7 @@ export default function AktuelleAngebote({ dbBestsellers, config }: AktuelleAnge
       productId: item.id,
       title: item.title,
       price: item.rawPrice || 0,
-      image: item.image,
+      image: item.image || '',
       quantity: 1,
     });
     cartStore.setIsOpen(true);
@@ -961,99 +168,50 @@ export default function AktuelleAngebote({ dbBestsellers, config }: AktuelleAnge
     setQuickViewProduct(item);
   };
 
-  // Combine DB detected bestsellers with capture bestsellers (NO RANK NUMBERING)
-  const bestsellers = (dbBestsellers && dbBestsellers.length > 0)
-    ? dbBestsellers.slice(0, 6)
-    : defaultBestsellersList;
+  // Design overrides
+  const design = config?.design || {};
+  const accentColor = design.accentColor || '#107b46';
+  const saleColor = design.saleColor || '#dc2626';
+  const sectionTitle = config?.sectionTitle || 'Aktuelle Angebote';
+  const spotlightBadgeText = config?.spotlightBadgeText || 'DEAL DES TAGES';
+  const cardRadius = design.cardRadius !== undefined ? Number(design.cardRadius) : 16;
 
-  // Custom Alle Angebote from config if defined by user
-  const customAlleSpotlight: DealItem = config?.spotlight ? {
-    id: 'deal-spotlight-custom',
-    category: config.spotlight.category || defaultAlleSpotlight.category,
-    categorySlug: 'angebote',
-    title: config.spotlight.title || defaultAlleSpotlight.title,
-    price: config.spotlight.price || defaultAlleSpotlight.price,
-    rawPrice: config.spotlight.rawPrice || parseFloat(String(config.spotlight.price || '0').replace(/[^0-9,.]/g, '').replace(',', '.')) || defaultAlleSpotlight.rawPrice,
-    compareAtPrice: config.spotlight.compareAtPrice || defaultAlleSpotlight.compareAtPrice,
-    discount: config.spotlight.discount || defaultAlleSpotlight.discount,
-    savings: config.spotlight.savings || defaultAlleSpotlight.savings,
-    rating: 5,
-    ratingScore: '(5.00)',
-    image: config.spotlight.image || defaultAlleSpotlight.image,
-    slug: config.spotlight.slug || defaultAlleSpotlight.slug,
-    deliveryNote: config.spotlight.deliveryNote || 'Kostenlose',
-    warrantyNote: config.spotlight.warrantyNote || '2 Jahre',
-    department: 'KAFFEE',
-  } : defaultAlleSpotlight;
+  // Bestsellers without rank numbering
+  const bestsellers =
+    dbBestsellers && dbBestsellers.length > 0 ? dbBestsellers.slice(0, 6) : DEFAULT_BESTSELLERS;
 
-  const customAlleGrid: DealItem[] = (Array.isArray(config?.deals) && config.deals.length === 6)
-    ? config.deals.map((d: any, idx: number) => ({
-        id: `deal-custom-${idx}`,
-        category: d.category || defaultAlleGrid[idx].category,
-        categorySlug: defaultAlleGrid[idx].categorySlug,
-        title: d.title || defaultAlleGrid[idx].title,
-        price: d.price || defaultAlleGrid[idx].price,
-        rawPrice: d.rawPrice || parseFloat(String(d.price || '0').replace(/[^0-9,.]/g, '').replace(',', '.')) || defaultAlleGrid[idx].rawPrice,
-        compareAtPrice: d.compareAtPrice || defaultAlleGrid[idx].compareAtPrice,
-        discount: d.discount || defaultAlleGrid[idx].discount,
-        rating: 5,
-        ratingScore: defaultAlleGrid[idx].ratingScore,
-        image: d.image || defaultAlleGrid[idx].image,
-        slug: d.slug || defaultAlleGrid[idx].slug,
-        energyRating: d.energyRating || defaultAlleGrid[idx].energyRating,
-        deliveryNote: d.deliveryNote || defaultAlleGrid[idx].deliveryNote,
-        department: defaultAlleGrid[idx].department,
-      }))
-    : defaultAlleGrid;
-
-  // Resolve active Spotlight Card and 6 Small Cards based on selected pill
-  let currentSpotlight: DealItem = customAlleSpotlight;
-  let currentGrid: DealItem[] = customAlleGrid;
-
-  if (filterDepartment === 'WASCHEN') {
-    currentSpotlight = waschenSpotlight;
-    currentGrid = waschenGrid;
-  } else if (filterDepartment === 'SAUGEN') {
-    currentSpotlight = saugenSpotlight;
-    currentGrid = saugenGrid;
-  } else if (filterDepartment === 'KUECHE') {
-    currentSpotlight = kuecheSpotlight;
-    currentGrid = kuecheGrid;
-  } else if (filterDepartment === 'KUEHLEN') {
-    currentSpotlight = kuehlenSpotlight;
-    currentGrid = kuehlenGrid;
-  } else if (filterDepartment === 'GAMING') {
-    currentSpotlight = gamingSpotlight;
-    currentGrid = gamingGrid;
-  }
-
-  const filterTabs = [
-    { key: 'ALL', label: 'Alle Angebote' },
-    { key: 'WASCHEN', label: 'Waschen & Trocknen' },
-    { key: 'SAUGEN', label: 'Staubsauger' },
-    { key: 'KUECHE', label: 'Küchengeräte' },
-    { key: 'KUEHLEN', label: 'Kühlen' },
-    { key: 'GAMING', label: 'Gaming' },
-  ];
+  // Resolve current pill's spotlight + 6 grid products (respecting manual admin overrides)
+  const { spotlight: currentSpotlight, deals: currentGrid } = resolveTabOffers(
+    filterDepartment,
+    config
+  );
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 font-sans">
+    <section
+      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 font-sans"
+      style={{ backgroundColor: design.sectionBg || 'transparent' }}
+    >
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        
         {/* 1. LEFT SIDEBAR: "Bestseller" without rank numbering */}
         <div className="hidden lg:block lg:col-span-3">
-          <div className="bg-white rounded-2xl border border-stone-200/90 shadow-sm p-4 sm:p-5">
-            {/* Header with Green Indicator */}
+          <div
+            className="bg-white border border-stone-200/90 shadow-sm p-4 sm:p-5"
+            style={{ borderRadius: `${cardRadius}px` }}
+          >
+            {/* Header with Accent Indicator */}
             <div className="mb-3.5">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-extrabold text-stone-900 tracking-tight">
                   Bestseller
                 </h3>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#107b46] bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/80">
+                <span
+                  className="text-[10px] font-bold uppercase tracking-wider bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/80"
+                  style={{ color: accentColor }}
+                >
                   Top-Charts
                 </span>
               </div>
-              <div className="w-8 h-0.5 bg-[#107b46] rounded-full mt-1.5" />
+              <div className="w-8 h-0.5 rounded-full mt-1.5" style={{ backgroundColor: accentColor }} />
             </div>
 
             {/* Bestseller Vertical List (NO RANK NUMBERING) */}
@@ -1064,18 +222,17 @@ export default function AktuelleAngebote({ dbBestsellers, config }: AktuelleAnge
                   href={`/produkt/${item.slug}`}
                   className="group flex items-center gap-3 py-2.5 hover:bg-stone-50/80 rounded-xl px-1.5 transition-colors relative"
                 >
-                  {/* Thumbnail Box */}
                   <div className="w-11 h-11 rounded-lg border border-stone-200/80 bg-white p-1 flex items-center justify-center shrink-0 overflow-hidden group-hover:border-emerald-300 transition-colors">
                     <Image
                       src={item.image}
                       alt={item.title}
-                      width={44}
-                      height={44}
+                      width={64}
+                      height={64}
+                      quality={85}
                       className="w-full h-full object-contain group-hover:scale-105 transition-transform"
                     />
                   </div>
 
-                  {/* Details */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-1">
                       <span className="text-xs font-extrabold text-stone-900 leading-tight">
@@ -1106,7 +263,6 @@ export default function AktuelleAngebote({ dbBestsellers, config }: AktuelleAnge
                     </h4>
                   </div>
 
-                  {/* Subtle hover arrow */}
                   <span className="text-stone-300 group-hover:text-[#107b46] text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity">
                     &rarr;
                   </span>
@@ -1123,88 +279,126 @@ export default function AktuelleAngebote({ dbBestsellers, config }: AktuelleAnge
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
                 <h2 className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight flex items-center gap-2">
-                  <span>Aktuelle Angebote</span>
-                  <span className="text-xs font-bold text-white bg-[#dc2626] px-2 py-0.5 rounded-full shadow-xs">
+                  <span>{sectionTitle}</span>
+                  <span
+                    className="text-xs font-bold text-white px-2 py-0.5 rounded-full shadow-xs"
+                    style={{ backgroundColor: saleColor }}
+                  >
                     % SALE
                   </span>
                 </h2>
-                <div className="w-12 h-1 bg-[#107b46] rounded-full mt-1.5" />
+                <div className="w-12 h-1 rounded-full mt-1.5" style={{ backgroundColor: accentColor }} />
               </div>
 
               <Link
                 href="/shop?sale=true"
-                className="text-xs sm:text-sm font-bold text-[#107b46] hover:underline flex items-center gap-1 group pb-0.5 ml-auto"
+                className="text-xs sm:text-sm font-bold hover:underline flex items-center gap-1 group pb-0.5 ml-auto"
+                style={{ color: accentColor }}
               >
                 <span>Alle Angebote ansehen</span>
                 <span className="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
               </Link>
             </div>
 
-            {/* Quick Department Filter Tabs */}
+            {/* Category Filter Pills */}
             <div className="flex items-center gap-1.5 overflow-x-auto pt-3 pb-0.5 no-scrollbar">
-              {filterTabs.map((tab) => (
-                <button
-                  key={tab.key}
-                  type="button"
-                  onClick={() => setFilterDepartment(tab.key)}
-                  className={`text-[11px] font-bold px-3 py-1 rounded-full whitespace-nowrap transition-all cursor-pointer ${
-                    filterDepartment === tab.key
-                      ? 'bg-[#107b46] text-white shadow-xs'
-                      : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
+              {ANGEBOTE_FILTER_TABS.map((tab) => {
+                const isActive = filterDepartment === tab.key;
+                return (
+                  <button
+                    key={tab.key}
+                    type="button"
+                    onClick={() => setFilterDepartment(tab.key)}
+                    style={isActive ? { backgroundColor: accentColor, color: '#ffffff' } : undefined}
+                    className={`text-[11px] font-bold px-3 py-1 rounded-full whitespace-nowrap transition-all cursor-pointer ${isActive ? 'shadow-xs' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                      }`}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Grid Layout: Left Spotlight Card (40%) + Right 2x3 Cards Grid (60%) */}
+          {/* Grid Layout: Left Spotlight Card + Right 2x3 Grid of 6 Small Cards */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-stretch">
-            
-            {/* Spotlight Card: Always shows a hero product for the active tab */}
-            <div className="md:col-span-5 bg-white rounded-2xl border-2 border-stone-200/90 hover:border-[#107b46]/50 p-5 sm:p-6 shadow-sm hover:shadow-lg transition-all flex flex-col justify-between group relative">
-              
+            {/* Spotlight Card */}
+            <div
+              className="md:col-span-5 bg-white border-2 border-stone-200/90 hover:border-[#107b46]/50 p-5 sm:p-6 shadow-sm hover:shadow-lg transition-all flex flex-col justify-between group relative"
+              style={{ borderRadius: `${cardRadius}px` }}
+            >
               {/* Header Badges: DEAL DES TAGES + Live Countdown */}
               <div className="flex items-center justify-between gap-2 mb-3">
-                <span className="inline-flex items-center gap-1.5 bg-[#dc2626] text-white text-[10px] sm:text-[11px] font-black px-2.5 py-1 rounded-full shadow-xs uppercase tracking-wide">
+                <span
+                  className="inline-flex items-center gap-1.5 text-white text-[10px] sm:text-[11px] font-black px-2.5 py-1 rounded-full shadow-xs uppercase tracking-wide"
+                  style={{ backgroundColor: saleColor }}
+                >
                   <span className="animate-pulse">🔥</span>
-                  <span>DEAL DES TAGES</span>
+                  <span>{spotlightBadgeText}</span>
                 </span>
 
-                {/* Countdown Timer */}
-                <div className="flex items-center gap-1 bg-stone-100 text-stone-800 text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-md font-mono" title="Angebot endet um Mitternacht">
+                <div
+                  className="flex items-center gap-1 bg-stone-100 text-stone-800 text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-md font-mono"
+                  title="Angebot endet um Mitternacht"
+                >
                   <span className="text-stone-400">⏳</span>
-                  <span>{timeLeft.hours}:{timeLeft.minutes}:{timeLeft.seconds}</span>
+                  <span>
+                    {timeLeft.hours}:{timeLeft.minutes}:{timeLeft.seconds}
+                  </span>
                 </div>
               </div>
 
-              {/* Wishlist Button (Floating) */}
-              <button
-                type="button"
-                onClick={(e) => handleToggleWishlist(e, currentSpotlight)}
-                className={`absolute top-4 right-4 z-10 w-8 h-8 rounded-full border flex items-center justify-center shadow-xs transition-colors cursor-pointer ${
-                  wishlistStore.hasItem(currentSpotlight.id)
-                    ? 'bg-red-50 border-red-200 text-red-500'
-                    : 'bg-white/95 border-stone-200 text-stone-400 hover:text-red-500 hover:border-red-200'
-                }`}
-                title="Zu Favoriten hinzufügen"
-              >
-                <svg className={`w-4 h-4 ${wishlistStore.hasItem(currentSpotlight.id) ? 'fill-red-500 stroke-red-500' : 'fill-none stroke-current'}`} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-              </button>
+              {/* Wishlist & Quick View Buttons (Floating) */}
+              <div className="absolute top-4 right-4 z-10 flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={(e) => handleOpenQuickView(e, currentSpotlight)}
+                  className="w-8 h-8 rounded-full border bg-white/95 border-stone-200 text-stone-400 hover:text-[#107b46] hover:border-[#107b46] flex items-center justify-center shadow-xs transition-colors cursor-pointer"
+                  title="Schnellansicht"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => handleToggleWishlist(e, currentSpotlight)}
+                  className={`w-8 h-8 rounded-full border flex items-center justify-center shadow-xs transition-colors cursor-pointer ${wishlistStore.hasItem(currentSpotlight.id)
+                      ? 'bg-red-50 border-red-200 text-red-500'
+                      : 'bg-white/95 border-stone-200 text-stone-400 hover:text-red-500 hover:border-red-200'
+                    }`}
+                  title="Zu Favoriten hinzufügen"
+                >
+                  <svg
+                    className={`w-4 h-4 ${wishlistStore.hasItem(currentSpotlight.id)
+                        ? 'fill-red-500 stroke-red-500'
+                        : 'fill-none stroke-current'
+                      }`}
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.8}
+                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                    />
+                  </svg>
+                </button>
+              </div>
 
-              <Link href={`/produkt/${currentSpotlight.slug}`} className="flex-1 flex flex-col items-center">
-                {/* Big Center Product Image */}
+              <Link
+                href={`/produkt/${currentSpotlight.slug}`}
+                className="flex-1 flex flex-col items-center"
+              >
+                {/* High-Res Big Product Image */}
                 <div className="relative w-full aspect-square max-h-[280px] mb-3 flex items-center justify-center overflow-hidden">
-                  <Image
+                  <ProductImageBox
                     src={currentSpotlight.image}
                     alt={currentSpotlight.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 400px"
-                    className="object-contain p-2 group-hover:scale-105 transition-transform duration-500"
+                    sizes="(max-width: 768px) 100vw, 520px"
                     priority
+                    className="object-contain p-2 group-hover:scale-105 transition-transform duration-500"
                   />
                 </div>
 
@@ -1223,7 +417,7 @@ export default function AktuelleAngebote({ dbBestsellers, config }: AktuelleAnge
                   <StarRating score={currentSpotlight.ratingScore} />
                 </div>
 
-                {/* Pricing & Savings Block */}
+                {/* Pricing & Savings */}
                 <div className="flex flex-col items-center mt-2.5">
                   <div className="flex items-baseline gap-2">
                     <span className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">
@@ -1235,33 +429,61 @@ export default function AktuelleAngebote({ dbBestsellers, config }: AktuelleAnge
                       </span>
                     )}
                     {currentSpotlight.discount && (
-                      <span className="bg-[#dc2626] text-white text-[11px] font-black px-1.5 py-0.5 rounded shadow-2xs">
+                      <span
+                        className="text-white text-[11px] font-black px-1.5 py-0.5 rounded shadow-2xs"
+                        style={{ backgroundColor: saleColor }}
+                      >
                         {currentSpotlight.discount}
                       </span>
                     )}
                   </div>
                   {currentSpotlight.savings && (
-                    <span className="text-[11px] font-bold text-[#107b46] mt-0.5">
+                    <span className="text-[11px] font-bold mt-0.5" style={{ color: accentColor }}>
                       Sie sparen {currentSpotlight.savings}
                     </span>
                   )}
                 </div>
 
-                {/* REPLACED BADGE: Truck Icon + Kostenlose & Shield Icon + 2 Jahre */}
+                {/* Truck + Kostenlose & Shield + 2 Jahre */}
                 <div className="flex items-center gap-2 mt-3">
-                  {/* Truck Icon + Kostenlose */}
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/80 text-xs font-bold shadow-2xs">
-                    <svg className="w-4 h-4 text-[#107b46] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8h4.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h2" />
+                    <svg
+                      className="w-4 h-4 shrink-0"
+                      style={{ color: accentColor }}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8h4.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h2"
+                      />
                     </svg>
                     <span>{currentSpotlight.deliveryNote || 'Kostenlose'}</span>
                   </div>
 
-                  {/* Shield Icon + 2 Jahre */}
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/80 text-xs font-bold shadow-2xs">
-                    <svg className="w-4 h-4 text-[#107b46] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    <svg
+                      className="w-4 h-4 shrink-0"
+                      style={{ color: accentColor }}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                      />
                     </svg>
                     <span>{currentSpotlight.warrantyNote || '2 Jahre'}</span>
                   </div>
@@ -1275,30 +497,38 @@ export default function AktuelleAngebote({ dbBestsellers, config }: AktuelleAnge
                 className="w-full mt-4 bg-stone-900 hover:bg-[#107b46] text-white font-bold text-xs sm:text-sm py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                  />
                 </svg>
                 <span>In den Warenkorb</span>
               </button>
             </div>
 
-            {/* Right 2x3 Grid of 6 Deals: NO "In den Korb" text button; Cart Icon + Quick View Icon directly on card */}
+            {/* Right 2x3 Grid of 6 Deals: NO bottom button; Cart Icon + Quick View Icon directly on card */}
             <div className="md:col-span-7 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
               {currentGrid.map((deal) => (
                 <div
                   key={deal.id}
-                  className="bg-white rounded-2xl border border-stone-200/80 p-3 hover:shadow-lg hover:border-emerald-300 transition-all flex flex-col justify-between group relative"
+                  className="bg-white border border-stone-200/80 p-3 hover:shadow-lg hover:border-emerald-300 transition-all flex flex-col justify-between group relative"
+                  style={{ borderRadius: `${cardRadius}px` }}
                 >
                   {/* Top Header: Category Name + Energy Badge */}
                   <div className="flex items-center justify-between gap-1.5 mb-1 pr-14">
-                    <span className="text-[11px] font-bold text-stone-500 uppercase tracking-tight truncate" title={deal.category}>
+                    <span
+                      className="text-[11px] font-bold text-stone-500 uppercase tracking-tight truncate"
+                      title={deal.category}
+                    >
                       {deal.category}
                     </span>
                     {deal.energyRating && <EnergyBadge rating={deal.energyRating} />}
                   </div>
 
-                  {/* Top Right Floating Action Icons: Wishlist + Quick View */}
+                  {/* Top Right Floating Action Icons: Quick View + Wishlist */}
                   <div className="absolute top-2.5 right-2.5 z-10 flex items-center gap-1">
-                    {/* Quick View Eye Icon */}
                     <button
                       type="button"
                       onClick={(e) => handleOpenQuickView(e, deal)}
@@ -1311,19 +541,28 @@ export default function AktuelleAngebote({ dbBestsellers, config }: AktuelleAnge
                       </svg>
                     </button>
 
-                    {/* Wishlist Heart Icon */}
                     <button
                       type="button"
                       onClick={(e) => handleToggleWishlist(e, deal)}
-                      className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors cursor-pointer border shadow-2xs ${
-                        wishlistStore.hasItem(deal.id)
+                      className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors cursor-pointer border shadow-2xs ${wishlistStore.hasItem(deal.id)
                           ? 'text-red-500 bg-red-50 border-red-200'
                           : 'text-stone-300 hover:text-red-500 bg-white/90 border-stone-200/80'
-                      }`}
+                        }`}
                       title="Zu Favoriten hinzufügen"
                     >
-                      <svg className={`w-3.5 h-3.5 ${wishlistStore.hasItem(deal.id) ? 'fill-red-500 stroke-red-500' : 'fill-none stroke-current'}`} viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      <svg
+                        className={`w-3.5 h-3.5 ${wishlistStore.hasItem(deal.id)
+                            ? 'fill-red-500 stroke-red-500'
+                            : 'fill-none stroke-current'
+                          }`}
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1.8}
+                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                        />
                       </svg>
                     </button>
                   </div>
@@ -1333,19 +572,17 @@ export default function AktuelleAngebote({ dbBestsellers, config }: AktuelleAnge
                     href={`/produkt/${deal.slug}`}
                     className="relative aspect-square w-full max-h-[115px] my-1 flex items-center justify-center overflow-hidden"
                   >
-                    <Image
+                    <ProductImageBox
                       src={deal.image}
                       alt={deal.title}
-                      fill
-                      sizes="(max-width: 640px) 100vw, 200px"
+                      sizes="(max-width: 640px) 100vw, 240px"
                       className="object-contain p-1 group-hover:scale-105 transition-transform duration-300"
                     />
                   </Link>
 
-                  {/* Pricing + Cart Icon on Card */}
+                  {/* Pricing + Cart Icon directly on Card */}
                   <div className="mt-1 flex-1 flex flex-col justify-between">
                     <div>
-                      {/* Price Row + Integrated Cart Button */}
                       <div className="flex items-center justify-between gap-1">
                         <div className="flex items-baseline gap-1.5 flex-wrap">
                           <span className="text-sm font-black text-stone-900 leading-tight">
@@ -1357,13 +594,15 @@ export default function AktuelleAngebote({ dbBestsellers, config }: AktuelleAnge
                             </span>
                           )}
                           {deal.discount && (
-                            <span className="bg-[#dc2626] text-white text-[9px] font-black px-1.5 py-0.2 rounded shadow-2xs">
+                            <span
+                              className="text-white text-[9px] font-black px-1.5 py-0.2 rounded shadow-2xs"
+                              style={{ backgroundColor: saleColor }}
+                            >
                               {deal.discount}
                             </span>
                           )}
                         </div>
 
-                        {/* Cart Icon Button directly on the card */}
                         <button
                           type="button"
                           onClick={(e) => handleAddToCart(e, deal)}
@@ -1371,61 +610,65 @@ export default function AktuelleAngebote({ dbBestsellers, config }: AktuelleAnge
                           title="In den Warenkorb"
                         >
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                            />
                           </svg>
                         </button>
                       </div>
 
-                      {/* Star Rating */}
                       <div className="mt-1">
                         <StarRating score={deal.ratingScore} />
                       </div>
 
-                      {/* Product Title */}
                       <Link href={`/produkt/${deal.slug}`}>
-                        <h4 className="text-xs font-bold text-stone-800 line-clamp-2 mt-1 leading-snug group-hover:text-[#107b46] transition-colors" title={deal.title}>
+                        <h4
+                          className="text-xs font-bold text-stone-800 line-clamp-2 mt-1 leading-snug group-hover:text-[#107b46] transition-colors"
+                          title={deal.title}
+                        >
                           {deal.title}
                         </h4>
                       </Link>
                     </div>
 
-                    {/* Stock / Delivery Reassurance */}
                     {deal.deliveryNote && (
                       <div className="text-[10px] text-emerald-700 font-semibold flex items-center gap-1 mt-1.5">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                        <span className="truncate" title={deal.deliveryNote}>{deal.deliveryNote}</span>
+                        <span className="truncate" title={deal.deliveryNote}>
+                          {deal.deliveryNote}
+                        </span>
                       </div>
                     )}
                   </div>
-
                 </div>
               ))}
             </div>
-
           </div>
         </div>
-
       </div>
 
       {/* QUICK VIEW MODAL */}
       {quickViewProduct && (
-        <div 
+        <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
         >
-          {/* Backdrop */}
-          <div 
+          <div
             className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
             onClick={() => setQuickViewProduct(null)}
           />
 
-          {/* Modal Container */}
-          <div 
+          <div
             className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col md:flex-row z-10 border border-stone-200 animate-in fade-in zoom-in duration-200"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close Button */}
-            <button 
+            <button
               type="button"
               onClick={() => setQuickViewProduct(null)}
               className="absolute top-3 right-3 p-1.5 bg-stone-100 hover:bg-stone-200 rounded-full text-stone-700 z-20 transition cursor-pointer"
@@ -1435,19 +678,17 @@ export default function AktuelleAngebote({ dbBestsellers, config }: AktuelleAnge
               </svg>
             </button>
 
-            {/* Left: Product Image */}
             <div className="w-full md:w-1/2 bg-stone-50 p-6 flex items-center justify-center relative">
               <div className="relative w-full aspect-square max-h-[260px]">
-                <Image
+                <ProductImageBox
                   src={quickViewProduct.image}
                   alt={quickViewProduct.title}
-                  fill
+                  sizes="400px"
                   className="object-contain p-2"
                 />
               </div>
             </div>
 
-            {/* Right: Details & Add to Cart */}
             <div className="w-full md:w-1/2 p-6 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between gap-2 mb-1.5">
@@ -1465,7 +706,6 @@ export default function AktuelleAngebote({ dbBestsellers, config }: AktuelleAnge
                   <StarRating score={quickViewProduct.ratingScore} />
                 </div>
 
-                {/* Price */}
                 <div className="flex items-baseline gap-2 mb-3">
                   <span className="text-2xl font-black text-stone-900">
                     {quickViewProduct.price}
@@ -1476,13 +716,15 @@ export default function AktuelleAngebote({ dbBestsellers, config }: AktuelleAnge
                     </span>
                   )}
                   {quickViewProduct.discount && (
-                    <span className="bg-[#dc2626] text-white text-xs font-black px-2 py-0.5 rounded shadow-2xs">
+                    <span
+                      className="text-white text-xs font-black px-2 py-0.5 rounded shadow-2xs"
+                      style={{ backgroundColor: saleColor }}
+                    >
                       {quickViewProduct.discount}
                     </span>
                   )}
                 </div>
 
-                {/* Delivery details */}
                 {quickViewProduct.deliveryNote && (
                   <div className="p-2.5 bg-emerald-50 rounded-xl border border-emerald-100 text-xs font-semibold text-emerald-800 flex items-center gap-2 mb-4">
                     <span className="w-2 h-2 rounded-full bg-[#107b46] animate-pulse shrink-0" />
@@ -1491,7 +733,6 @@ export default function AktuelleAngebote({ dbBestsellers, config }: AktuelleAnge
                 )}
               </div>
 
-              {/* Action Buttons */}
               <div className="space-y-2 pt-4 border-t border-stone-100">
                 <button
                   type="button"
@@ -1502,7 +743,12 @@ export default function AktuelleAngebote({ dbBestsellers, config }: AktuelleAnge
                   className="w-full py-3 bg-[#107b46] hover:bg-[#0d693b] text-white font-bold rounded-xl text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                    />
                   </svg>
                   <span>In den Warenkorb</span>
                 </button>
@@ -1516,7 +762,6 @@ export default function AktuelleAngebote({ dbBestsellers, config }: AktuelleAnge
                 </Link>
               </div>
             </div>
-
           </div>
         </div>
       )}
