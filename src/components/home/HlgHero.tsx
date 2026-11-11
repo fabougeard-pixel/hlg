@@ -161,7 +161,7 @@ export default function HlgHero({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Floating Mini-Cart Widget */}
         {showMiniCart && !isPreview && (
-          <div className="fixed right-4 sm:right-6 top-28 sm:top-32 z-40">
+          <div className="fixed right-4 sm:right-6 top-1/2 -translate-y-1/2 z-40">
             <button
               type="button"
               onClick={() => cartStore.setIsOpen(true)}

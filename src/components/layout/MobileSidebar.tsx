@@ -160,9 +160,8 @@ function DrawerSearchBar({ categories, placeholder, inputRef, onNavigate }: Draw
                 setSelectedLabel(cat.name);
                 setIsDropdownOpen(false);
               }}
-              className={`w-full text-left py-2 text-xs font-medium hover:bg-emerald-50 hover:text-[#107b46] transition flex items-center justify-between cursor-pointer ${
-                cat.isChild ? 'pl-6 pr-3.5 text-stone-600' : 'px-3.5 text-stone-800'
-              } ${selectedCategory === cat.value ? 'font-semibold text-[#107b46] bg-emerald-50/70' : ''}`}
+              className={`w-full text-left py-2 text-xs font-medium hover:bg-emerald-50 hover:text-[#107b46] transition flex items-center justify-between cursor-pointer ${cat.isChild ? 'pl-6 pr-3.5 text-stone-600' : 'px-3.5 text-stone-800'
+                } ${selectedCategory === cat.value ? 'font-semibold text-[#107b46] bg-emerald-50/70' : ''}`}
             >
               <span className="truncate">{cat.name}</span>
               {selectedCategory === cat.value && (
@@ -200,9 +199,8 @@ function DrawerNavLinks({
               <Link
                 href={link.url}
                 onClick={onNavigate}
-                className={`block text-[15px] font-medium transition-colors ${
-                  isActive ? 'text-[#107b46]' : 'text-stone-800 hover:text-[#107b46]'
-                }`}
+                className={`block text-[15px] font-medium transition-colors ${isActive ? 'text-[#107b46]' : 'text-stone-800 hover:text-[#107b46]'
+                  }`}
               >
                 {link.label}
               </Link>
@@ -214,7 +212,7 @@ function DrawerNavLinks({
   );
 }
 
-const emptySubscribe = () => () => {};
+const emptySubscribe = () => () => { };
 
 /**
  * Responsive navigation & search drawer:
@@ -249,10 +247,10 @@ export default function MobileSidebar({
   );
   const formattedDate = isClient
     ? new Date().toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-      })
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    })
     : '';
 
   useEffect(() => {
@@ -283,11 +281,11 @@ export default function MobileSidebar({
     menuLinks && menuLinks.length > 0
       ? menuLinks
       : [
-          { label: 'Startseite', url: '/' },
-          { label: 'Shop', url: '/shop' },
-          { label: 'Kontakt', url: '/kontakt' },
-          { label: 'Rückgabe & Erstattung', url: '/rueckgabe-und-erstattung' },
-        ];
+        { label: 'Startseite', url: '/' },
+        { label: 'Shop', url: '/shop' },
+        { label: 'Kontakt', url: '/kontakt' },
+        { label: 'Rückgabe & Erstattung', url: '/rueckgabe-und-erstattung' },
+      ];
 
   const displayAddress = !isPlaceholderOrGenericAddress(contactAddress)
     ? contactAddress.trim()
