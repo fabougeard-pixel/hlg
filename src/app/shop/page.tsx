@@ -107,8 +107,10 @@ export default async function ShopPage({
     const brandSlugs = brandsFilter.filter(s => !isUuid(s));
     const brandConditions: any[] = [];
     if (brandSlugs.length > 0) {
-      brandConditions.push({ slug: { in: brandSlugs } });
-      brandConditions.push({ name: { in: brandSlugs } });
+      for (const brandVal of brandSlugs) {
+        brandConditions.push({ slug: { equals: brandVal, mode: 'insensitive' } });
+        brandConditions.push({ name: { equals: brandVal, mode: 'insensitive' } });
+      }
     }
     if (brandUuids.length > 0) {
       brandConditions.push({ id: { in: brandUuids } });

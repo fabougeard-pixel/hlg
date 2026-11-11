@@ -1,12 +1,15 @@
 import { getTranslations } from 'next-intl/server';
 import { getSettings } from '@/actions/settings';
-import { getCategories } from '@/actions/admin';
+import { getCategories, getBrands } from '@/actions/admin';
 import LandingForm from './LandingForm';
 
 export default async function AdminLandingPage() {
   const t = await getTranslations('AdminLanding');
-  const initialSettings = await getSettings();
-  const categories = await getCategories();
+  const [initialSettings, categories, brands] = await Promise.all([
+    getSettings(),
+    getCategories(),
+    getBrands(),
+  ]);
 
   return (
     <>
@@ -16,7 +19,7 @@ export default async function AdminLandingPage() {
       </div>
       
       
-      <LandingForm initialSettings={initialSettings} categories={categories} />
+      <LandingForm initialSettings={initialSettings} categories={categories} brands={brands} />
     </>
   );
 }

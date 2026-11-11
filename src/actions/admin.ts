@@ -37,10 +37,20 @@ export async function uploadImage(formData: FormData) {
 }
 
 // --- BRANDS ---
+function revalidateBrandPaths() {
+  revalidatePath('/admin/brands');
+  revalidatePath('/admin/products');
+  revalidatePath('/admin/landing');
+  revalidatePath('/');
+  revalidatePath('/preview');
+  revalidatePath('/shop');
+}
+
 export async function getBrands() {
   await requireAdmin();
   return await prisma.brand.findMany({
-    orderBy: { name: 'asc' }
+    orderBy: { name: 'asc' },
+    include: { _count: { select: { products: { where: { isDeleted: false } } } } }
   });
 }
 
@@ -51,7 +61,7 @@ export async function createBrandAction(formData: FormData, logoUrl?: string) {
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
   try {
     const brand = await prisma.brand.create({ data: { name, slug, logo: logoUrl || null } });
-    revalidatePath('/admin/products');
+    revalidateBrandPaths();
     return { success: true, brand };
   } catch (error) {
     return { error: "Erreur de création de marque" };
@@ -69,7 +79,7 @@ export async function updateBrand(id: string, formData: FormData, logoUrl?: stri
     const data: any = { name, slug };
     if (logoUrl !== undefined) data.logo = logoUrl;
     await prisma.brand.update({ where: { id }, data });
-    revalidatePath('/admin/brands');
+    revalidateBrandPaths();
     return { success: true };
   } catch (error) {
     return { error: "Erreur de modification" };
@@ -80,7 +90,7 @@ export async function deleteBrand(id: string) {
   await requireAdmin();
   try {
     await prisma.brand.delete({ where: { id } });
-    revalidatePath('/admin/brands');
+    revalidateBrandPaths();
     return { success: true };
   } catch (error) {
     return { error: "Impossible de supprimer cette marque." };
@@ -91,7 +101,7 @@ export async function bulkDeleteBrands(ids: string[]) {
   await requireAdmin();
   try {
     await prisma.brand.deleteMany({ where: { id: { in: ids } } });
-    revalidatePath('/admin/brands');
+    revalidateBrandPaths();
     return { success: true };
   } catch (error) {
     return { error: "Erreur lors de la suppression." };

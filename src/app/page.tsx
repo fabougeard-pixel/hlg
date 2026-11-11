@@ -14,7 +14,9 @@ import ShippingSimulator from '@/components/home/ShippingSimulator';
 import FeaturedProductTabs from '@/components/home/FeaturedProductTabs';
 import HeatingGuideBlogs from '@/components/home/HeatingGuideBlogs';
 import prisma from '@/lib/prisma';
+import { getCatalogBrandSummaries } from '@/lib/brands';
 import {
+  CatalogBrandSummary,
   DEFAULT_HLG_SECTIONS,
   SectionConfig,
   normalizeHomepageSections,
@@ -25,11 +27,13 @@ export const dynamic = 'force-dynamic';
 export default async function Home() {
   const settings = await import('@/lib/cache').then(m => m.getCachedSettings());
 
-  // Fetch products from Prisma
+  // Fetch products & brands from Prisma
   let formattedProducts: any[] = [];
   let dbBestsellers: any[] = [];
+  let catalogBrands: CatalogBrandSummary[] = [];
 
   try {
+    catalogBrands = await getCatalogBrandSummaries();
     const allDbProds = await prisma.product.findMany({
       where: { isDeleted: false },
       select: {
@@ -152,7 +156,13 @@ export default async function Home() {
       case 'CategoryShowcase':
         return <CategoryShowcaseSections key={section.id} catalogProducts={formattedProducts} />;
       case 'BrandShowcase':
-        return <BrandShowcase key={section.id} />;
+        return (
+          <BrandShowcase
+            key={section.id}
+            config={section.settings}
+            catalogBrands={catalogBrands}
+          />
+        );
       case 'TrustBar':
         return <TrustBar key={section.id} />;
       case 'CategoryExplorer':

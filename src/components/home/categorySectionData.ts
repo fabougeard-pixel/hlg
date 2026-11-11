@@ -108,6 +108,68 @@ export interface CategoryOverviewSettings {
   design?: CategoryOverviewDesign;
 }
 
+export interface CatalogBrandSummary {
+  id: string;
+  name: string;
+  slug: string;
+  logo?: string | null;
+  productCount?: number;
+  _count?: {
+    products?: number;
+  };
+}
+
+export interface BrandShowcaseItem {
+  id: string;
+  name: string;
+  slug: string;
+  slogan?: string;
+  logo?: string;
+  linkUrl?: string;
+  productCount?: number;
+}
+
+export type ServicePerkIconKey = 'trash' | 'wrench' | 'shield' | 'card' | 'truck' | 'sparkles';
+
+export interface ServicePerkItem {
+  id: string;
+  iconKey: ServicePerkIconKey;
+  title: string;
+  desc: string;
+}
+
+export interface BrandShowcaseDesign {
+  accentColor?: string;
+  sectionBg?: string;
+  cardBgColor?: string;
+  cardBorderColor?: string;
+  cardRadius?: number | string;
+  bannerBgColor?: string;
+  bannerBorderColor?: string;
+  titleColor?: string;
+  titleSize?: number | string;
+  paddingY?: number | string;
+  colsDesktop?: '4' | '5' | '6' | string;
+  logoHeight?: number | string;
+  showSlogan?: boolean;
+  showProductCount?: boolean;
+  showServiceBanner?: boolean;
+}
+
+export interface BrandShowcaseSettings {
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  sourceMode?: 'AUTO' | 'MANUAL';
+  maxBrands?: number;
+  brands?: BrandShowcaseItem[];
+  brandLogoOverrides?: Record<string, string>;
+  serviceEyebrow?: string;
+  serviceTitle?: string;
+  servicePerks?: ServicePerkItem[];
+  design?: BrandShowcaseDesign;
+}
+
 export type CategorySectionPreset = 'coffee' | 'washing' | 'cooling' | 'vacuum' | 'custom';
 
 export interface CategoryProductItem {
@@ -760,6 +822,206 @@ export function resolveCategorySectionConfig(
     colsDesktop: config?.colsDesktop || base.colsDesktop,
     maxProducts,
     products: resolvedProducts,
+    design: config?.design || {},
+  };
+}
+
+export const DEFAULT_BRAND_SHOWCASE_ITEMS: BrandShowcaseItem[] = [
+  { id: 'br-bosch', name: 'Bosch', slug: 'bosch', slogan: 'Technik fürs Leben', linkUrl: '/shop?brand=bosch' },
+  { id: 'br-siemens', name: 'Siemens', slug: 'siemens', slogan: 'Die Zukunft zieht ein', linkUrl: '/shop?brand=siemens' },
+  { id: 'br-miele', name: 'Miele', slug: 'miele', slogan: 'Immer besser', linkUrl: '/shop?brand=miele' },
+  { id: 'br-aeg', name: 'AEG', slug: 'aeg', slogan: 'Perfekt in Form & Funktion', linkUrl: '/shop?brand=aeg' },
+  { id: 'br-samsung', name: 'Samsung', slug: 'samsung', slogan: 'Smart Forward', linkUrl: '/shop?brand=samsung' },
+  { id: 'br-delonghi', name: "De'Longhi", slug: 'delonghi', slogan: 'Better Everyday', linkUrl: '/shop?brand=delonghi' },
+  { id: 'br-lg', name: 'LG', slug: 'lg', slogan: "Life's Good", linkUrl: '/shop?brand=lg' },
+  { id: 'br-philips', name: 'Philips', slug: 'philips', slogan: 'Innovation & You', linkUrl: '/shop?brand=philips' },
+  { id: 'br-kitchenaid', name: 'KitchenAid', slug: 'kitchenaid', slogan: 'Kulinarische Meisterwerke', linkUrl: '/shop?brand=kitchenaid' },
+  { id: 'br-roborock', name: 'Roborock', slug: 'roborock', slogan: 'Smarte Saugroboter', linkUrl: '/shop?brand=roborock' },
+  { id: 'br-jura', name: 'Jura', slug: 'jura', slogan: 'Kaffee-Tradition', linkUrl: '/shop?brand=jura' },
+  { id: 'br-haier', name: 'Haier', slug: 'haier', slogan: 'Intelligente Haushaltsgeräte', linkUrl: '/shop?brand=haier' },
+  { id: 'br-bauknecht', name: 'Bauknecht', slug: 'bauknecht', slogan: 'Für ein gesundes Zuhause', linkUrl: '/shop?brand=bauknecht' },
+  { id: 'br-candy', name: 'Candy', slug: 'candy', slogan: 'Smarte Alltagshelfer', linkUrl: '/shop?brand=candy' },
+];
+
+export const DEFAULT_BRAND_SERVICE_PERKS: ServicePerkItem[] = [
+  {
+    id: 'perk-disposal',
+    iconKey: 'trash',
+    title: 'Altgeräte-Entsorgung',
+    desc: 'Kostenlose und fachgerechte Mitnahme Ihres alten Haushaltsgeräts bei Lieferung.',
+  },
+  {
+    id: 'perk-install',
+    iconKey: 'wrench',
+    title: 'Anschluss & Montage',
+    desc: 'Auf Wunsch professioneller Aufbau- und Anschlussservice direkt bei Ihnen zu Hause.',
+  },
+  {
+    id: 'perk-warranty',
+    iconKey: 'shield',
+    title: '2 Jahre Herstellergarantie',
+    desc: 'Voller Schutz auf alle Neu- und Markengeräte mit schnellem Reparaturservice.',
+  },
+  {
+    id: 'perk-payment',
+    iconKey: 'card',
+    title: 'Bequemer Ratenkauf',
+    desc: 'Flexible Zahlungsoptionen: PayPal, Klarna Ratenkauf, Rechnung und Sofortüberweisung.',
+  },
+];
+
+export const DEFAULT_BRAND_SHOWCASE_SETTINGS = {
+  eyebrow: 'Geprüfte Markenqualität',
+  title: 'Führende Hersteller bei HLG Hausgeräte',
+  description:
+    'Entdecken Sie innovative Spitzengeräte weltbekannter Qualitätshersteller mit voller Herstellergarantie.',
+  sourceMode: 'AUTO' as const,
+  maxBrands: 12,
+  brands: DEFAULT_BRAND_SHOWCASE_ITEMS.slice(0, 12),
+  serviceEyebrow: 'Der HLG Vorteil',
+  serviceTitle: 'Unser Rundum-Sorglos-Service für Großgeräte',
+  servicePerks: DEFAULT_BRAND_SERVICE_PERKS,
+};
+
+function normalizeBrandLookupKey(val: string): string {
+  return val
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]/g, '');
+}
+
+export function getCatalogBrandProductCount(b: CatalogBrandSummary): number {
+  if (typeof b.productCount === 'number') return b.productCount;
+  if (typeof b._count?.products === 'number') return b._count.products;
+  return 0;
+}
+
+/**
+ * Resolves BrandShowcase content + design from admin settings and live catalog brands.
+ * Automatically links every brand card to `/shop?brand=<slug>` and merges uploaded DB/editor logos.
+ */
+export function resolveBrandShowcaseConfig(
+  config: BrandShowcaseSettings = {},
+  catalogBrands: CatalogBrandSummary[] = []
+): {
+  eyebrow: string;
+  title: string;
+  description: string;
+  sourceMode: 'AUTO' | 'MANUAL';
+  maxBrands: number;
+  brands: BrandShowcaseItem[];
+  serviceEyebrow: string;
+  serviceTitle: string;
+  servicePerks: ServicePerkItem[];
+  design: BrandShowcaseDesign;
+} {
+  const catalogByKey = new Map<string, CatalogBrandSummary>();
+  for (const raw of catalogBrands) {
+    const count = getCatalogBrandProductCount(raw);
+    for (const k of [normalizeBrandLookupKey(raw.slug), normalizeBrandLookupKey(raw.name)]) {
+      if (!k) continue;
+      const existing = catalogByKey.get(k);
+      if (!existing || count > getCatalogBrandProductCount(existing)) {
+        catalogByKey.set(k, raw);
+      }
+    }
+  }
+
+  const defaultsByKey = new Map<string, BrandShowcaseItem>();
+  for (const item of DEFAULT_BRAND_SHOWCASE_ITEMS) {
+    defaultsByKey.set(normalizeBrandLookupKey(item.slug || item.name), item);
+  }
+
+  const logoOverrides = config?.brandLogoOverrides || {};
+  const maxBrands = Math.max(
+    1,
+    Math.min(24, Number(config?.maxBrands !== undefined ? config.maxBrands : 12))
+  );
+  const sourceMode: 'AUTO' | 'MANUAL' = config?.sourceMode || 'AUTO';
+
+  let resolvedBrands: BrandShowcaseItem[] = [];
+
+  if (sourceMode === 'AUTO' && catalogBrands.length > 0) {
+    // Deduplicate catalog brands by normalized key (keeping higher product count)
+    const uniqueCatalog = Array.from(new Set(catalogByKey.values()));
+    const withProducts = uniqueCatalog.filter((b) => getCatalogBrandProductCount(b) > 0);
+    const pool = (withProducts.length > 0 ? withProducts : uniqueCatalog).sort((a, b) => {
+      const diff = getCatalogBrandProductCount(b) - getCatalogBrandProductCount(a);
+      return diff !== 0 ? diff : a.name.localeCompare(b.name, 'de');
+    });
+
+    resolvedBrands = pool.slice(0, maxBrands).map((dbBrand) => {
+      const key = normalizeBrandLookupKey(dbBrand.slug || dbBrand.name);
+      const preset = defaultsByKey.get(key);
+      const overrideLogo =
+        logoOverrides[dbBrand.slug] ?? logoOverrides[key];
+      const effectiveLogo =
+        overrideLogo !== undefined ? overrideLogo : dbBrand.logo || '';
+      return {
+        id: dbBrand.id,
+        name: preset?.name || dbBrand.name,
+        slug: dbBrand.slug,
+        slogan: preset?.slogan || 'Geprüfte Markenqualität',
+        logo: effectiveLogo,
+        linkUrl: `/shop?brand=${encodeURIComponent(dbBrand.slug)}`,
+        productCount: getCatalogBrandProductCount(dbBrand),
+      };
+    });
+  } else {
+    const manualList =
+      Array.isArray(config?.brands) && config.brands.length > 0
+        ? config.brands
+        : DEFAULT_BRAND_SHOWCASE_ITEMS.slice(0, maxBrands);
+
+    resolvedBrands = manualList.slice(0, maxBrands).map((item, idx) => {
+      const key = normalizeBrandLookupKey(item.slug || item.name);
+      const dbBrand = catalogByKey.get(key);
+      const canonicalSlug = dbBrand?.slug || item.slug || item.name.toLowerCase();
+      const rawUrl = item.linkUrl?.trim();
+      const safeLinkUrl =
+        rawUrl && !rawUrl.startsWith('/shop?search=')
+          ? rawUrl
+          : `/shop?brand=${encodeURIComponent(canonicalSlug)}`;
+
+      return {
+        id: item.id || `br-manual-${idx}`,
+        name: item.name,
+        slug: canonicalSlug,
+        slogan: item.slogan ?? '',
+        logo:
+          item.logo !== undefined
+            ? item.logo
+            : dbBrand?.logo || logoOverrides[canonicalSlug] || '',
+        linkUrl: safeLinkUrl,
+        productCount: dbBrand ? getCatalogBrandProductCount(dbBrand) : undefined,
+      };
+    });
+  }
+
+  return {
+    eyebrow:
+      config?.eyebrow !== undefined ? config.eyebrow : DEFAULT_BRAND_SHOWCASE_SETTINGS.eyebrow,
+    title: config?.title !== undefined ? config.title : DEFAULT_BRAND_SHOWCASE_SETTINGS.title,
+    description:
+      config?.description !== undefined
+        ? config.description
+        : DEFAULT_BRAND_SHOWCASE_SETTINGS.description,
+    sourceMode,
+    maxBrands,
+    brands: resolvedBrands,
+    serviceEyebrow:
+      config?.serviceEyebrow !== undefined
+        ? config.serviceEyebrow
+        : DEFAULT_BRAND_SHOWCASE_SETTINGS.serviceEyebrow,
+    serviceTitle:
+      config?.serviceTitle !== undefined
+        ? config.serviceTitle
+        : DEFAULT_BRAND_SHOWCASE_SETTINGS.serviceTitle,
+    servicePerks:
+      Array.isArray(config?.servicePerks) && config.servicePerks.length > 0
+        ? config.servicePerks
+        : DEFAULT_BRAND_SERVICE_PERKS,
     design: config?.design || {},
   };
 }

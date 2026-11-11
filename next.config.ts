@@ -13,6 +13,8 @@ const nextConfig: NextConfig = {
   turbopack: {},
 
   images: {
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [320, 360, 420, 480, 500, 540, 600, 640, 700, 750, 828, 900, 1080, 1200, 1920, 2048],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],

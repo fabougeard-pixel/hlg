@@ -17,10 +17,12 @@ import PromoBanners from '@/components/home/PromoBanners';
 import ProductGrid from '@/components/home/ProductGrid';
 import FullWidthBanner from '@/components/home/FullWidthBanner';
 import {
+  CatalogBrandSummary,
   DEFAULT_HLG_SECTIONS,
   SectionConfig,
   normalizeHomepageSections,
 } from '@/components/home/categorySectionData';
+import { getCatalogBrandSummaries } from '@/lib/brands';
 import PreviewSectionWrapper from '@/components/admin/PreviewSectionWrapper';
 import { cookies } from 'next/headers';
 import { getSettings } from '@/actions/settings';
@@ -59,9 +61,10 @@ export default async function PreviewPage() {
 
   const activeSections = layout.filter(s => s.enabled);
 
-  // Fetch thermal products from Prisma
+  // Fetch thermal products & brands from Prisma
   let formattedProducts: any[] = [];
   let promoProducts: any[] = [];
+  let catalogBrands: CatalogBrandSummary[] = [];
   let simulatorProducts = {
     pallets: [] as any[],
     fireplaces: [] as any[],
@@ -69,6 +72,7 @@ export default async function PreviewPage() {
   };
 
   try {
+    catalogBrands = await getCatalogBrandSummaries();
     const allDbProds = await prisma.product.findMany({
       where: { isDeleted: false },
       select: {
@@ -219,7 +223,12 @@ export default async function PreviewPage() {
         content = <CategoryShowcaseSections catalogProducts={formattedProducts} />;
         break;
       case 'BrandShowcase':
-        content = <BrandShowcase />;
+        content = (
+          <BrandShowcase
+            config={section.settings}
+            catalogBrands={catalogBrands}
+          />
+        );
         break;
       case 'TrustBar':
         content = <TrustBar />;
