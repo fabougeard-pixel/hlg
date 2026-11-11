@@ -526,7 +526,8 @@ export const DEFAULT_OVERVIEW_CARDS: OverviewCardItem[] = [
     subtitle: 'Vollintegriert, Einbau & Tischgeräte',
     priceLabel: 'Ab 202,79 €',
     emoji: '🍽️',
-    image: '',
+    image:
+      'https://res.cloudinary.com/lrknfak7/image/upload/v1794335022/hlg/woocommerce-import/bomann-tsg-5701-tischgeschirrspueler-auftischgeraet-420-mm-breit-58-db-a-g-1.jpg',
     ctaText: 'Modelle ansehen',
     linkUrl: '/shop?category=geschirrspueler-grosse-haushaltsgeraete',
   },
@@ -536,7 +537,8 @@ export const DEFAULT_OVERVIEW_CARDS: OverviewCardItem[] = [
     subtitle: 'Kenwood, KitchenAid & Zubehör',
     priceLabel: 'Ab 192,89 €',
     emoji: '🥣',
-    image: '',
+    image:
+      'https://res.cloudinary.com/lrknfak7/image/upload/v1794334231/hlg/woocommerce-import/kenwood-kmix-kmx751abk-kuechenmaschine-black-ruehrschuesselkapazitaet-5-l-1000-watt-1.jpg',
     ctaText: 'Modelle ansehen',
     linkUrl: '/shop?category=kuechenmaschinen',
   },
@@ -546,7 +548,8 @@ export const DEFAULT_OVERVIEW_CARDS: OverviewCardItem[] = [
     subtitle: 'Induktionskochfelder & Backöfen',
     priceLabel: 'Ab 198,80 €',
     emoji: '🍳',
-    image: '',
+    image:
+      'https://res.cloudinary.com/lrknfak7/image/upload/v1794335668/hlg/woocommerce-import/aeg-ike-84471-xb-steel-766-mm-breit-6-kochfelder.jpg',
     ctaText: 'Modelle ansehen',
     linkUrl: '/shop?category=herde',
   },
@@ -556,7 +559,8 @@ export const DEFAULT_OVERVIEW_CARDS: OverviewCardItem[] = [
     subtitle: 'PS5, Switch OLED, Xbox & VR',
     priceLabel: 'Ab 174,60 €',
     emoji: '🎮',
-    image: '',
+    image:
+      'https://res.cloudinary.com/lrknfak7/image/upload/v1794334532/hlg/woocommerce-import/asset-mp-107802474.jpg',
     ctaText: 'Modelle ansehen',
     linkUrl: '/shop?category=gaming',
   },

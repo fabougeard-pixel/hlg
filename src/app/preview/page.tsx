@@ -208,7 +208,12 @@ export default async function PreviewPage() {
         );
         break;
       case 'CategoryOverview':
-        content = <CategoryOverviewSection config={section.settings} />;
+        content = (
+          <CategoryOverviewSection
+            config={section.settings}
+            catalogProducts={formattedProducts}
+          />
+        );
         break;
       case 'CategoryShowcase':
         content = <CategoryShowcaseSections catalogProducts={formattedProducts} />;

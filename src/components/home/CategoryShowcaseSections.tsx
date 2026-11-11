@@ -16,7 +16,7 @@ export default function CategoryShowcaseSections({
       <CategoryShowcaseSection config={{ preset: 'washing' }} catalogProducts={catalogProducts} />
       <CategoryShowcaseSection config={{ preset: 'cooling' }} catalogProducts={catalogProducts} />
       <CategoryShowcaseSection config={{ preset: 'vacuum' }} catalogProducts={catalogProducts} />
-      <CategoryOverviewSection />
+      <CategoryOverviewSection catalogProducts={catalogProducts} />
     </div>
   );
 }

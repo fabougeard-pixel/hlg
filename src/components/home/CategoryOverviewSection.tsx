@@ -4,13 +4,49 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
+  CatalogProductSummary,
   CategoryOverviewSettings,
   DEFAULT_CATEGORY_OVERVIEW_SETTINGS,
   DEFAULT_OVERVIEW_CARDS,
   OverviewCardItem,
 } from './categorySectionData';
 
-export default function CategoryOverviewSection({ config }: { config?: CategoryOverviewSettings }) {
+function extractCategorySlug(linkUrl?: string): string {
+  if (!linkUrl) return '';
+  const match = linkUrl.match(/[?&]category=([^&#]+)/i);
+  if (match && match[1]) return decodeURIComponent(match[1]).toLowerCase();
+  const pathMatch = linkUrl.match(/\/product-category\/([^/?#]+)/i);
+  if (pathMatch && pathMatch[1]) return decodeURIComponent(pathMatch[1]).toLowerCase();
+  return '';
+}
+
+function findCategoryProductImage(
+  linkUrl: string | undefined,
+  catalogProducts: CatalogProductSummary[]
+): string {
+  if (!catalogProducts.length) return '';
+  const slugLower = extractCategorySlug(linkUrl);
+  if (!slugLower) return '';
+
+  const match = catalogProducts.find((p) => {
+    const hasImg = Array.isArray(p.images) && p.images.length > 0 && Boolean(p.images[0]);
+    if (!hasImg) return false;
+    if (Array.isArray(p.categories)) {
+      return p.categories.some((c) => (c.slug || '').toLowerCase() === slugLower);
+    }
+    return (p.categorySlug || '').toLowerCase() === slugLower;
+  });
+
+  return match?.images?.[0] || '';
+}
+
+export default function CategoryOverviewSection({
+  config,
+  catalogProducts = [],
+}: {
+  config?: CategoryOverviewSettings;
+  catalogProducts?: CatalogProductSummary[];
+}) {
   const settings = config || {};
   const design = settings.design || {};
 
@@ -99,63 +135,83 @@ export default function CategoryOverviewSection({ config }: { config?: CategoryO
           </div>
 
           <div className={`grid ${gridColsClass} gap-4`}>
-            {cards.map((card) => (
-              <Link
-                key={card.id}
-                href={card.linkUrl || '/shop'}
-                className="group border border-stone-200/90 p-4 hover:shadow-md hover:border-emerald-300 transition-all flex flex-col justify-between"
-                style={{
-                  backgroundColor: cardBgColor,
-                  borderRadius: `${cardRadius}px`,
-                }}
-              >
-                <div className="flex items-center justify-between mb-3 gap-2">
-                  {card.image && card.image.trim() !== '' ? (
-                    <div className="relative w-11 h-11 rounded-xl overflow-hidden bg-stone-50 border border-stone-200/70 shrink-0">
-                      <Image
-                        src={card.image}
-                        alt={card.title}
-                        fill
-                        sizes="48px"
-                        quality={90}
-                        className="object-contain p-1"
-                      />
+            {cards.map((card) => {
+              // Respect explicit empty string (user deleted image), otherwise use card.image or auto-pick a product photo from its category
+              const resolvedImage =
+                card.image === ''
+                  ? ''
+                  : card.image && card.image.trim() !== ''
+                    ? card.image
+                    : findCategoryProductImage(card.linkUrl, catalogProducts);
+
+              return (
+                <Link
+                  key={card.id}
+                  href={card.linkUrl || '/shop'}
+                  className="group border border-stone-200/90 p-4 hover:shadow-md hover:border-emerald-300 transition-all flex flex-col justify-between"
+                  style={{
+                    backgroundColor: cardBgColor,
+                    borderRadius: `${cardRadius}px`,
+                  }}
+                >
+                  <div className="flex items-start justify-between mb-3 gap-2">
+                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-white border border-stone-200/80 p-1.5 flex items-center justify-center shrink-0 shadow-2xs group-hover:border-emerald-200 transition-colors">
+                      {resolvedImage ? (
+                        <Image
+                          src={resolvedImage}
+                          alt={card.title}
+                          fill
+                          sizes="96px"
+                          quality={90}
+                          className="object-contain p-1 group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <svg
+                          className="w-7 h-7 text-stone-300"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1.6}
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                          />
+                        </svg>
+                      )}
                     </div>
-                  ) : (
-                    <span className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center text-lg shrink-0">
-                      {card.emoji || '📦'}
-                    </span>
-                  )}
-                  {card.priceLabel && (
-                    <span className="text-[11px] font-bold text-stone-400 group-hover:text-[#107b46] transition-colors truncate">
-                      {card.priceLabel}
-                    </span>
-                  )}
-                </div>
 
-                <div>
-                  <h3 className="font-extrabold text-stone-900 text-sm group-hover:text-[#107b46] transition-colors">
-                    {card.title}
-                  </h3>
-                  {card.subtitle && (
-                    <p className="text-[11px] text-stone-500 mt-0.5">{card.subtitle}</p>
-                  )}
-                </div>
-
-                {card.ctaText && (
-                  <div
-                    className="mt-3 pt-2 border-t border-stone-100 flex items-center text-xs font-bold group-hover:translate-x-1 transition-transform"
-                    style={{ color: accentColor }}
-                  >
-                    <span>{card.ctaText} &rarr;</span>
+                    {card.priceLabel && (
+                      <span className="text-[11px] font-bold text-stone-400 group-hover:text-[#107b46] transition-colors text-right">
+                        {card.priceLabel}
+                      </span>
+                    )}
                   </div>
-                )}
-              </Link>
-            ))}
+
+                  <div>
+                    <h3 className="font-extrabold text-stone-900 text-sm group-hover:text-[#107b46] transition-colors">
+                      {card.title}
+                    </h3>
+                    {card.subtitle && (
+                      <p className="text-[11px] text-stone-500 mt-0.5">{card.subtitle}</p>
+                    )}
+                  </div>
+
+                  {card.ctaText && (
+                    <div
+                      className="mt-3 pt-2 border-t border-stone-100 flex items-center text-xs font-bold group-hover:translate-x-1 transition-transform"
+                      style={{ color: accentColor }}
+                    >
+                      <span>{card.ctaText} &rarr;</span>
+                    </div>
+                  )}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>
     </section>
   );
 }
-

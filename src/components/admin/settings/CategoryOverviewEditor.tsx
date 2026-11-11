@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import {
   AdminCategoryOption,
+  CatalogProductSummary,
   DEFAULT_CATEGORY_OVERVIEW_SETTINGS,
   DEFAULT_OVERVIEW_CARDS,
   OverviewCardItem,
@@ -22,6 +23,7 @@ interface CategoryOverviewEditorProps {
   ) => void;
   handleUpload: (id: string, key: string) => void;
   categories?: AdminCategoryOption[];
+  allProducts?: CatalogProductSummary[];
 }
 
 export default function CategoryOverviewEditor({
@@ -29,6 +31,7 @@ export default function CategoryOverviewEditor({
   updateSectionSettings,
   handleUpload,
   categories = [],
+  allProducts = [],
 }: CategoryOverviewEditorProps) {
   const [modeTab, setModeTab] = useState<'content' | 'design'>('content');
   const [contentSubTab, setContentSubTab] = useState<'header' | 'cards'>('header');
@@ -254,9 +257,26 @@ export default function CategoryOverviewEditor({
                     onChange={(e) => {
                       const cat = categories.find((c) => c.slug === e.target.value);
                       if (cat) {
+                        const slugLower = cat.slug.toLowerCase();
+                        const catProducts = allProducts.filter(
+                          (p) =>
+                            Array.isArray(p.categories) &&
+                            p.categories.some((c) => (c.slug || '').toLowerCase() === slugLower)
+                        );
+                        const withImg = catProducts.find(
+                          (p) => Array.isArray(p.images) && Boolean(p.images[0])
+                        );
+                        const minPrice = catProducts.reduce<number | null>((min, p) => {
+                          if (typeof p.price !== 'number') return min;
+                          return min === null || p.price < min ? p.price : min;
+                        }, null);
                         updateCardField(safeIdx, {
                           title: cat.name,
                           linkUrl: `/shop?category=${cat.slug}`,
+                          ...(withImg?.images?.[0] ? { image: withImg.images[0] } : {}),
+                          ...(minPrice !== null
+                            ? { priceLabel: `Ab ${minPrice.toFixed(2).replace('.', ',')} €` }
+                            : {}),
                         });
                       }
                     }}
@@ -272,7 +292,7 @@ export default function CategoryOverviewEditor({
                 </div>
 
                 <ImageFramePicker
-                  label="Kategorie-Bild"
+                  label="Produktbild der Kategorie"
                   imageUrl={activeCard.image}
                   onSelectClick={() => handleUpload(section.id, `overview_card_${safeIdx}`)}
                   onClearClick={() => updateCardField(safeIdx, 'image', '')}
@@ -280,30 +300,17 @@ export default function CategoryOverviewEditor({
                   heightClass="h-24"
                 />
 
-                <div className="grid grid-cols-3 gap-2">
-                  <div>
-                    <label className="block text-[10px] font-bold text-gray-600 uppercase mb-1">
-                      Emoji / Icon
-                    </label>
-                    <input
-                      type="text"
-                      value={activeCard.emoji || ''}
-                      onChange={(e) => updateCardField(safeIdx, 'emoji', e.target.value)}
-                      className="w-full text-xs p-2 border border-gray-300 rounded-md text-center"
-                    />
-                  </div>
-                  <div className="col-span-2">
-                    <label className="block text-[10px] font-bold text-gray-600 uppercase mb-1">
-                      Preis-Hinweis
-                    </label>
-                    <input
-                      type="text"
-                      value={activeCard.priceLabel}
-                      onChange={(e) => updateCardField(safeIdx, 'priceLabel', e.target.value)}
-                      placeholder="Ab 199,00 €"
-                      className="w-full text-xs p-2 border border-gray-300 rounded-md"
-                    />
-                  </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-600 uppercase mb-1">
+                    Preis-Hinweis
+                  </label>
+                  <input
+                    type="text"
+                    value={activeCard.priceLabel}
+                    onChange={(e) => updateCardField(safeIdx, 'priceLabel', e.target.value)}
+                    placeholder="Ab 199,00 €"
+                    className="w-full text-xs p-2 border border-gray-300 rounded-md"
+                  />
                 </div>
 
                 <div>

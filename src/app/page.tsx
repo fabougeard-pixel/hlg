@@ -142,7 +142,13 @@ export default async function Home() {
           />
         );
       case 'CategoryOverview':
-        return <CategoryOverviewSection key={section.id} config={section.settings} />;
+        return (
+          <CategoryOverviewSection
+            key={section.id}
+            config={section.settings}
+            catalogProducts={formattedProducts}
+          />
+        );
       case 'CategoryShowcase':
         return <CategoryShowcaseSections key={section.id} catalogProducts={formattedProducts} />;
       case 'BrandShowcase':

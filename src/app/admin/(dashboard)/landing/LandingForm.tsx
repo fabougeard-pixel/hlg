@@ -312,6 +312,7 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
           updateSectionSettings={updateSectionSettings}
           handleUpload={handleUpload}
           categories={categories}
+          allProducts={allProducts}
         />
       );
     }
