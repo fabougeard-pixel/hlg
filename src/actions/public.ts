@@ -2,6 +2,7 @@
 
 import prisma from '@/lib/prisma';
 import { unstable_cache } from 'next/cache';
+import { resolveCategoryFilter } from '@/lib/categories';
 
 export const getBestDeals = unstable_cache(
   async () => {
@@ -69,13 +70,14 @@ export const getFilteredProducts = async (filterType: string, categoryId?: strin
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-export async function searchProducts(query: string, categoryId?: string, limit: number = 5) {
+export async function searchProducts(query: string, categoryIdOrSlug?: string, limit: number = 5) {
   const safeQuery = String(query || '').trim().slice(0, 100);
   if (!safeQuery) return [];
 
   const safeLimit = Math.min(Math.max(1, Number(limit) || 5), 20);
+  const trimmedCategory = (categoryIdOrSlug || '').trim();
 
-  let where: any = {
+  const where: Record<string, unknown> = {
     isDeleted: false,
     OR: [
       { title: { contains: safeQuery, mode: 'insensitive' } },
@@ -83,8 +85,12 @@ export async function searchProducts(query: string, categoryId?: string, limit: 
     ]
   };
 
-  if (categoryId && categoryId !== 'all' && UUID_REGEX.test(categoryId)) {
-    where.categories = { some: { id: categoryId } };
+  if (trimmedCategory && trimmedCategory !== 'all') {
+    const { ids } = await resolveCategoryFilter(trimmedCategory);
+    if (ids.length === 0) {
+      return [];
+    }
+    where.categories = { some: { id: { in: ids } } };
   }
 
   return await prisma.product.findMany({

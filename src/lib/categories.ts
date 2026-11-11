@@ -87,16 +87,85 @@ export async function getCategoryByPathSegments(segments: string[]) {
   return targetCategory;
 }
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function normalizeCategoryLookupKey(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/ä/g, 'ae')
+    .replace(/ö/g, 'oe')
+    .replace(/ü/g, 'ue')
+    .replace(/ß/g, 'ss')
+    .replace(/&/g, ' ')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 /**
- * Collects a category ID and all its descendant subcategory IDs
+ * Resolves a category by UUID, slug (case-insensitive / umlaut-normalized), or name,
+ * and returns the matched category together with its ID and all descendant subcategory IDs.
  */
-export async function getCategoryWithDescendantIds(categoryIdOrSlug: string): Promise<string[]> {
+export async function resolveCategoryFilter(categoryIdOrSlug: string): Promise<{
+  category: CategoryWithHierarchy | null;
+  ids: string[];
+}> {
+  let decoded = (categoryIdOrSlug || '').trim();
+  if (!decoded || decoded === 'all') {
+    return { category: null, ids: [] };
+  }
+  try {
+    decoded = decodeURIComponent(decoded).trim();
+  } catch {
+    // Keep trimmed value if malformed URI sequence
+  }
+
+  const lower = decoded.toLowerCase();
+  const normalizedTarget = normalizeCategoryLookupKey(decoded);
+
   const cats = await getCachedAllCategories();
-  const catBySlug = new Map(cats.filter(c => c.slug).map(c => [c.slug!, c]));
   const catById = new Map(cats.map(c => [c.id, c]));
 
-  const rootCat = catById.get(categoryIdOrSlug) || catBySlug.get(categoryIdOrSlug);
-  if (!rootCat) return [];
+  let rootCat: CategoryWithHierarchy | undefined =
+    catById.get(decoded) ||
+    cats.find(c => c.slug && c.slug.toLowerCase() === lower) ||
+    (normalizedTarget.length > 0
+      ? cats.find(
+          c =>
+            (c.slug && normalizeCategoryLookupKey(c.slug) === normalizedTarget) ||
+            normalizeCategoryLookupKey(c.name) === normalizedTarget
+        )
+      : undefined);
+
+  // Fallback directly to DB if cached tree did not include a newly created category
+  if (!rootCat) {
+    const dbMatch = await prisma.category.findFirst({
+      where: UUID_REGEX.test(decoded)
+        ? { id: decoded }
+        : {
+            OR: [
+              { slug: { equals: decoded, mode: 'insensitive' } },
+              { name: { equals: decoded, mode: 'insensitive' } },
+            ],
+          },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        parentId: true,
+        metaTitle: true,
+        metaDescription: true,
+        metaKeywords: true,
+      },
+    });
+    if (dbMatch) {
+      rootCat = dbMatch;
+    }
+  }
+
+  if (!rootCat) {
+    return { category: null, ids: [] };
+  }
 
   const resultIds: string[] = [rootCat.id];
   const queue: string[] = [rootCat.id];
@@ -105,11 +174,21 @@ export async function getCategoryWithDescendantIds(categoryIdOrSlug: string): Pr
     const currentId = queue.shift()!;
     const children = cats.filter(c => c.parentId === currentId);
     for (const child of children) {
-      resultIds.push(child.id);
-      queue.push(child.id);
+      if (!resultIds.includes(child.id)) {
+        resultIds.push(child.id);
+        queue.push(child.id);
+      }
     }
   }
 
-  return resultIds;
+  return { category: rootCat, ids: resultIds };
+}
+
+/**
+ * Collects a category ID and all its descendant subcategory IDs
+ */
+export async function getCategoryWithDescendantIds(categoryIdOrSlug: string): Promise<string[]> {
+  const { ids } = await resolveCategoryFilter(categoryIdOrSlug);
+  return ids;
 }
 

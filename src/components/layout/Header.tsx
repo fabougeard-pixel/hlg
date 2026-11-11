@@ -156,6 +156,27 @@ export default function Header({
     };
   }, []);
 
+  const searchCategories = categories && categories.length > 0
+    ? [
+        { name: 'Alle Kategorien', value: 'all', isChild: false },
+        ...categories
+          .filter((cat) => {
+            const slugLower = (cat.slug || '').toLowerCase();
+            const nameLower = cat.name.toLowerCase();
+            return slugLower !== 'uncategorized' && nameLower !== 'uncategorized' && nameLower !== 'allgemein';
+          })
+          .map((cat) => ({
+            name: cat.name,
+            value: cat.slug || cat.id,
+            isChild: Boolean(cat.parentId),
+          })),
+      ]
+    : applianceCategoriesList.map((cat) => ({
+        name: cat.name,
+        value: cat.slug,
+        isChild: false,
+      }));
+
   // Debounced Search Effect
   useEffect(() => {
     const timer = setTimeout(async () => {
@@ -256,22 +277,24 @@ export default function Header({
                         Kategorie wählen
                       </div>
                       <div className="max-h-60 overflow-y-auto">
-                        {applianceCategoriesList.map((cat) => (
+                        {searchCategories.map((cat) => (
                           <button
-                            key={cat.slug}
+                            key={cat.value}
                             type="button"
                             onClick={() => {
-                              setSelectedCategory(cat.slug);
+                              setSelectedCategory(cat.value);
                               setSelectedCategoryLabel(cat.name);
                               setIsCategoryDropdownOpen(false);
                             }}
-                            className={`w-full text-left px-3.5 py-2 hover:bg-emerald-50 hover:text-[#107b46] transition flex items-center justify-between ${
-                              selectedCategory === cat.slug ? 'font-bold text-[#107b46] bg-emerald-50/70' : ''
+                            className={`w-full text-left py-2 hover:bg-emerald-50 hover:text-[#107b46] transition flex items-center justify-between ${
+                              cat.isChild ? 'pl-6 pr-3.5 text-stone-600' : 'px-3.5'
+                            } ${
+                              selectedCategory === cat.value ? 'font-bold text-[#107b46] bg-emerald-50/70' : ''
                             }`}
                           >
-                            <span>{cat.name}</span>
-                            {selectedCategory === cat.slug && (
-                              <svg className="w-3.5 h-3.5 text-[#107b46]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <span className="truncate">{cat.name}</span>
+                            {selectedCategory === cat.value && (
+                              <svg className="w-3.5 h-3.5 text-[#107b46] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                               </svg>
                             )}
@@ -377,7 +400,11 @@ export default function Header({
                       <div className="px-4 py-2 bg-stone-50 border-b border-stone-100 flex items-center justify-between text-xs font-semibold text-stone-600">
                         <span>Gefundene Produkte</span>
                         <Link
-                          href={`/search?q=${encodeURIComponent(searchQuery)}`}
+                          href={
+                            selectedCategory !== 'all'
+                              ? `/search?q=${encodeURIComponent(searchQuery.trim())}&category=${encodeURIComponent(selectedCategory)}`
+                              : `/search?q=${encodeURIComponent(searchQuery.trim())}`
+                          }
                           onClick={() => setShowSearchResults(false)}
                           className="text-[#107b46] hover:underline"
                         >
@@ -388,7 +415,7 @@ export default function Header({
                         {searchResults.map((product) => (
                           <li key={product.id}>
                             <Link
-                              href={`/produkt/${product.slug}`}
+                              href={`/produkt/${product.slug || product.id}`}
                               onClick={() => {
                                 setShowSearchResults(false);
                                 setSearchQuery('');

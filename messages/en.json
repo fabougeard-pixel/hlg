@@ -149,7 +149,9 @@
   "Search": {
     "search_results": "Search Results",
     "products_found": "{count, plural, =0 {No products found} =1 {1 product found} other {# products found}} for \"{q}\"",
-    "in_category": " in this category.",
+    "products_found_category": "{count, plural, =0 {No products} =1 {1 product} other {# products}} found in category \"{category}\".",
+    "in_category": "in this category.",
+    "in_category_named": "in category \"{category}\".",
     "no_results": "No Results",
     "no_products_match": "We couldn't find any products matching your search.",
     "back_to_home": "Back to Home",
