@@ -443,7 +443,7 @@ export default function HeroSectionEditor({
                 <label className="block text-xs font-bold text-gray-700 mb-1">Vorteil 1</label>
                 <input
                   type="text"
-                  value={settings.trustBadge1 ?? 'Kostenloser Versand ab 50 €'}
+                  value={settings.trustBadge1 ?? 'Kostenloser Versand ab 200 €'}
                   onChange={(e) => handleFieldChange('trustBadge1', e.target.value)}
                   className="w-full text-xs p-2 border border-gray-300 rounded-lg"
                 />

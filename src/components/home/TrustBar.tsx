@@ -13,7 +13,7 @@ export default function TrustBar() {
           </div>
           <div>
             <h4 className="font-bold text-xs sm:text-sm text-stone-900 leading-tight">Kostenlose Lieferung</h4>
-            <p className="text-[11px] sm:text-xs text-stone-500 mt-0.5 line-clamp-1">Kostenfreier Versand ab 50 €</p>
+            <p className="text-[11px] sm:text-xs text-stone-500 mt-0.5 line-clamp-1">Kostenfreier Versand ab 200 €</p>
           </div>
         </div>
 

@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import Price from '@/components/Price';
 import { 
   createShippingZone, updateShippingZone, deleteShippingZone,
@@ -9,6 +8,14 @@ import {
 } from '@/actions/shipping';
 import { COUNTRIES } from './countries';
 import { useTranslations } from 'next-intl';
+import {
+  CANONICAL_SHIPPING_METHOD_TYPES,
+  DEFAULT_GERMANY_FREE_SHIPPING_THRESHOLD,
+  isFreeShippingMethod,
+  isGermanyCountryName,
+  isZeroRateShippingMethod,
+  normalizeShippingMethodKind,
+} from '@/lib/shipping';
 
 export type ShippingMethod = {
   id: string;
@@ -27,10 +34,10 @@ export type ShippingZone = {
 };
 
 const METHOD_TYPES = [
-  "Livraison Gratuite",
-  "Livraison standard",
-  "Livraison expresse",
-  "Collecte au magasin"
+  CANONICAL_SHIPPING_METHOD_TYPES.free,
+  CANONICAL_SHIPPING_METHOD_TYPES.standard,
+  CANONICAL_SHIPPING_METHOD_TYPES.express,
+  CANONICAL_SHIPPING_METHOD_TYPES.collect,
 ];
 
 export default function ShippingManager({ initialZones }: { initialZones: ShippingZone[] }) {
@@ -91,11 +98,39 @@ export default function ShippingManager({ initialZones }: { initialZones: Shippi
     setLoading(false);
   };
 
+  const getCanonicalOptionIfExactAlias = (rawType: string) => {
+    const trimmed = rawType.trim().toLowerCase();
+    if (trimmed === 'kostenlose lieferung' || trimmed === 'free shipping') {
+      return CANONICAL_SHIPPING_METHOD_TYPES.free;
+    }
+    if (trimmed === 'standardlieferung' || trimmed === 'standard shipping') {
+      return CANONICAL_SHIPPING_METHOD_TYPES.standard;
+    }
+    if (trimmed === 'express-lieferung' || trimmed === 'expresslieferung' || trimmed === 'express shipping') {
+      return CANONICAL_SHIPPING_METHOD_TYPES.express;
+    }
+    if (trimmed === 'store-sammlung' || trimmed === 'abholung im geschäft' || trimmed === 'store pickup') {
+      return CANONICAL_SHIPPING_METHOD_TYPES.collect;
+    }
+    return rawType;
+  };
+
+  const renderMethodLabel = (rawType: string) => {
+    if (METHOD_TYPES.includes(rawType)) {
+      const kind = normalizeShippingMethodKind(rawType);
+      if (kind === 'free') return t('method_free');
+      if (kind === 'standard') return t('method_standard');
+      if (kind === 'express') return t('method_express');
+      if (kind === 'collect') return t('method_collect');
+    }
+    return rawType;
+  };
+
   // --- METHODS ---
   const resetMethodForm = () => {
     setAddingMethodForZone(null);
     setEditingMethod(null);
-    setMethodType('Livraison standard');
+    setMethodType(CANONICAL_SHIPPING_METHOD_TYPES.standard);
     setMethodRate('');
     setMethodMinAmount('');
     setMethodIsActive(true);
@@ -103,22 +138,30 @@ export default function ShippingManager({ initialZones }: { initialZones: Shippi
   };
 
   const startEditMethod = (method: ShippingMethod) => {
+    const mappedType = getCanonicalOptionIfExactAlias(method.type);
     setEditingMethod(method);
-    setMethodType(method.type);
-    setMethodRate(method.rate);
-    setMethodMinAmount(method.minOrderAmount || '');
+    setMethodType(mappedType);
+    setMethodRate(isZeroRateShippingMethod(mappedType) ? 0 : method.rate);
+    setMethodMinAmount(method.minOrderAmount ?? '');
     setMethodIsActive(method.isActive);
     setAddingMethodForZone(method.zoneId);
+    setError('');
   };
 
   const handleSaveMethod = async () => {
     if (!methodType) return setError(t('error_type'));
-    
-    const isFreeOrCollect = methodType === 'Livraison Gratuite' || methodType === 'Collecte au magasin';
-    const rateToSave = isFreeOrCollect ? 0 : Number(methodRate);
-    if (!isFreeOrCollect && methodRate === '') return setError('Rate is required for this method.');
 
-    const minAmountToSave = methodType === 'Livraison Gratuite' && methodMinAmount !== '' ? Number(methodMinAmount) : undefined;
+    const isFree = isFreeShippingMethod(methodType);
+    const isZeroRate = isZeroRateShippingMethod(methodType);
+    const rateToSave = isZeroRate ? 0 : Number(methodRate);
+    if (!isZeroRate && (methodRate === '' || Number.isNaN(Number(methodRate)))) {
+      return setError(t('error_rate'));
+    }
+
+    const parsedMinAmount =
+      isFree && methodMinAmount !== '' && Number.isFinite(Number(methodMinAmount)) && Number(methodMinAmount) > 0
+        ? Number(methodMinAmount)
+        : null;
 
     setLoading(true);
     setError('');
@@ -127,7 +170,7 @@ export default function ShippingManager({ initialZones }: { initialZones: Shippi
       const res = await updateShippingMethod(editingMethod.id, {
         type: methodType,
         rate: rateToSave,
-        minOrderAmount: minAmountToSave,
+        minOrderAmount: parsedMinAmount,
         isActive: methodIsActive
       });
       if (res.success && res.method) {
@@ -145,7 +188,7 @@ export default function ShippingManager({ initialZones }: { initialZones: Shippi
       const res = await addShippingMethod(addingMethodForZone, {
         type: methodType,
         rate: rateToSave,
-        minOrderAmount: minAmountToSave,
+        minOrderAmount: parsedMinAmount,
         isActive: methodIsActive
       });
       if (res.success && res.method) {
@@ -283,19 +326,16 @@ export default function ShippingManager({ initialZones }: { initialZones: Shippi
                       {zone.methods.map(method => (
                         <tr key={method.id} className="hover:bg-gray-50">
                           <td className="px-3 py-2 font-medium">
-                            {method.type === 'Livraison Gratuite' ? t('method_free') : 
-                             method.type === 'Livraison standard' ? t('method_standard') : 
-                             method.type === 'Livraison expresse' ? t('method_express') : 
-                             method.type === 'Collecte au magasin' ? t('method_collect') : method.type}
+                            {renderMethodLabel(method.type)}
                           </td>
                           <td className="px-3 py-2">
-                            {method.type === 'Livraison Gratuite' || method.type === 'Collecte au magasin' 
-                              ? t('free') 
+                            {isZeroRateShippingMethod(method.type)
+                              ? t('free')
                               : <Price amount={method.rate} showTax={false} />}
                           </td>
                           <td className="px-3 py-2 text-gray-500">
-                            {method.type === 'Livraison Gratuite' && method.minOrderAmount 
-                              ? <><span className="mr-1">{t('from')}</span><Price amount={method.minOrderAmount} showTax={false} /></> 
+                            {isFreeShippingMethod(method.type) && method.minOrderAmount != null && method.minOrderAmount > 0
+                              ? <><span className="mr-1">{t('from')}</span><Price amount={method.minOrderAmount} showTax={false} /></>
                               : '-'}
                           </td>
                           <td className="px-3 py-2">
@@ -325,41 +365,68 @@ export default function ShippingManager({ initialZones }: { initialZones: Shippi
                         <label className="block text-xs font-medium text-gray-700 mb-1">{t('col_label')}</label>
                         <select 
                           value={methodType} 
-                          onChange={(e) => setMethodType(e.target.value)}
-                          className="w-full border border-gray-300 px-2 py-1.5 rounded text-sm"
+                          onChange={(e) => {
+                            const nextType = e.target.value;
+                            setMethodType(nextType);
+                            if (isFreeShippingMethod(nextType)) {
+                              setMethodRate(0);
+                              if (!editingMethod && methodMinAmount === '' && isGermanyCountryName(zone.name)) {
+                                setMethodMinAmount(DEFAULT_GERMANY_FREE_SHIPPING_THRESHOLD);
+                              }
+                            } else if (isZeroRateShippingMethod(nextType)) {
+                              setMethodRate(0);
+                            }
+                          }}
+                          className="w-full border border-gray-300 px-2 py-1.5 rounded text-sm bg-white"
                         >
+                          {!METHOD_TYPES.includes(methodType) && methodType && (
+                            <option value={methodType}>{methodType}</option>
+                          )}
                           {METHOD_TYPES.map(type => (
                             <option key={type} value={type}>
-                              {type === 'Livraison Gratuite' ? t('method_free') : 
-                               type === 'Livraison standard' ? t('method_standard') : 
-                               type === 'Livraison expresse' ? t('method_express') : 
-                               type === 'Collecte au magasin' ? t('method_collect') : type}
+                              {renderMethodLabel(type)}
                             </option>
                           ))}
                         </select>
                       </div>
                       
-                      {methodType !== 'Livraison Gratuite' && methodType !== 'Collecte au magasin' && (
+                      {!isZeroRateShippingMethod(methodType) && (
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">{t('rate_label')} ($)</label>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">{t('rate_label')} (€)</label>
                           <input 
                             type="number" step="0.01" min="0" 
                             value={methodRate} 
-                            onChange={(e) => setMethodRate(e.target.value ? parseFloat(e.target.value) : '')}
-                            className="w-full border border-gray-300 px-2 py-1.5 rounded text-sm"
+                            onChange={(e) => {
+                              const raw = e.target.value;
+                              if (raw === '') {
+                                setMethodRate('');
+                              } else {
+                                const parsed = parseFloat(raw);
+                                setMethodRate(Number.isNaN(parsed) ? '' : parsed);
+                              }
+                            }}
+                            className="w-full border border-gray-300 px-2 py-1.5 rounded text-sm bg-white"
                           />
                         </div>
                       )}
 
-                      {methodType === 'Livraison Gratuite' && (
+                      {isFreeShippingMethod(methodType) && (
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">{t('min_amount_label')} ($)</label>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">{t('min_amount_label')} (€)</label>
                           <input 
                             type="number" step="0.01" min="0" 
                             value={methodMinAmount} 
-                            onChange={(e) => setMethodMinAmount(e.target.value ? parseFloat(e.target.value) : '')}
-                            className="w-full border border-gray-300 px-2 py-1.5 rounded text-sm"
-                            placeholder="Ex: 50.00"
+                            onChange={(e) => {
+                              const raw = e.target.value;
+                              if (raw === '') {
+                                setMethodMinAmount('');
+                              } else {
+                                const parsed = parseFloat(raw);
+                                setMethodMinAmount(Number.isNaN(parsed) ? '' : parsed);
+                              }
+                            }}
+                            className="w-full border border-gray-300 px-2 py-1.5 rounded text-sm bg-white"
+                            placeholder="z.B. 200.00"
                           />
                         </div>
                       )}
@@ -389,7 +456,7 @@ export default function ShippingManager({ initialZones }: { initialZones: Shippi
                     onClick={() => { resetMethodForm(); setAddingMethodForZone(zone.id); }}
                     className="text-sm font-medium text-orange-700 hover:text-orange-800"
                   >
-                    {t('add_method_for', { zone: zone.name })}
+                    {t('add_method_for', { zone: tCountries(zone.name) || zone.name })}
                   </button>
                 )}
               </div>

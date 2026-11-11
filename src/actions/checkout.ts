@@ -3,6 +3,7 @@
 import prisma from '@/lib/prisma';
 import { createClient } from '@/utils/supabase/server';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
+import { isGermanyCountryName, isShippingMethodEligible } from '@/lib/shipping';
 
 const ALLOWED_PAYMENT_METHODS = ['STRIPE', 'PAYPAL', 'BANK_TRANSFER'] as const;
 const MAX_CART_LINES = 50;
@@ -109,10 +110,17 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
       return { error: "This payment method is not available." };
     }
 
-    const validZone = await prisma.shippingZone.findFirst({
+    let validZone = await prisma.shippingZone.findFirst({
       where: { name: effectiveCountry, isActive: true },
       include: { methods: { where: { id: shippingMethodId, isActive: true } } }
     });
+
+    if (!validZone && isGermanyCountryName(effectiveCountry)) {
+      validZone = await prisma.shippingZone.findFirst({
+        where: { name: { in: ['Germany', 'Deutschland', 'Allemagne', 'DE'] }, isActive: true },
+        include: { methods: { where: { id: shippingMethodId, isActive: true } } }
+      });
+    }
 
     if (!validZone) {
       return { error: "This shipping zone is not currently covered." };
@@ -122,7 +130,7 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
       return { error: "Invalid shipping method." };
     }
 
-    const shippingRate = validZone.methods[0].rate;
+    const chosenShippingMethod = validZone.methods[0];
     
     // ===== SERVER-SIDE PRICE VERIFICATION =====
     // Never trust client-provided prices. Fetch real prices from database.
@@ -174,6 +182,15 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
         attributes: item.attributes && typeof item.attributes === 'object' ? item.attributes : null,
       });
     }
+
+    if (!isShippingMethodEligible(chosenShippingMethod, serverCartTotal)) {
+      const minRequired = chosenShippingMethod.minOrderAmount ?? 0;
+      return {
+        error: `Mindestbestellwert von ${minRequired.toFixed(2)} € für diese Versandart nicht erreicht.`
+      };
+    }
+
+    const shippingRate = chosenShippingMethod.rate;
 
     // Apply coupon discount server-side if provided
     const couponCode = String(formData.get('couponCode') || '').slice(0, 64);

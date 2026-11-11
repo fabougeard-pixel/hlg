@@ -4,16 +4,23 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useCartStore } from '@/store/cartStore';
 import Price from '@/components/Price';
+import { useCurrency } from '@/components/CurrencyProvider';
 import { useTranslations } from 'next-intl';
 import { validateCoupon } from '@/actions/checkout';
+import { DEFAULT_GERMANY_FREE_SHIPPING_THRESHOLD } from '@/lib/shipping';
 import Image from "next/image";
 
 type CartDrawerProps = {
   isOpen: boolean;
   onClose: () => void;
+  freeShippingThreshold?: number;
 };
 
-export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
+export default function CartDrawer({
+  isOpen,
+  onClose,
+  freeShippingThreshold = DEFAULT_GERMANY_FREE_SHIPPING_THRESHOLD,
+}: CartDrawerProps) {
   const [mounted, setMounted] = useState(false);
   const { items, removeItem, updateQuantity, clearCart, getTotalPrice, getTotalItems, coupon, setCoupon } = useCartStore();
   const [showCoupon, setShowCoupon] = useState(false);
@@ -21,6 +28,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const [couponError, setCouponError] = useState('');
   const [isApplying, setIsApplying] = useState(false);
   const t = useTranslations('CartDrawer');
+  const { formatPrice } = useCurrency();
 
   const cartTotal = getTotalPrice();
   let discountAmount = 0;
@@ -188,6 +196,28 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
         {/* Footer (Totals & CTA) */}
         <div className="p-4 bg-white border-t border-gray-100 mt-auto">
+          {items.length > 0 && freeShippingThreshold > 0 && (
+            <div className="mb-3 rounded-md border border-emerald-200 bg-emerald-50/70 px-3 py-2 text-xs">
+              {Math.round(cartTotal * 100) >= Math.round(freeShippingThreshold * 100) ? (
+                <p className="font-medium text-emerald-800">
+                  ✓ Kostenloser Versand in Deutschland freigeschaltet!
+                </p>
+              ) : (
+                <>
+                  <p className="text-emerald-900 mb-1.5">
+                    Noch <strong>{formatPrice(Math.max(0, Math.round((freeShippingThreshold - cartTotal) * 100) / 100))}</strong> bis zum kostenlosen Versand in Deutschland (ab {formatPrice(freeShippingThreshold)})
+                  </p>
+                  <div className="w-full h-1.5 bg-emerald-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-emerald-600 transition-all duration-300"
+                      style={{ width: `${Math.min(100, Math.round((cartTotal / freeShippingThreshold) * 100))}%` }}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
           {/* Coupon */}
           <div className="mb-4">
               <button 

@@ -68,7 +68,7 @@ const applianceCategoriesList = [
 ];
 
 export default function Header({
-  announcement = 'Willkommen bei HLG Hausgeräte • Kostenloser Versand ab 50 €',
+  announcement = 'Willkommen bei HLG Hausgeräte • Kostenloser Versand ab 200 €',
   logoImage = '/LOGO-HLG-HAUSGERAETE.png',
   headerLogoHeight = '48',
   mobileLogoHeight = '40',
@@ -564,7 +564,7 @@ export default function Header({
             {/* Value perks on desktop right */}
             <div className="hidden md:flex items-center space-x-6 text-xs font-medium text-stone-500">
               <span className="flex items-center gap-1.5 text-stone-700">
-                <span className="text-[#107b46]">✓</span> Kostenloser Versand ab 50 €
+                <span className="text-[#107b46]">✓</span> Kostenloser Versand ab 200 €
               </span>
               <span className="flex items-center gap-1.5 text-stone-700">
                 <span className="text-[#107b46]">✓</span> 2 Jahre Herstellergarantie

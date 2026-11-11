@@ -8,10 +8,10 @@ export default function ShippingInfoForm({ initialSettings }: { initialSettings:
   const tSettings = useTranslations('AdminSettings');
   const router = useRouter();
   
-  const [shippingInfo1, setShippingInfo1] = useState(initialSettings.SHIPPING_INFO_1 || '3-5 business days in Germany');
-  const [shippingInfo2, setShippingInfo2] = useState(initialSettings.SHIPPING_INFO_2 || '5-10 business days in the Eurozone');
-  const [shippingInfo3, setShippingInfo3] = useState(initialSettings.SHIPPING_INFO_3 || 'Free shipping: Orders over €200.00');
-  const [shippingInfo4, setShippingInfo4] = useState(initialSettings.SHIPPING_INFO_4 || 'Free returns: within 30 days');
+  const [shippingInfo1, setShippingInfo1] = useState(initialSettings.SHIPPING_INFO_1 || '3–5 Werktage innerhalb Deutschlands');
+  const [shippingInfo2, setShippingInfo2] = useState(initialSettings.SHIPPING_INFO_2 || '5–10 Werktage in der Eurozone');
+  const [shippingInfo3, setShippingInfo3] = useState(initialSettings.SHIPPING_INFO_3 || 'Kostenloser Versand: Bestellungen ab 200,00 €');
+  const [shippingInfo4, setShippingInfo4] = useState(initialSettings.SHIPPING_INFO_4 || 'Kostenlose Rücksendung: innerhalb von 30 Tagen');
   
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');

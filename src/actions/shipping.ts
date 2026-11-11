@@ -4,6 +4,13 @@ import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/auth';
 
+function revalidateShippingPaths() {
+  revalidatePath('/admin/shipping');
+  revalidatePath('/checkout');
+  revalidatePath('/cart');
+  revalidatePath('/');
+}
+
 // --- ZONES ---
 
 export async function getShippingZones() {
@@ -30,7 +37,7 @@ export async function createShippingZone(data: { name: string; isActive?: boolea
     const zone = await prisma.shippingZone.create({
       data,
     });
-    revalidatePath('/admin/shipping');
+    revalidateShippingPaths();
     return { success: true, zone };
   } catch (error: any) {
     console.error('Error creating shipping zone:', error);
@@ -45,7 +52,7 @@ export async function updateShippingZone(id: string, data: { name?: string; isAc
       where: { id },
       data,
     });
-    revalidatePath('/admin/shipping');
+    revalidateShippingPaths();
     return { success: true, zone };
   } catch (error: any) {
     console.error('Error updating shipping zone:', error);
@@ -59,7 +66,7 @@ export async function deleteShippingZone(id: string) {
     await prisma.shippingZone.delete({
       where: { id },
     });
-    revalidatePath('/admin/shipping');
+    revalidateShippingPaths();
     return { success: true };
   } catch (error: any) {
     console.error('Error deleting shipping zone:', error);
@@ -69,7 +76,7 @@ export async function deleteShippingZone(id: string) {
 
 // --- METHODS ---
 
-export async function addShippingMethod(zoneId: string, data: { type: string; rate: number; minOrderAmount?: number; isActive?: boolean }) {
+export async function addShippingMethod(zoneId: string, data: { type: string; rate: number; minOrderAmount?: number | null; isActive?: boolean }) {
   await requireAdmin();
   try {
     const method = await prisma.shippingMethod.create({
@@ -77,11 +84,11 @@ export async function addShippingMethod(zoneId: string, data: { type: string; ra
         zoneId,
         type: data.type,
         rate: data.rate,
-        minOrderAmount: data.minOrderAmount,
+        minOrderAmount: data.minOrderAmount ?? null,
         isActive: data.isActive
       }
     });
-    revalidatePath('/admin/shipping');
+    revalidateShippingPaths();
     return { success: true, method };
   } catch (error: any) {
     console.error('Error adding shipping method:', error);
@@ -96,7 +103,7 @@ export async function updateShippingMethod(id: string, data: { type?: string; ra
       where: { id },
       data,
     });
-    revalidatePath('/admin/shipping');
+    revalidateShippingPaths();
     return { success: true, method };
   } catch (error: any) {
     console.error('Error updating shipping method:', error);
@@ -110,7 +117,7 @@ export async function deleteShippingMethod(id: string) {
     await prisma.shippingMethod.delete({
       where: { id },
     });
-    revalidatePath('/admin/shipping');
+    revalidateShippingPaths();
     return { success: true };
   } catch (error: any) {
     console.error('Error deleting shipping method:', error);

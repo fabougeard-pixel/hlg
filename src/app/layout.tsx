@@ -145,7 +145,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const { newCount: newProductsCount, hotCount: hotProductsCount, saleCount: saleProductsCount } = await getCachedProductCounts();
 
   const storeSettings = {
-    announcement: settingsMap.HEADER_ANNOUNCEMENT_TEXT || settingsMap.HEADER_ANNOUNCEMENT || 'Willkommen bei HLG Hausgeräte • Kostenloser Versand ab 50 € • 2 Jahre Garantie',
+    announcement: settingsMap.HEADER_ANNOUNCEMENT_TEXT || settingsMap.HEADER_ANNOUNCEMENT || 'Willkommen bei HLG Hausgeräte • Kostenloser Versand ab 200 € • 2 Jahre Garantie',
     logoImage: settingsMap.HEADER_LOGO_IMAGE && settingsMap.HEADER_LOGO_IMAGE !== '/logo.png' && settingsMap.HEADER_LOGO_IMAGE !== '/logo.jpg' ? settingsMap.HEADER_LOGO_IMAGE : '/LOGO-HLG-HAUSGERAETE.png',
     supportPhone: settingsMap.FOOTER_SUPPORT_PHONE ?? settingsMap.HEADER_SUPPORT_PHONE ?? '0800 123 4567',
     supportEmail: settingsMap.FOOTER_SUPPORT_EMAIL ?? settingsMap.HEADER_SUPPORT_EMAIL ?? 'info@hlg-hausgeraete.de',

@@ -1,12 +1,20 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useSyncExternalStore } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCartStore } from '@/store/cartStore';
 import Link from 'next/link';
 import { processCheckout, validateCoupon } from '@/actions/checkout';
 import { useCurrency } from '@/components/CurrencyProvider';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
+import {
+  findShippingZoneForCountry,
+  getLocalizedShippingMethodLabel,
+  getRemainingForShippingMethod,
+  getZoneFreeShippingMethod,
+  isShippingMethodEligible,
+  resolveEffectiveShippingMethodId,
+} from '@/lib/shipping';
 
 interface CheckoutClientProps {
   settings: {
@@ -21,53 +29,43 @@ interface CheckoutClientProps {
       id: string;
       type: string;
       rate: number;
+      minOrderAmount: number | null;
     }>;
   }>;
 }
 
+const emptySubscribe = () => () => {};
+
 export default function CheckoutClient({ settings, zones }: CheckoutClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { items: cart, getTotalPrice, clearCart, coupon, setCoupon, customShipping } = useCartStore();
-  const [isMounted, setIsMounted] = useState(false);
+  const { items: cart, getTotalPrice, clearCart, coupon, setCoupon, customShipping, setCustomShipping } = useCartStore();
+  const isMounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-  
-  const [selectedCountry, setSelectedCountry] = useState(
-    customShipping?.zoneName ? customShipping.zoneName : (zones.length > 0 ? zones[0].name : '')
-  );
-  const [shippingCountry, setShippingCountry] = useState(
-    customShipping?.zoneName ? customShipping.zoneName : (zones.length > 0 ? zones[0].name : '')
-  );
+  const defaultZone = findShippingZoneForCountry(zones, 'Germany');
+  const initialCountry =
+    customShipping?.zoneName && findShippingZoneForCountry(zones, customShipping.zoneName)
+      ? customShipping.zoneName
+      : (defaultZone?.name || (zones.length > 0 ? zones[0].name : ''));
+
+  const [selectedCountry, setSelectedCountry] = useState(initialCountry);
+  const [shippingCountry, setShippingCountry] = useState(initialCountry);
   const [shipToDifferentAddress, setShipToDifferentAddress] = useState(false);
 
   const effectiveShippingCountry = shipToDifferentAddress ? shippingCountry : selectedCountry;
-  const activeZone = zones.find(z => z.name === effectiveShippingCountry);
+  const activeZone = findShippingZoneForCountry(zones, effectiveShippingCountry);
   const activeMethods = activeZone?.methods || [];
 
-  const [shippingMethodId, setShippingMethodId] = useState(
-    customShipping?.methodId || (activeMethods.length > 0 ? activeMethods[0].id : '')
+  const cartTotal = getTotalPrice();
+
+  const [shippingMethodId, setShippingMethodId] = useState('');
+  const customMethodId = customShipping?.methodId;
+  const effectiveShippingMethodId = resolveEffectiveShippingMethodId(
+    activeMethods,
+    shippingMethodId,
+    customMethodId,
+    cartTotal
   );
-
-  useEffect(() => {
-    if (customShipping?.zoneName && customShipping.zoneName !== selectedCountry) {
-      setSelectedCountry(customShipping.zoneName);
-    }
-    if (customShipping?.methodId) {
-      setShippingMethodId(customShipping.methodId);
-      return;
-    }
-
-    const newActiveZone = zones.find(z => z.name === effectiveShippingCountry);
-    const newMethods = newActiveZone?.methods || [];
-    if (newMethods.length > 0) {
-      setShippingMethodId(newMethods[0].id);
-    } else {
-      setShippingMethodId('');
-    }
-  }, [effectiveShippingCountry, zones, customShipping]);
   
   const enableBankTransfer = settings.ENABLE_BANK_TRANSFER !== 'false';
   const enableStripe = settings.ENABLE_STRIPE !== 'false';
@@ -84,8 +82,7 @@ export default function CheckoutClient({ settings, zones }: CheckoutClientProps)
   const { formatPrice } = useCurrency();
   const t = useTranslations('Checkout');
   const tCountries = useTranslations('Countries');
-
-  const cartTotal = getTotalPrice();
+  const locale = useLocale();
   
   // Calculate Discount
   let discountAmount = 0;
@@ -97,8 +94,11 @@ export default function CheckoutClient({ settings, zones }: CheckoutClientProps)
     }
   }
 
-  const selectedMethod = activeMethods.find(m => m.id === shippingMethodId);
-  const shippingCost = selectedMethod ? selectedMethod.rate : (customShipping ? customShipping.rate : 0);
+  const selectedMethod = activeMethods.find(m => m.id === effectiveShippingMethodId);
+  const selectedMethodEligible = selectedMethod ? isShippingMethodEligible(selectedMethod, cartTotal) : false;
+  const freeShippingMethod = getZoneFreeShippingMethod(activeZone);
+  const remainingForFreeShipping = freeShippingMethod ? getRemainingForShippingMethod(freeShippingMethod, cartTotal) : 0;
+  const shippingCost = selectedMethod && selectedMethodEligible ? selectedMethod.rate : 0;
 
   const finalTotal = Math.max(0, cartTotal - discountAmount) + shippingCost;
 
@@ -157,11 +157,19 @@ export default function CheckoutClient({ settings, zones }: CheckoutClientProps)
       alert(t('select_payment'));
       return;
     }
+
+    if (activeMethods.length > 0 && (!selectedMethod || !selectedMethodEligible)) {
+      alert(t('no_shipping_method'));
+      return;
+    }
     
     setIsProcessing(true);
     setFallbackModal(null);
     
     const formData = new FormData(e.currentTarget);
+    if (effectiveShippingMethodId) {
+      formData.set('shippingMethod', effectiveShippingMethodId);
+    }
     if (coupon) {
       formData.append('couponCode', coupon.code);
     }
@@ -602,17 +610,17 @@ export default function CheckoutClient({ settings, zones }: CheckoutClientProps)
               </div>
             )}
 
-            {customShipping && (
+            {customShipping && selectedMethod && selectedMethodEligible && (
               <div className="mb-4 p-3.5 bg-emerald-50 border border-emerald-300 rounded-xl text-xs text-emerald-950 flex items-center justify-between shadow-xs">
                 <div className="flex items-center gap-2.5">
                   <span className="text-xl">🚛</span>
                   <div>
-                    <span className="font-extrabold text-xs sm:text-sm block text-emerald-950">Frete Calibrado pelo Simulador Silva Dias</span>
-                    <span className="text-emerald-700 font-medium">{customShipping.label} • {customShipping.district || 'Portugal Continental'}</span>
+                    <span className="font-extrabold text-xs sm:text-sm block text-emerald-950">Ausgewählte Versandart</span>
+                    <span className="text-emerald-700 font-medium">{getLocalizedShippingMethodLabel(customShipping.label, locale)}{customShipping.district ? ` • ${tCountries(customShipping.district) || customShipping.district}` : ''}</span>
                   </div>
                 </div>
                 <span className="font-black text-xs sm:text-sm bg-emerald-600 text-white px-2.5 py-1 rounded-md shrink-0">
-                  {customShipping.rate === 0 ? 'GRÁTIS' : `${customShipping.rate.toFixed(2)} €`}
+                  {selectedMethod.rate === 0 ? 'Kostenlos' : formatPrice(selectedMethod.rate)}
                 </span>
               </div>
             )}
@@ -623,19 +631,48 @@ export default function CheckoutClient({ settings, zones }: CheckoutClientProps)
                 {activeMethods.length === 0 ? (
                   <div className="text-gray-500 text-sm">{t('no_shipping_method')}</div>
                 ) : (
-                  activeMethods.map((method) => (
-                    <label key={method.id} className="flex items-center justify-end gap-2 cursor-pointer">
-                      <span className="text-gray-600">{method.type}: {formatPrice(method.rate)}</span>
-                      <input 
-                        type="radio" 
-                        name="shippingMethod" 
-                        value={method.id} 
-                        checked={shippingMethodId === method.id} 
-                        onChange={() => setShippingMethodId(method.id)} 
-                        className="text-orange-700 focus:ring-orange-500" 
-                      />
-                    </label>
-                  ))
+                  <>
+                    {activeMethods.map((method) => {
+                      const eligible = isShippingMethodEligible(method, cartTotal);
+                      const label = getLocalizedShippingMethodLabel(method.type, locale);
+                      return (
+                        <label
+                          key={method.id}
+                          className={`flex items-center justify-end gap-2 ${eligible ? 'cursor-pointer' : 'cursor-not-allowed opacity-55'}`}
+                        >
+                          <span className={eligible ? 'text-gray-700' : 'text-gray-400'}>
+                            {label}
+                            {method.minOrderAmount != null && method.minOrderAmount > 0 && (
+                              <span className="text-xs ml-1 text-gray-500">
+                                (ab {formatPrice(method.minOrderAmount)})
+                              </span>
+                            )}
+                            {': '}
+                            {method.rate === 0 ? 'Kostenlos' : formatPrice(method.rate)}
+                          </span>
+                          <input
+                            type="radio"
+                            name="shippingMethod"
+                            value={method.id}
+                            disabled={!eligible}
+                            checked={effectiveShippingMethodId === method.id}
+                            onChange={() => {
+                              if (eligible) {
+                                setCustomShipping(null);
+                                setShippingMethodId(method.id);
+                              }
+                            }}
+                            className="text-orange-700 focus:ring-orange-500 disabled:opacity-40"
+                          />
+                        </label>
+                      );
+                    })}
+                    {freeShippingMethod && remainingForFreeShipping > 0 && (
+                      <div className="text-xs text-emerald-700 font-medium bg-emerald-50 border border-emerald-200 rounded px-2.5 py-1.5 mt-1">
+                        Noch {formatPrice(remainingForFreeShipping)} bis zum kostenlosen Versand!
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -732,7 +769,7 @@ export default function CheckoutClient({ settings, zones }: CheckoutClientProps)
 
             <button 
               type="submit" 
-              disabled={isProcessing || cart.length === 0 || !paymentMethod}
+              disabled={isProcessing || cart.length === 0 || !paymentMethod || (activeMethods.length > 0 && (!selectedMethod || !selectedMethodEligible))}
               className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 px-6 rounded transition-colors flex justify-center items-center disabled:opacity-50"
             >
               {isProcessing ? t('processing') : t('place_order')}

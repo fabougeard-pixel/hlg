@@ -98,7 +98,7 @@ export default function HlgHero({
     config?.subtitle ??
     config?.description ??
     'Premium-Marken für Küche & Haushalt. Bis zu 40% sparen • Sofort versandbereit • 2 Jahre Garantie.';
-  const block2Trust1 = config?.trustBadge1 ?? 'Kostenloser Versand ab 50 €';
+  const block2Trust1 = config?.trustBadge1 ?? 'Kostenloser Versand ab 200 €';
   const block2Trust2 = config?.trustBadge2 ?? '2 Jahre Garantie';
   const block2CtaText = config?.ctaText ?? config?.buttonText ?? 'Angebote anzeigen';
   const block2CtaUrl = config?.ctaUrl ?? config?.buttonLink ?? '/shop';
