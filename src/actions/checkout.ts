@@ -241,12 +241,15 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
       }
     }
 
+    const rawVatId = ((formData.get('vatId') as string) || (formData.get('nif') as string) || (formData.get('nipc') as string) || '').trim().toUpperCase();
+
     const orderMetadata = {
       billing: {
         firstName,
         lastName,
         company: ((formData.get('companyName') as string) || (formData.get('company') as string) || '').trim(),
-        nif: ((formData.get('nif') as string) || (formData.get('nipc') as string) || '').trim(),
+        vatId: rawVatId,
+        nif: rawVatId,
         email,
         phone: formData.get('phone') as string,
         address1: formData.get('address1') as string,

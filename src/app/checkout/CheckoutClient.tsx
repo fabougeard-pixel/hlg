@@ -400,41 +400,45 @@ export default function CheckoutClient({ settings, zones }: CheckoutClientProps)
             </div>
           </div>
 
-          {/* Dados de Empresa & NIF / NIPC para faturação comercial */}
+          {/* Firmendaten & USt-IdNr. / Steuernummer für gewerbliche Rechnungen (§ 14 UStG) */}
           <div className="bg-stone-50/80 p-4 rounded-xl border border-stone-200/80 space-y-3">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="text-xs font-bold uppercase tracking-wider text-stone-700 flex items-center gap-1.5">
-                <span>🏢</span> Dados para Faturação Empresarial (Opcional)
+                <span aria-hidden="true">🏢</span> {t('business_billing_title')}
               </span>
               <span className="text-[11px] text-stone-700 bg-stone-200/70 px-2 py-0.5 rounded font-medium">
-                Empresas & ENI
+                {t('business_billing_badge')}
               </span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nome da Empresa / Razão Social
+                <label htmlFor="checkout-company-name" className="block text-sm font-medium text-gray-700 mb-1">
+                  {t('business_company_label')}
                 </label>
-                <input 
-                  type="text" 
-                  name="companyName" 
-                  placeholder="Ex: Silva & Filhos Lda" 
-                  className="w-full px-4 py-2 border border-gray-200 bg-white rounded focus:ring-red-500 focus:border-red-500 text-sm" 
+                <input
+                  id="checkout-company-name"
+                  type="text"
+                  name="companyName"
+                  autoComplete="organization"
+                  placeholder={t('business_company_placeholder')}
+                  className="w-full px-4 py-2 border border-gray-200 bg-white rounded focus:ring-orange-500 focus:border-orange-500 text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  NIF / NIPC (Portugal ou Int.)
+                <label htmlFor="checkout-vat-id" className="block text-sm font-medium text-gray-700 mb-1">
+                  {t('business_vat_label')}
                 </label>
-                <input 
-                  type="text" 
-                  name="nif" 
-                  placeholder="Ex: 501 234 567" 
+                <input
+                  id="checkout-vat-id"
+                  type="text"
+                  name="vatId"
+                  placeholder={t('business_vat_placeholder')}
                   maxLength={25}
-                  className="w-full px-4 py-2 border border-gray-200 bg-white rounded focus:ring-red-500 focus:border-red-500 text-sm font-mono" 
+                  className="w-full px-4 py-2 border border-gray-200 bg-white rounded focus:ring-orange-500 focus:border-orange-500 text-sm font-mono uppercase"
                 />
               </div>
             </div>
+            <p className="text-xs text-stone-600">{t('business_vat_hint')}</p>
           </div>
 
           <div>
@@ -529,9 +533,14 @@ export default function CheckoutClient({ settings, zones }: CheckoutClientProps)
                   onChange={(e) => setShippingCountry(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-200 bg-gray-50 rounded focus:ring-orange-500 focus:border-orange-500"
                 >
-                  {zones.map((zone) => (
-                    <option key={zone.name} value={zone.name}>{zone.name}</option>
-                  ))}
+                  {zones.map((zone) => {
+                    const countryKey = zone.name as Parameters<typeof tCountries>[0];
+                    return (
+                      <option key={zone.name} value={zone.name}>
+                        {tCountries.has(countryKey) ? tCountries(countryKey) : zone.name}
+                      </option>
+                    );
+                  })}
                   {zones.length === 0 && <option value="">{t('no_shipping_zones')}</option>}
                 </select>
               </div>
