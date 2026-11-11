@@ -295,7 +295,15 @@ export async function getMinimalProducts() {
   await requireAdmin();
   return await prisma.product.findMany({
     where: { isDeleted: false },
-    select: { id: true, title: true, images: true },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      price: true,
+      compareAtPrice: true,
+      images: true,
+      categories: { select: { name: true, slug: true } },
+    },
     orderBy: { title: 'asc' }
   });
 }

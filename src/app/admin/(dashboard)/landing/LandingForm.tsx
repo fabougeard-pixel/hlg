@@ -10,43 +10,22 @@ import PromoBannersEditor from '@/components/admin/settings/PromoBannersEditor';
 import LatestBlogsEditor from '@/components/admin/settings/LatestBlogsEditor';
 import FullWidthBannerEditor from '@/components/admin/settings/FullWidthBannerEditor';
 import AktuelleAngeboteEditor from '@/components/admin/settings/AktuelleAngeboteEditor';
+import CategoryShowcaseEditor from '@/components/admin/settings/CategoryShowcaseEditor';
+import CategoryOverviewEditor from '@/components/admin/settings/CategoryOverviewEditor';
+import {
+  CATEGORY_PRESET_DEFAULTS,
+  CategorySectionPreset,
+  DEFAULT_HLG_SECTIONS,
+  DEFAULT_OVERVIEW_CARDS,
+  SectionConfig,
+  SectionType,
+  normalizeHomepageSections,
+} from '@/components/home/categorySectionData';
 import Cookies from 'js-cookie';
 
-export type SectionType =
-  | 'Hero'
-  | 'AktuelleAngebote'
-  | 'CategoryShowcase'
-  | 'BrandShowcase'
-  | 'TrustBar'
-  | 'CategoryExplorer'
-  | 'HeatingGuideBlogs'
-  | 'Newsletter'
-  | 'PromoBanners'
-  | 'ProductGrid'
-  | 'FullWidthBanner'
-  | 'FeaturedProductTabs'
-  | 'ShippingSimulator'
-  | 'BestDeals'
-  | 'BestSeller'
-  | 'LatestBlogs';
+export type { SectionType, SectionConfig };
 
-export interface SectionConfig {
-  id: string;
-  type: SectionType;
-  name: string;
-  enabled: boolean;
-  settings: any;
-}
-
-const DEFAULT_SECTIONS: SectionConfig[] = [
-  { id: 'sec_hero', type: 'Hero', name: 'Hero Banner & Kategorien', enabled: true, settings: {} },
-  { id: 'sec_deals', type: 'AktuelleAngebote', name: 'Aktuelle Angebote & Bestseller', enabled: true, settings: {} },
-  { id: 'sec_categories', type: 'CategoryShowcase', name: 'Top-Kategorien (Kaffee, Kühlen, Waschen, Saugen)', enabled: true, settings: {} },
-  { id: 'sec_brands', type: 'BrandShowcase', name: 'Marken & HLG Garantien', enabled: true, settings: {} },
-  { id: 'sec_trust', type: 'TrustBar', name: 'Vertrauensgarantien (TrustBar)', enabled: true, settings: {} },
-  { id: 'sec_blogs', type: 'HeatingGuideBlogs', name: 'HLG Magazin & Ratgeber', enabled: true, settings: { title: "HLG Magazin & Ratgeber" } },
-  { id: 'sec_newsletter', type: 'Newsletter', name: 'Newsletter Registrierung', enabled: true, settings: {} }
-];
+const DEFAULT_SECTIONS: SectionConfig[] = DEFAULT_HLG_SECTIONS;
 
 export default function LandingForm({ initialSettings, categories }: { initialSettings: Record<string, string>, categories: any[] }) {
   const t = useTranslations('AdminLanding');
@@ -55,8 +34,7 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
     try {
       if (initialSettings.HOMEPAGE_LAYOUT) {
         const parsed = JSON.parse(initialSettings.HOMEPAGE_LAYOUT);
-        const hasHlg = Array.isArray(parsed) && parsed.some((s: any) => s.type === 'AktuelleAngebote' || s.type === 'CategoryShowcase');
-        if (hasHlg) return parsed;
+        return normalizeHomepageSections(parsed);
       }
       return DEFAULT_SECTIONS;
     } catch {
@@ -199,11 +177,18 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
     const newSec: SectionConfig = {
       id: 'sec_' + Date.now(),
       type,
-      name: `New section (${type})`,
+      name:
+        type === 'CategoryShowcaseSection'
+          ? 'Kategorie-Sektion'
+          : type === 'CategoryOverview'
+            ? 'Sortiment im Überblick'
+            : `Neue Sektion (${type})`,
       enabled: true,
       settings: {}
     };
-    if (type === 'BestDeals') {
+    if (type === 'CategoryShowcaseSection') {
+      newSec.settings = { preset: 'custom' };
+    } else if (type === 'BestDeals') {
       newSec.settings = { title: "New Deals", countdown: '2026-12-31T23:59:59', filterType: 'ON_SALE', categoryId: '' };
     } else if (type === 'BestSeller') {
       newSec.settings = { title: "New Selection", filterType: 'POPULAR', categoryId: '' };
@@ -304,6 +289,29 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
           handleUpload={handleUpload}
           allProducts={allProducts}
           goBack={() => setEditingId(null)}
+        />
+      );
+    }
+
+    if (section.type === 'CategoryShowcaseSection') {
+      return (
+        <CategoryShowcaseEditor
+          section={section}
+          updateSectionSettings={updateSectionSettings}
+          handleUpload={handleUpload}
+          categories={categories}
+          allProducts={allProducts}
+        />
+      );
+    }
+
+    if (section.type === 'CategoryOverview') {
+      return (
+        <CategoryOverviewEditor
+          section={section}
+          updateSectionSettings={updateSectionSettings}
+          handleUpload={handleUpload}
+          categories={categories}
         />
       );
     }
@@ -441,6 +449,14 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
               <div className="border-t pt-3">
                 <h4 className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">{t("add_widget")}</h4>
                 <div className="grid grid-cols-3 gap-1.5">
+                  <button onClick={() => addSection('CategoryShowcaseSection')} className="border rounded bg-gray-50 hover:bg-gray-100 p-1.5 text-center text-[10px] flex flex-col items-center gap-1 transition text-gray-600 hover:text-gray-900 hover:border-gray-300">
+                    <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                    Kategorie
+                  </button>
+                  <button onClick={() => addSection('CategoryOverview')} className="border rounded bg-gray-50 hover:bg-gray-100 p-1.5 text-center text-[10px] flex flex-col items-center gap-1 transition text-gray-600 hover:text-gray-900 hover:border-gray-300">
+                    <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                    Sortiment
+                  </button>
                   <button onClick={() => addSection('Hero')} className="border rounded bg-gray-50 hover:bg-gray-100 p-1.5 text-center text-[10px] flex flex-col items-center gap-1 transition text-gray-600 hover:text-gray-900 hover:border-gray-300">
                     <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                     Hero
@@ -594,6 +610,25 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
                   });
                 }
               }
+            } else if (key.startsWith('catprod_')) {
+              const cardIdx = parseInt(key.replace('catprod_', ''), 10);
+              const preset = (secSettings.preset || 'coffee') as CategorySectionPreset;
+              const baseList = Array.isArray(secSettings.products) && secSettings.products.length > 0
+                ? secSettings.products
+                : (CATEGORY_PRESET_DEFAULTS[preset]?.products || []);
+              const nextProducts = baseList.map((item: Record<string, unknown>, idx: number) =>
+                idx === cardIdx ? { ...item, image: url } : { ...item }
+              );
+              updateSectionSettings(sectionId, { products: nextProducts, sourceMode: 'MANUAL' });
+            } else if (key.startsWith('overview_card_')) {
+              const cardIdx = parseInt(key.replace('overview_card_', ''), 10);
+              const baseCards = Array.isArray(secSettings.cards) && secSettings.cards.length > 0
+                ? secSettings.cards
+                : DEFAULT_OVERVIEW_CARDS;
+              const nextCards = baseCards.map((item: Record<string, unknown>, idx: number) =>
+                idx === cardIdx ? { ...item, image: url } : { ...item }
+              );
+              updateSectionSettings(sectionId, 'cards', nextCards);
             } else {
               updateSectionSettings(sectionId, key, url);
             }

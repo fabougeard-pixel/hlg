@@ -1,6 +1,8 @@
 import HlgHero from '@/components/home/HlgHero';
 import AktuelleAngebote from '@/components/home/AktuelleAngebote';
 import CategoryShowcaseSections from '@/components/home/CategoryShowcaseSections';
+import CategoryShowcaseSection from '@/components/home/CategoryShowcaseSection';
+import CategoryOverviewSection from '@/components/home/CategoryOverviewSection';
 import BrandShowcase from '@/components/home/BrandShowcase';
 import ThermalHero from '@/components/home/ThermalHero';
 import Newsletter from '@/components/home/Newsletter';
@@ -12,7 +14,11 @@ import ShippingSimulator from '@/components/home/ShippingSimulator';
 import FeaturedProductTabs from '@/components/home/FeaturedProductTabs';
 import HeatingGuideBlogs from '@/components/home/HeatingGuideBlogs';
 import prisma from '@/lib/prisma';
-import { SectionConfig } from '@/app/admin/(dashboard)/landing/LandingForm';
+import {
+  DEFAULT_HLG_SECTIONS,
+  SectionConfig,
+  normalizeHomepageSections,
+} from '@/components/home/categorySectionData';
 
 export const dynamic = 'force-dynamic';
 
@@ -82,24 +88,10 @@ export default async function Home() {
     console.error('Failed to fetch products for homepage:', e);
   }
 
-  const DEFAULT_HLG_SECTIONS: SectionConfig[] = [
-    { id: 'sec_hero', type: 'Hero', name: 'Hero Banner & Kategorien', enabled: true, settings: {} },
-    { id: 'sec_deals', type: 'AktuelleAngebote', name: 'Aktuelle Angebote & Bestseller', enabled: true, settings: {} },
-    { id: 'sec_categories', type: 'CategoryShowcase', name: 'Top-Kategorien (Auswahl)', enabled: true, settings: {} },
-    { id: 'sec_brands', type: 'BrandShowcase', name: 'Marken & HLG Garantien', enabled: true, settings: {} },
-    { id: 'sec_trust', type: 'TrustBar', name: 'Vertrauensgarantien (TrustBar)', enabled: true, settings: {} },
-    { id: 'sec_blogs', type: 'HeatingGuideBlogs', name: 'HLG Magazin & Ratgeber', enabled: true, settings: { title: "HLG Magazin & Ratgeber" } },
-    { id: 'sec_newsletter', type: 'Newsletter', name: 'Newsletter', enabled: true, settings: {} }
-  ];
-
   let layout: SectionConfig[] = [];
   try {
     if (settings.HOMEPAGE_LAYOUT) {
-      layout = JSON.parse(settings.HOMEPAGE_LAYOUT);
-      const hasHlgSections = layout.some(s => s.type === 'AktuelleAngebote' || s.type === 'CategoryShowcase');
-      if (!hasHlgSections) {
-        layout = DEFAULT_HLG_SECTIONS;
-      }
+      layout = normalizeHomepageSections(JSON.parse(settings.HOMEPAGE_LAYOUT));
     } else {
       layout = DEFAULT_HLG_SECTIONS;
     }
@@ -141,8 +133,18 @@ export default async function Home() {
       case 'AktuelleAngebote':
       case 'BestDeals':
         return <AktuelleAngebote key={section.id} dbBestsellers={dbBestsellers} config={section.settings} />;
+      case 'CategoryShowcaseSection':
+        return (
+          <CategoryShowcaseSection
+            key={section.id}
+            config={section.settings}
+            catalogProducts={formattedProducts}
+          />
+        );
+      case 'CategoryOverview':
+        return <CategoryOverviewSection key={section.id} config={section.settings} />;
       case 'CategoryShowcase':
-        return <CategoryShowcaseSections key={section.id} />;
+        return <CategoryShowcaseSections key={section.id} catalogProducts={formattedProducts} />;
       case 'BrandShowcase':
         return <BrandShowcase key={section.id} />;
       case 'TrustBar':

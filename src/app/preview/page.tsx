@@ -1,6 +1,8 @@
 import HlgHero from '@/components/home/HlgHero';
 import AktuelleAngebote from '@/components/home/AktuelleAngebote';
 import CategoryShowcaseSections from '@/components/home/CategoryShowcaseSections';
+import CategoryShowcaseSection from '@/components/home/CategoryShowcaseSection';
+import CategoryOverviewSection from '@/components/home/CategoryOverviewSection';
 import BrandShowcase from '@/components/home/BrandShowcase';
 import FeaturedProductTabs from '@/components/home/FeaturedProductTabs';
 import ShippingSimulator from '@/components/home/ShippingSimulator';
@@ -14,7 +16,11 @@ import Newsletter from '@/components/home/Newsletter';
 import PromoBanners from '@/components/home/PromoBanners';
 import ProductGrid from '@/components/home/ProductGrid';
 import FullWidthBanner from '@/components/home/FullWidthBanner';
-import { SectionConfig, SectionType } from '@/app/admin/(dashboard)/landing/LandingForm';
+import {
+  DEFAULT_HLG_SECTIONS,
+  SectionConfig,
+  normalizeHomepageSections,
+} from '@/components/home/categorySectionData';
 import PreviewSectionWrapper from '@/components/admin/PreviewSectionWrapper';
 import { cookies } from 'next/headers';
 import { getSettings } from '@/actions/settings';
@@ -30,22 +36,10 @@ export default async function PreviewPage() {
   let layoutCookieStr = draftLayoutSetting?.value || '';
   // We can use the draft font if needed later
 
-  const DEFAULT_HLG_SECTIONS: SectionConfig[] = [
-    { id: 'sec_hero', type: 'Hero', name: 'Hero Banner & Kategorien', enabled: true, settings: {} },
-    { id: 'sec_deals', type: 'AktuelleAngebote', name: 'Aktuelle Angebote & Bestseller', enabled: true, settings: {} },
-    { id: 'sec_categories', type: 'CategoryShowcase', name: 'Top-Kategorien (Auswahl)', enabled: true, settings: {} },
-    { id: 'sec_brands', type: 'BrandShowcase', name: 'Marken & HLG Garantien', enabled: true, settings: {} },
-    { id: 'sec_trust', type: 'TrustBar', name: 'Vertrauensgarantien (TrustBar)', enabled: true, settings: {} },
-    { id: 'sec_blogs', type: 'HeatingGuideBlogs', name: 'HLG Magazin & Ratgeber', enabled: true, settings: { title: "HLG Magazin & Ratgeber" } },
-    { id: 'sec_newsletter', type: 'Newsletter', name: 'Newsletter', enabled: true, settings: {} }
-  ];
-
   let layout: SectionConfig[] = [];
   if (layoutCookieStr) {
     try {
-      layout = JSON.parse(layoutCookieStr);
-      const hasHlg = layout.some(s => s.type === 'AktuelleAngebote' || s.type === 'CategoryShowcase');
-      if (!hasHlg) layout = DEFAULT_HLG_SECTIONS;
+      layout = normalizeHomepageSections(JSON.parse(layoutCookieStr));
     } catch (e) {
       console.error(e);
       layout = DEFAULT_HLG_SECTIONS;
@@ -54,9 +48,7 @@ export default async function PreviewPage() {
     const settings = await getSettings();
     if (settings.HOMEPAGE_LAYOUT) {
       try {
-        layout = JSON.parse(settings.HOMEPAGE_LAYOUT);
-        const hasHlg = layout.some(s => s.type === 'AktuelleAngebote' || s.type === 'CategoryShowcase');
-        if (!hasHlg) layout = DEFAULT_HLG_SECTIONS;
+        layout = normalizeHomepageSections(JSON.parse(settings.HOMEPAGE_LAYOUT));
       } catch {
         layout = DEFAULT_HLG_SECTIONS;
       }
@@ -104,6 +96,7 @@ export default async function PreviewPage() {
       discountLabel: p.discountLabel || (p.compareAtPrice && p.compareAtPrice > p.price ? `-${Math.round(((p.compareAtPrice - p.price) / p.compareAtPrice) * 100)}%` : null),
       categorySlug: p.categories[0]?.slug || '',
       categoryName: p.categories[0]?.name || '',
+      categories: p.categories.map(c => ({ name: c.name, slug: c.slug || '' })),
       allCategories: p.categories.map(c => `${c.name} ${c.slug}`).join(' ')
     }));
 
@@ -206,8 +199,19 @@ export default async function PreviewPage() {
       case 'BestDeals':
         content = <AktuelleAngebote config={section.settings} />;
         break;
+      case 'CategoryShowcaseSection':
+        content = (
+          <CategoryShowcaseSection
+            config={section.settings}
+            catalogProducts={formattedProducts}
+          />
+        );
+        break;
+      case 'CategoryOverview':
+        content = <CategoryOverviewSection config={section.settings} />;
+        break;
       case 'CategoryShowcase':
-        content = <CategoryShowcaseSections />;
+        content = <CategoryShowcaseSections catalogProducts={formattedProducts} />;
         break;
       case 'BrandShowcase':
         content = <BrandShowcase />;
