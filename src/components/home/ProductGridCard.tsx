@@ -8,6 +8,7 @@ import Price from '@/components/Price';
 import { useCartStore } from '@/store/cartStore';
 import { useWishlistStore } from '@/store/wishlistStore';
 import QuickViewModal from '@/components/product/QuickViewModal';
+import ProductCardActionButtons from '@/components/product/ProductCardActionButtons';
 import { useTranslations } from 'next-intl';
 
 const Star = ({ filled = true }: { filled?: boolean }) => (
@@ -101,14 +102,14 @@ export default function ProductGridCard({
           <div className="w-full h-full flex items-center justify-center text-5xl">🛒</div>
         )}
 
-        {/* Hover Overlay */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/10 backdrop-blur-[1px]">
-          {/* Variant 2: Button is in the overlay */}
-          {variant === '2' && (
+        {/* Variant 2: Add-to-Cart Hover Overlay */}
+        {variant === '2' && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/10 backdrop-blur-[1px] pointer-events-none">
             <button
+              type="button"
               onClick={handleAddToCart}
               aria-label={`${t('add_to_cart')} - ${product.title}`}
-              className="flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium text-sm shadow-sm transition-all duration-300 transform hover:scale-105 hover:[background-color:var(--btn-hover-bg)] hover:[color:var(--btn-hover-text)] z-10"
+              className="pointer-events-auto flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium text-sm shadow-sm transition-all duration-300 transform hover:scale-105 hover:[background-color:var(--btn-hover-bg)] hover:[color:var(--btn-hover-text)]"
               style={{ backgroundColor: btnBgColor, color: btnTextColor, '--btn-hover-bg': btnHoverBgColor || '#c2410c', '--btn-hover-text': btnHoverTextColor || '#ffffff' } as React.CSSProperties}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -121,75 +122,19 @@ export default function ProductGridCard({
               </svg>
               {t('add_to_cart')}
             </button>
-          )}
-
-          {/* Icons */}
-          <div className="flex items-center justify-center gap-2 z-10">
-            <button
-              onClick={handleToggleWishlist}
-              aria-label={t('wishlist') || "Wishlist"}
-              className="p-2 rounded-md shadow-sm transition-all duration-300 transform hover:scale-105 hover:[background-color:var(--btn-hover-bg)] hover:[color:var(--btn-hover-text)]"
-              style={
-                (variant === '1'
-                  ? { backgroundColor: isWishlisted ? btnBgColor : 'white', color: isWishlisted ? btnTextColor : '#374151', '--btn-hover-bg': btnHoverBgColor || '#c2410c', '--btn-hover-text': btnHoverTextColor || '#ffffff' }
-                  : { backgroundColor: btnBgColor, color: btnTextColor, '--btn-hover-bg': btnHoverBgColor || '#c2410c', '--btn-hover-text': btnHoverTextColor || '#ffffff' }) as React.CSSProperties
-              }
-            >
-              <svg className="w-5 h-5" fill={isWishlisted ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                />
-              </svg>
-            </button>
-            <button
-              onClick={handleQuickView}
-              aria-label={t('quick_view') || "Quick View"}
-              className="p-2 rounded-md shadow-sm transition-all duration-300 transform hover:scale-105 hover:[background-color:var(--btn-hover-bg)] hover:[color:var(--btn-hover-text)]"
-              style={
-                (variant === '1'
-                  ? { backgroundColor: 'white', color: '#374151', '--btn-hover-bg': btnHoverBgColor || '#c2410c', '--btn-hover-text': btnHoverTextColor || '#ffffff' }
-                  : { backgroundColor: btnBgColor, color: btnTextColor, '--btn-hover-bg': btnHoverBgColor || '#c2410c', '--btn-hover-text': btnHoverTextColor || '#ffffff' }) as React.CSSProperties
-              }
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
-                />
-              </svg>
-            </button>
-            <button
-              onClick={handleQuickView}
-              aria-label={t('view') || "View"}
-              className="p-2 rounded-md shadow-sm transition-all duration-300 transform hover:scale-105 hover:[background-color:var(--btn-hover-bg)] hover:[color:var(--btn-hover-text)]"
-              style={
-                (variant === '1'
-                  ? { backgroundColor: 'white', color: '#374151', '--btn-hover-bg': btnHoverBgColor || '#c2410c', '--btn-hover-text': btnHoverTextColor || '#ffffff' }
-                  : { backgroundColor: btnBgColor, color: btnTextColor, '--btn-hover-bg': btnHoverBgColor || '#c2410c', '--btn-hover-text': btnHoverTextColor || '#ffffff' }) as React.CSSProperties
-              }
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                />
-              </svg>
-            </button>
           </div>
-        </div>
+        )}
+
+        {/* Top Right Action Icons: Wishlist & Quick View */}
+        <ProductCardActionButtons
+          isWishlisted={isWishlisted}
+          onToggleWishlist={handleToggleWishlist}
+          onQuickView={handleQuickView}
+          wishlistTitle={t('wishlist') || 'Wishlist'}
+          quickViewTitle={t('quick_view') || 'Schnellansicht'}
+          positionClassName="top-2.5 right-2.5"
+          buttonSizeClassName="w-8 h-8"
+        />
       </div>
 
       {/* Content Container */}

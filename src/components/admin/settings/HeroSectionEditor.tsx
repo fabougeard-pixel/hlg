@@ -12,6 +12,16 @@ interface HeroSectionEditorProps {
   editingBlockNum?: number;
 }
 
+function normalizeHexForPicker(val: string, fallback: string): string {
+  const clean = val.trim();
+  if (/^#[0-9a-f]{6}$/i.test(clean)) return clean.toLowerCase();
+  if (/^#[0-9a-f]{3}$/i.test(clean)) {
+    const [, r, g, b] = clean;
+    return `#${r}${r}${g}${g}${b}${b}`.toLowerCase();
+  }
+  return /^#[0-9a-f]{6}$/i.test(fallback) ? fallback.toLowerCase() : '#000000';
+}
+
 function ColorField({
   label,
   value,
@@ -23,17 +33,44 @@ function ColorField({
   defaultValue: string;
   onChange: (val: string) => void;
 }) {
-  const current = value || defaultValue;
+  const [hexDraft, setHexDraft] = useState<string | null>(null);
+  const current = typeof value === 'string' && value.trim() ? value.trim() : defaultValue;
+  const displayHex = hexDraft ?? current;
+
   return (
     <div className="flex items-center justify-between gap-2 py-1">
       <span className="text-xs font-medium text-gray-700">{label}</span>
       <div className="flex items-center gap-1.5">
-        <span className="text-[10px] font-mono text-gray-400 uppercase">{current}</span>
+        <input
+          type="text"
+          value={displayHex}
+          onFocus={() => setHexDraft(current)}
+          onChange={(e) => {
+            const next = e.target.value;
+            setHexDraft(next);
+            const trimmed = next.trim();
+            if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(trimmed)) {
+              onChange(trimmed);
+            }
+          }}
+          onBlur={() => {
+            const trimmed = (hexDraft ?? '').trim();
+            if (trimmed.length > 0) {
+              onChange(trimmed);
+            }
+            setHexDraft(null);
+          }}
+          aria-label={`${label} Hex`}
+          className="w-[68px] text-[10px] font-mono text-gray-600 uppercase px-1.5 py-1 border border-gray-200 rounded bg-white focus:border-[#107b46] focus:outline-none"
+        />
         <div className="relative w-8 h-7 rounded-md overflow-hidden border border-gray-300 shadow-2xs cursor-pointer shrink-0">
           <input
             type="color"
-            value={current.startsWith('#') ? current : defaultValue}
-            onChange={(e) => onChange(e.target.value)}
+            value={normalizeHexForPicker(current, defaultValue)}
+            onChange={(e) => {
+              setHexDraft(null);
+              onChange(e.target.value);
+            }}
             className="absolute -top-2 -left-2 w-14 h-14 cursor-pointer border-0 p-0"
           />
         </div>
@@ -59,7 +96,10 @@ function RangeNumberField({
   unit?: string;
   onChange: (val: number) => void;
 }) {
-  const current = value !== undefined && value !== '' ? Number(value) : defaultValue;
+  const [draft, setDraft] = useState<string | null>(null);
+  const parsed = value !== undefined && value !== null && value !== '' ? Number(value) : NaN;
+  const current = Number.isFinite(parsed) ? parsed : defaultValue;
+
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between text-xs">
@@ -74,16 +114,38 @@ function RangeNumberField({
           type="range"
           min={min}
           max={max}
-          value={current}
-          onChange={(e) => onChange(Number(e.target.value))}
+          value={Math.min(max, Math.max(min, current))}
+          onChange={(e) => {
+            setDraft(null);
+            onChange(Number(e.target.value));
+          }}
           className="flex-1 accent-[#107b46] cursor-pointer"
         />
         <input
           type="number"
           min={min}
           max={max}
-          value={current}
-          onChange={(e) => onChange(Number(e.target.value))}
+          value={draft ?? String(current)}
+          onFocus={() => setDraft(String(current))}
+          onChange={(e) => {
+            const raw = e.target.value;
+            setDraft(raw);
+            if (raw.trim() === '') return;
+            const n = Number(raw);
+            if (Number.isFinite(n) && n >= min && n <= max) {
+              onChange(n);
+            }
+          }}
+          onBlur={() => {
+            const raw = (draft ?? '').trim();
+            if (raw !== '') {
+              const n = Number(raw);
+              if (Number.isFinite(n)) {
+                onChange(Math.min(max, Math.max(min, n)));
+              }
+            }
+            setDraft(null);
+          }}
           className="w-14 text-center text-xs p-1 border border-gray-300 rounded-md"
         />
       </div>
@@ -341,9 +403,27 @@ export default function HeroSectionEditor({
               label="Schriftgröße Titel"
               value={settings.block1TitleSize}
               defaultValue={14}
-              min={11}
-              max={24}
+              min={10}
+              max={28}
               onChange={(v) => handleFieldChange('block1TitleSize', v)}
+            />
+
+            <RangeNumberField
+              label="Schriftgröße Kategorien"
+              value={settings.block1TextSize}
+              defaultValue={13}
+              min={10}
+              max={22}
+              onChange={(v) => handleFieldChange('block1TextSize', v)}
+            />
+
+            <RangeNumberField
+              label="Schriftgröße Footer-Link"
+              value={settings.block1FooterSize}
+              defaultValue={12}
+              min={10}
+              max={20}
+              onChange={(v) => handleFieldChange('block1FooterSize', v)}
             />
 
             <div className="pt-2 border-t border-gray-100 space-y-1.5">
@@ -376,6 +456,12 @@ export default function HeroSectionEditor({
                 value={settings.block1TextColor}
                 defaultValue="#44403c"
                 onChange={(v) => handleFieldChange('block1TextColor', v)}
+              />
+              <ColorField
+                label="Footer-Link Farbe"
+                value={settings.block1FooterColor}
+                defaultValue={settings.block1AccentColor || '#107b46'}
+                onChange={(v) => handleFieldChange('block1FooterColor', v)}
               />
             </div>
           </div>
@@ -489,11 +575,20 @@ export default function HeroSectionEditor({
         {activeBlock === 2 && modeTab === 'design' && (
           <div className="space-y-3.5">
             <RangeNumberField
-              label="Titelgröße (Max)"
+              label="Badge-Schriftgröße"
+              value={settings.block2BadgeSize}
+              defaultValue={11}
+              min={9}
+              max={22}
+              onChange={(v) => handleFieldChange('block2BadgeSize', v)}
+            />
+
+            <RangeNumberField
+              label="Titelgröße"
               value={settings.block2TitleSize}
               defaultValue={34}
-              min={18}
-              max={54}
+              min={14}
+              max={64}
               onChange={(v) => handleFieldChange('block2TitleSize', v)}
             />
 
@@ -501,9 +596,27 @@ export default function HeroSectionEditor({
               label="Untertitelgröße"
               value={settings.block2SubtitleSize}
               defaultValue={14}
-              min={11}
-              max={22}
+              min={10}
+              max={28}
               onChange={(v) => handleFieldChange('block2SubtitleSize', v)}
+            />
+
+            <RangeNumberField
+              label="Vorteile-Schriftgröße"
+              value={settings.block2TrustSize}
+              defaultValue={11}
+              min={9}
+              max={22}
+              onChange={(v) => handleFieldChange('block2TrustSize', v)}
+            />
+
+            <RangeNumberField
+              label="Button-Schriftgröße"
+              value={settings.block2BtnSize}
+              defaultValue={15}
+              min={11}
+              max={26}
+              onChange={(v) => handleFieldChange('block2BtnSize', v)}
             />
 
             <RangeNumberField
@@ -580,6 +693,18 @@ export default function HeroSectionEditor({
                 value={settings.block2SubtitleColor}
                 defaultValue="#44403c"
                 onChange={(v) => handleFieldChange('block2SubtitleColor', v)}
+              />
+              <ColorField
+                label="Vorteile Textfarbe"
+                value={settings.block2TrustColor}
+                defaultValue="#44403c"
+                onChange={(v) => handleFieldChange('block2TrustColor', v)}
+              />
+              <ColorField
+                label="Vorteile Häkchen-Farbe"
+                value={settings.block2TrustIconColor}
+                defaultValue="#107b46"
+                onChange={(v) => handleFieldChange('block2TrustIconColor', v)}
               />
               <ColorField
                 label="Button Hintergrund"
@@ -679,12 +804,48 @@ export default function HeroSectionEditor({
         {activeBlock === 3 && modeTab === 'design' && (
           <div className="space-y-3.5">
             <RangeNumberField
+              label="Badge-Schriftgröße"
+              value={settings.block3BadgeSize}
+              defaultValue={10}
+              min={8}
+              max={20}
+              onChange={(v) => handleFieldChange('block3BadgeSize', v)}
+            />
+
+            <RangeNumberField
+              label="Slogan-Schriftgröße"
+              value={settings.block3CategorySize}
+              defaultValue={11}
+              min={9}
+              max={22}
+              onChange={(v) => handleFieldChange('block3CategorySize', v)}
+            />
+
+            <RangeNumberField
               label="Titelgröße"
               value={settings.block3TitleSize}
               defaultValue={18}
-              min={13}
-              max={30}
+              min={12}
+              max={36}
               onChange={(v) => handleFieldChange('block3TitleSize', v)}
+            />
+
+            <RangeNumberField
+              label="Untertitelgröße"
+              value={settings.block3SubtitleSize}
+              defaultValue={12}
+              min={9}
+              max={24}
+              onChange={(v) => handleFieldChange('block3SubtitleSize', v)}
+            />
+
+            <RangeNumberField
+              label="Link-Schriftgröße"
+              value={settings.block3LinkSize}
+              defaultValue={12}
+              min={9}
+              max={24}
+              onChange={(v) => handleFieldChange('block3LinkSize', v)}
             />
 
             <RangeNumberField

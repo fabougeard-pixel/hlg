@@ -20,14 +20,6 @@ export function BasketSvg({ className = 'w-5 h-5' }: { className?: string }) {
   );
 }
 
-export function CompareSvg({ className = 'w-5 h-5' }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-    </svg>
-  );
-}
-
 export function HeartSvg({ className = 'w-5 h-5' }: { className?: string }) {
   return (
     <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -67,11 +59,9 @@ type MobileHeaderBarProps = {
   onLogoClick?: () => void;
   onAccountClick: () => void;
   onCartClick: () => void;
-  onCompareClick: () => void;
   onWishlistClick: () => void;
   cartCount: number;
   wishlistCount: number;
-  compareCount?: number;
 };
 
 /**
@@ -84,11 +74,9 @@ export default function MobileHeaderBar({
   onLogoClick,
   onAccountClick,
   onCartClick,
-  onCompareClick,
   onWishlistClick,
   cartCount,
   wishlistCount,
-  compareCount = 0,
 }: MobileHeaderBarProps) {
   const badgeClasses =
     'absolute -top-1.5 -left-2 bg-[#facc15] text-stone-900 text-[10px] font-bold min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center leading-none shadow-2xs';
@@ -126,17 +114,6 @@ export default function MobileHeaderBar({
         >
           <BasketSvg className="w-[21px] h-[21px]" />
           <span className={badgeClasses}>{cartCount}</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={onCompareClick}
-          aria-label="Produktvergleich"
-          title="Produktvergleich"
-          className="relative p-1 hover:text-[#107b46] transition cursor-pointer"
-        >
-          <CompareSvg className="w-[21px] h-[21px]" />
-          <span className={badgeClasses}>{compareCount}</span>
         </button>
 
         <button

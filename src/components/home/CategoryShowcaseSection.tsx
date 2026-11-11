@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useWishlistStore } from '@/store/wishlistStore';
 import { useCartStore } from '@/store/cartStore';
 import toast from 'react-hot-toast';
+import ProductCardActionButtons from '@/components/product/ProductCardActionButtons';
 import {
   CatalogProductSummary,
   CategoryProductItem,
@@ -95,82 +96,56 @@ function CategoryProductCard({
         borderColor: cardBorderColor,
       }}
     >
-      {/* Top: Category + EU Badge & Action Icons */}
-      <div className="flex items-center justify-between gap-1 mb-1">
-        <div className="flex items-center gap-1.5 min-w-0">
-          <span className="text-[10px] sm:text-[11px] font-semibold text-stone-400 uppercase tracking-wider truncate">
-            {item.category}
-          </span>
-          {item.energyRating && <EnergyBadge rating={item.energyRating} />}
-        </div>
-        <div className="flex items-center gap-1 shrink-0">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onQuickView(item);
-            }}
-            className="w-6 h-6 rounded-full bg-stone-50 hover:bg-[#107b46] text-stone-500 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
-            title="Schnellansicht"
-            aria-label="Schnellansicht"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            onClick={handleToggleWishlist}
-            className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
-              isWishlisted ? 'text-red-500 bg-red-50' : 'text-stone-400 hover:text-red-500 hover:bg-stone-50'
-            }`}
-            title="Favorit"
-            aria-label="Favorit"
-          >
-            <svg
-              className={`w-3.5 h-3.5 ${isWishlisted ? 'fill-red-500 stroke-red-500' : 'fill-none stroke-current'}`}
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.8}
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-              />
-            </svg>
-          </button>
-        </div>
+      {/* Top: Category + EU Badge */}
+      <div className="flex items-center gap-1.5 min-w-0 mb-1">
+        <span className="text-[10px] sm:text-[11px] font-semibold text-stone-400 uppercase tracking-wider truncate">
+          {item.category}
+        </span>
+        {item.energyRating && <EnergyBadge rating={item.energyRating} />}
       </div>
 
-      {/* Product Image */}
-      <Link
-        href={`/produkt/${item.slug}`}
-        className="relative aspect-square w-full max-h-[145px] my-2 flex items-center justify-center overflow-hidden bg-white rounded-xl"
-      >
-        {item.image ? (
-          <Image
-            src={item.image}
-            alt={item.title}
-            fill
-            sizes="(max-width: 640px) 50vw, 240px"
-            quality={90}
-            className="object-contain p-1 group-hover:scale-105 transition-transform duration-300"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-stone-50 text-stone-300">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-              />
-            </svg>
-          </div>
-        )}
-      </Link>
+      {/* Product Image + Vertical Action Icons */}
+      <div className="relative aspect-square w-full max-h-[145px] my-2 flex items-center justify-center overflow-hidden bg-white rounded-xl">
+        <ProductCardActionButtons
+          isWishlisted={isWishlisted}
+          onToggleWishlist={handleToggleWishlist}
+          onQuickView={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onQuickView(item);
+          }}
+          wishlistTitle="Favorit"
+          positionClassName="top-1.5 right-1"
+          buttonSizeClassName="w-7 h-7"
+        />
+
+        <Link
+          href={`/produkt/${item.slug}`}
+          className="w-full h-full flex items-center justify-center relative"
+        >
+          {item.image ? (
+            <Image
+              src={item.image}
+              alt={item.title}
+              fill
+              sizes="(max-width: 640px) 50vw, 240px"
+              quality={90}
+              className="object-contain p-1 group-hover:scale-105 transition-transform duration-300"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-stone-50 text-stone-300">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+            </div>
+          )}
+        </Link>
+      </div>
 
       {/* Details */}
       <div className="mt-1">

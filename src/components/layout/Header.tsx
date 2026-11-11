@@ -250,11 +250,9 @@ export default function Header({
           onToggleMenu={() => setIsMobileMenuOpen((prev) => !prev)}
           onAccountClick={handleAccountAction}
           onCartClick={() => cartStore.setIsOpen(true)}
-          onCompareClick={() => router.push('/compare')}
           onWishlistClick={() => wishlistStore.setIsOpen(true)}
           cartCount={mounted ? cartItems : 0}
           wishlistCount={mounted ? wishlistItems : 0}
-          compareCount={0}
         />
 
         {/* Desktop Top Green Brand Bar (lg+) */}
@@ -511,23 +509,7 @@ export default function Header({
               {/* Vertical divider */}
               <div className="w-[1px] h-6 bg-white/30 hidden sm:block" />
 
-              {/* 1. Vergleich (Compare) Icon with yellow badge */}
-              <button
-                type="button"
-                onClick={() => router.push('/compare')}
-                className="relative p-1 text-white hover:text-amber-300 transition"
-                title="Produktvergleich"
-                aria-label="Produktvergleich"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                <span className="absolute -top-1 -right-1 bg-[#f59e0b] text-stone-900 text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-sm">
-                  0
-                </span>
-              </button>
-
-              {/* 2. Wunschliste (Wishlist) Icon with yellow badge */}
+              {/* 1. Wunschliste (Wishlist) Icon with yellow badge */}
               <button
                 type="button"
                 onClick={() => wishlistStore.setIsOpen(true)}
@@ -640,10 +622,8 @@ export default function Header({
           searchPlaceholder={searchPlaceholder}
           cartCount={mounted ? cartItems : 0}
           wishlistCount={mounted ? wishlistItems : 0}
-          compareCount={0}
           onCartClick={() => cartStore.setIsOpen(true)}
           onWishlistClick={() => wishlistStore.setIsOpen(true)}
-          onCompareClick={() => router.push('/compare')}
           onAccountClick={handleAccountAction}
         />
       </header>

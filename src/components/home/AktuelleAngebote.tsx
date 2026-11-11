@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useWishlistStore } from '@/store/wishlistStore';
 import { useCartStore } from '@/store/cartStore';
 import toast from 'react-hot-toast';
+import ProductCardActionButtons from '@/components/product/ProductCardActionButtons';
 import {
   BestsellerItem,
   DealItem,
@@ -348,51 +349,18 @@ export default function AktuelleAngebote({ dbBestsellers, config }: AktuelleAnge
                 </div>
               </div>
 
-              {/* Wishlist & Quick View Buttons (Floating) */}
-              <div className="absolute top-4 right-4 z-10 flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={(e) => handleOpenQuickView(e, currentSpotlight)}
-                  className="w-8 h-8 rounded-full border bg-white/95 border-stone-200 text-stone-400 hover:text-[#107b46] hover:border-[#107b46] flex items-center justify-center shadow-xs transition-colors cursor-pointer"
-                  title="Schnellansicht"
+              {/* High-Res Big Product Image + Vertical Action Icons */}
+              <div className="relative w-full aspect-square max-h-[280px] mb-3 flex items-center justify-center overflow-hidden">
+                <ProductCardActionButtons
+                  isWishlisted={wishlistStore.hasItem(currentSpotlight.id)}
+                  onToggleWishlist={(e) => handleToggleWishlist(e, currentSpotlight)}
+                  onQuickView={(e) => handleOpenQuickView(e, currentSpotlight)}
+                  positionClassName="top-1.5 right-1.5"
+                />
+                <Link
+                  href={`/produkt/${currentSpotlight.slug}`}
+                  className="w-full h-full relative flex items-center justify-center"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => handleToggleWishlist(e, currentSpotlight)}
-                  className={`w-8 h-8 rounded-full border flex items-center justify-center shadow-xs transition-colors cursor-pointer ${wishlistStore.hasItem(currentSpotlight.id)
-                      ? 'bg-red-50 border-red-200 text-red-500'
-                      : 'bg-white/95 border-stone-200 text-stone-400 hover:text-red-500 hover:border-red-200'
-                    }`}
-                  title="Zu Favoriten hinzufügen"
-                >
-                  <svg
-                    className={`w-4 h-4 ${wishlistStore.hasItem(currentSpotlight.id)
-                        ? 'fill-red-500 stroke-red-500'
-                        : 'fill-none stroke-current'
-                      }`}
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.8}
-                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              <Link
-                href={`/produkt/${currentSpotlight.slug}`}
-                className="flex-1 flex flex-col items-center"
-              >
-                {/* High-Res Big Product Image */}
-                <div className="relative w-full aspect-square max-h-[280px] mb-3 flex items-center justify-center overflow-hidden">
                   <ProductImageBox
                     src={currentSpotlight.image}
                     alt={currentSpotlight.title}
@@ -400,7 +368,13 @@ export default function AktuelleAngebote({ dbBestsellers, config }: AktuelleAnge
                     priority
                     className="object-contain p-2 group-hover:scale-105 transition-transform duration-500"
                   />
-                </div>
+                </Link>
+              </div>
+
+              <Link
+                href={`/produkt/${currentSpotlight.slug}`}
+                className="flex-1 flex flex-col items-center"
+              >
 
                 {/* Category */}
                 <span className="text-[11px] font-bold text-stone-400 tracking-wider uppercase mb-1 block">
@@ -517,7 +491,7 @@ export default function AktuelleAngebote({ dbBestsellers, config }: AktuelleAnge
                   style={{ borderRadius: `${cardRadius}px` }}
                 >
                   {/* Top Header: Category Name + Energy Badge */}
-                  <div className="flex items-center justify-between gap-1.5 mb-1 pr-14">
+                  <div className="flex items-center justify-between gap-1.5 mb-1">
                     <span
                       className="text-[11px] font-bold text-stone-500 uppercase tracking-tight truncate"
                       title={deal.category}
@@ -527,58 +501,27 @@ export default function AktuelleAngebote({ dbBestsellers, config }: AktuelleAnge
                     {deal.energyRating && <EnergyBadge rating={deal.energyRating} />}
                   </div>
 
-                  {/* Top Right Floating Action Icons: Quick View + Wishlist */}
-                  <div className="absolute top-2.5 right-2.5 z-10 flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={(e) => handleOpenQuickView(e, deal)}
-                      className="w-6 h-6 rounded-full flex items-center justify-center transition-colors cursor-pointer text-stone-400 hover:text-[#107b46] bg-white/90 border border-stone-200/80 shadow-2xs hover:border-[#107b46]"
-                      title="Schnellansicht"
-                    >
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={(e) => handleToggleWishlist(e, deal)}
-                      className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors cursor-pointer border shadow-2xs ${wishlistStore.hasItem(deal.id)
-                          ? 'text-red-500 bg-red-50 border-red-200'
-                          : 'text-stone-300 hover:text-red-500 bg-white/90 border-stone-200/80'
-                        }`}
-                      title="Zu Favoriten hinzufügen"
-                    >
-                      <svg
-                        className={`w-3.5 h-3.5 ${wishlistStore.hasItem(deal.id)
-                            ? 'fill-red-500 stroke-red-500'
-                            : 'fill-none stroke-current'
-                          }`}
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={1.8}
-                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-
-                  {/* Thumbnail Image */}
-                  <Link
-                    href={`/produkt/${deal.slug}`}
-                    className="relative aspect-square w-full max-h-[115px] my-1 flex items-center justify-center overflow-hidden"
-                  >
-                    <ProductImageBox
-                      src={deal.image}
-                      alt={deal.title}
-                      sizes="(max-width: 640px) 100vw, 240px"
-                      className="object-contain p-1 group-hover:scale-105 transition-transform duration-300"
+                  {/* Thumbnail Image + Vertical Action Icons */}
+                  <div className="relative aspect-square w-full max-h-[115px] my-1 flex items-center justify-center overflow-hidden">
+                    <ProductCardActionButtons
+                      isWishlisted={wishlistStore.hasItem(deal.id)}
+                      onToggleWishlist={(e) => handleToggleWishlist(e, deal)}
+                      onQuickView={(e) => handleOpenQuickView(e, deal)}
+                      positionClassName="top-1 right-1"
+                      buttonSizeClassName="w-7 h-7"
                     />
-                  </Link>
+                    <Link
+                      href={`/produkt/${deal.slug}`}
+                      className="w-full h-full relative flex items-center justify-center"
+                    >
+                      <ProductImageBox
+                        src={deal.image}
+                        alt={deal.title}
+                        sizes="(max-width: 640px) 100vw, 240px"
+                        className="object-contain p-1 group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </Link>
+                  </div>
 
                   {/* Pricing + Cart Icon directly on Card */}
                   <div className="mt-1 flex-1 flex flex-col justify-between">

@@ -27,20 +27,59 @@ const DummyProduct = {
   slug: 'demo-product'
 };
 
+type BestSellerCardProduct = {
+  id?: string | number;
+  title?: string;
+  btnBgColor?: string;
+  btnTextColor?: string;
+  btnHoverBgColor?: string;
+  btnHoverTextColor?: string;
+};
+
+const BestSellerCardActions = ({
+  product,
+  positionClassName,
+}: {
+  product: BestSellerCardProduct;
+  positionClassName: string;
+}) => (
+  <div className={`absolute ${positionClassName} flex flex-col gap-1.5 z-20`}>
+    <WishlistBtn
+      product={product}
+      btnBgColor={product.btnBgColor}
+      btnTextColor={product.btnTextColor}
+      btnHoverBgColor={product.btnHoverBgColor}
+      btnHoverTextColor={product.btnHoverTextColor}
+    />
+    <QuickviewBtn
+      product={product}
+      btnBgColor={product.btnBgColor}
+      btnTextColor={product.btnTextColor}
+      btnHoverBgColor={product.btnHoverBgColor}
+      btnHoverTextColor={product.btnHoverTextColor}
+    />
+  </div>
+);
+
 const SmallCard = ({ product, icon, title, price, rating, ratingText, imageUrl, linkUrl = '#', borderColor }: { product?: any, icon: string, title: string, price: number, rating?: number, ratingText?: string, imageUrl?: string, linkUrl?: string, borderColor?: string }) => {
   const p = product || { ...DummyProduct, title, price, imageUrl };
   return (
     <div className="flex flex-col h-full relative group">
       <div className="flex flex-col flex-1">
-        <Link href={linkUrl} className="cursor-pointer group/img">
-          <div className="border rounded-xl mb-2 sm:mb-3 aspect-square flex items-center justify-center p-2 sm:p-4 bg-white shadow-sm group-hover/img:shadow-md transition overflow-hidden" style={{ borderColor: borderColor || '#f3f4f6' }}>
+        <div
+          className="relative border rounded-xl mb-2 sm:mb-3 aspect-square flex items-center justify-center p-2 sm:p-4 bg-white shadow-sm hover:shadow-md transition overflow-hidden"
+          style={{ borderColor: borderColor || '#f3f4f6' }}
+        >
+          <Link href={linkUrl} className="w-full h-full flex items-center justify-center cursor-pointer group/img">
             {imageUrl ? (
               <Image src={imageUrl} alt={title} width={600} height={600} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 250px" className="w-full h-full object-cover group-hover/img:scale-105 transition duration-500" />
             ) : (
               <div className="text-3xl sm:text-5xl group-hover/img:scale-110 transition duration-500">{icon}</div>
             )}
-          </div>
-        </Link>
+          </Link>
+
+          <BestSellerCardActions product={p} positionClassName="top-1.5 right-1.5 sm:top-2 sm:right-2" />
+        </div>
         <Link href={linkUrl} className="cursor-pointer">
           <h3 className="text-xs sm:text-sm font-medium text-gray-900 leading-snug line-clamp-2 mb-1 group-hover:text-orange-600 transition">
             {title}
@@ -80,32 +119,19 @@ const BigCard = ({
   return (
     <div className="border rounded-xl p-5 flex flex-col h-full group bg-white relative transition hover:shadow-lg" style={{ borderColor: borderColor || '#e5e7eb' }}>
 
-      {/* Action buttons (Wishlist, Quickview) on top right */}
-      <div className="absolute top-3.5 right-3.5 flex flex-col gap-1.5 z-20">
-        <WishlistBtn
-          product={p}
-          btnBgColor={(p as any).btnBgColor}
-          btnTextColor={(p as any).btnTextColor}
-          btnHoverBgColor={(p as any).btnHoverBgColor}
-          btnHoverTextColor={(p as any).btnHoverTextColor}
-        />
-        <QuickviewBtn
-          product={p}
-          btnBgColor={(p as any).btnBgColor}
-          btnTextColor={(p as any).btnTextColor}
-          btnHoverBgColor={(p as any).btnHoverBgColor}
-          btnHoverTextColor={(p as any).btnHoverTextColor}
-        />
-      </div>
-
       <div className="flex-1 flex flex-col">
-        <Link href={linkUrl} className="flex-1 flex items-center justify-center mb-6 py-10 bg-gray-50/50 rounded-lg overflow-hidden cursor-pointer group/img">
-          {imageUrl ? (
-            <Image src={imageUrl} alt={title} width={600} height={600} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 250px" className="w-full h-full object-contain group-hover/img:scale-105 transition duration-500" />
-          ) : (
-            <div className="text-8xl group-hover/img:scale-110 transition duration-500">{icon}</div>
-          )}
-        </Link>
+        <div className="relative flex-1 flex items-center justify-center mb-6 bg-gray-50/50 rounded-lg overflow-hidden">
+          <Link href={linkUrl} className="w-full h-full flex items-center justify-center py-10 cursor-pointer group/img">
+            {imageUrl ? (
+              <Image src={imageUrl} alt={title} width={600} height={600} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 250px" className="w-full h-full object-contain group-hover/img:scale-105 transition duration-500" />
+            ) : (
+              <div className="text-8xl group-hover/img:scale-110 transition duration-500">{icon}</div>
+            )}
+          </Link>
+
+          {/* Action buttons (Wishlist, Quickview) vertically stacked on top right of image */}
+          <BestSellerCardActions product={p} positionClassName="top-2.5 right-2.5" />
+        </div>
         <div className="mt-auto">
           <div className="text-xs text-gray-500 mb-1 z-20 relative">
             {(p as any).categories && (p as any).categories.length > 0 ? (

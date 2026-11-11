@@ -7,7 +7,6 @@ import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import MobileHeaderBar, {
   BasketSvg,
   CloseSvg,
-  CompareSvg,
   HeartSvg,
   SearchSvg,
   UserSvg,
@@ -31,10 +30,8 @@ type MobileSidebarProps = {
   searchPlaceholder?: string;
   cartCount?: number;
   wishlistCount?: number;
-  compareCount?: number;
   onCartClick?: () => void;
   onWishlistClick?: () => void;
-  onCompareClick?: () => void;
   onAccountClick?: () => void;
 };
 
@@ -231,10 +228,8 @@ export default function MobileSidebar({
   searchPlaceholder = 'Produkt suchen .....',
   cartCount = 0,
   wishlistCount = 0,
-  compareCount = 0,
   onCartClick,
   onWishlistClick,
-  onCompareClick,
   onAccountClick,
 }: MobileSidebarProps) {
   const pathname = usePathname();
@@ -300,15 +295,6 @@ export default function MobileSidebar({
     onCartClick?.();
   };
 
-  const triggerCompare = () => {
-    onClose();
-    if (onCompareClick) {
-      onCompareClick();
-    } else {
-      router.push('/compare');
-    }
-  };
-
   const triggerWishlist = () => {
     onClose();
     onWishlistClick?.();
@@ -359,17 +345,6 @@ export default function MobileSidebar({
                 >
                   <BasketSvg className="w-5 h-5" />
                   <span className={railBadgeClasses}>{cartCount}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={triggerCompare}
-                  aria-label="Produktvergleich"
-                  title="Produktvergleich"
-                  className="relative p-1 text-white hover:text-amber-300 transition cursor-pointer"
-                >
-                  <CompareSvg className="w-5 h-5" />
-                  <span className={railBadgeClasses}>{compareCount}</span>
                 </button>
 
                 <button
@@ -453,11 +428,9 @@ export default function MobileSidebar({
           onLogoClick={onClose}
           onAccountClick={triggerAccount}
           onCartClick={triggerCart}
-          onCompareClick={triggerCompare}
           onWishlistClick={triggerWishlist}
           cartCount={cartCount}
           wishlistCount={wishlistCount}
-          compareCount={compareCount}
         />
 
         <div className="flex-1 overflow-y-auto px-4 pt-4 pb-8">

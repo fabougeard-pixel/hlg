@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useCartStore } from '@/store/cartStore';
 import { useWishlistStore } from '@/store/wishlistStore';
 import QuickViewModal from '@/components/product/QuickViewModal';
+import ProductCardActionButtons from '@/components/product/ProductCardActionButtons';
 
 export interface ProductItem {
   id: string;
@@ -581,35 +582,13 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
                     </div>
 
                     {/* Top Right Action Icons: Wishlist & Quick View */}
-                    <div className="absolute top-2.5 right-2.5 z-20 flex flex-col gap-1.5">
-                      <button
-                        type="button"
-                        onClick={(e) => handleToggleWishlist(e, prod)}
-                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${wishlistStore.hasItem(prod.id)
-                          ? 'bg-red-600 text-white shadow-red-500/30 ring-2 ring-red-400'
-                          : 'bg-white/95 text-stone-700 hover:bg-red-600 hover:text-white border border-stone-200/80 hover:border-red-600'
-                          }`}
-                        title={wishlistStore.hasItem(prod.id) ? 'Aus Favoriten entfernen' : 'Zu Favoriten hinzufügen'}
-                        aria-label="Wishlist"
-                      >
-                        <svg className="w-4 h-4" fill={wishlistStore.hasItem(prod.id) ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={(e) => handleOpenQuickView(e, prod)}
-                        className="w-8 h-8 rounded-full bg-white/95 text-stone-700 hover:bg-[#107b46] hover:text-white border border-stone-200/80 hover:border-[#107b46] flex items-center justify-center transition-all shadow-md cursor-pointer"
-                        title="Schnellansicht"
-                        aria-label="Quick View"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                      </button>
-                    </div>
+                    <ProductCardActionButtons
+                      isWishlisted={wishlistStore.hasItem(prod.id)}
+                      onToggleWishlist={(e) => handleToggleWishlist(e, prod)}
+                      onQuickView={(e) => handleOpenQuickView(e, prod)}
+                      positionClassName="top-2.5 right-2.5"
+                      buttonSizeClassName="w-8 h-8"
+                    />
 
                     {/* Resilient Product Image */}
                     <Link href={`/produkt/${prod.slug}`} className="w-full h-full block">

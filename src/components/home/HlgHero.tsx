@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useCartStore } from '@/store/cartStore';
 import HeroPreviewEditButton from '@/components/admin/HeroPreviewEditButton';
+import { basicSanitizeHtml } from '@/lib/security';
 
 interface CategoryItem {
   name: string;
@@ -40,6 +41,43 @@ function hexToRgba(hex: string, alphaPercent: number): string {
   return `rgba(${r}, ${g}, ${b}, ${Math.max(0, Math.min(1, alphaPercent / 100))})`;
 }
 
+function parseNumberSetting(
+  value: unknown,
+  fallback: number,
+  min?: number,
+  max?: number
+): number {
+  if (value === undefined || value === null || value === '') return fallback;
+  const num = Number(value);
+  if (!Number.isFinite(num)) return fallback;
+  let result = num;
+  if (min !== undefined && result < min) result = min;
+  if (max !== undefined && result > max) result = max;
+  return result;
+}
+
+function parseColorSetting(value: unknown, fallback: string): string {
+  if (typeof value !== 'string') return fallback;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : fallback;
+}
+
+function stripHtmlTags(text: string): string {
+  return String(text).replace(/<[^>]*>/g, '').trim();
+}
+
+function renderRichText(text: string): React.ReactNode {
+  if (!/<\/?[a-z][\s\S]*>/i.test(text)) {
+    return text;
+  }
+  return (
+    <span
+      className="contents"
+      dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(text) }}
+    />
+  );
+}
+
 export default function HlgHero({
   config = {},
   categories = [],
@@ -57,25 +95,28 @@ export default function HlgHero({
   const cartTotal = cartStore.getTotalPrice();
 
   // Global Hero settings
-  const heroMinHeight = Number(config?.heroMinHeight) || 460;
-  const heroPaddingY = config?.heroPaddingY !== undefined ? Number(config.heroPaddingY) : 24;
-  const heroGap = config?.heroGap !== undefined ? Number(config.heroGap) : 20;
-  const heroBgColor = config?.heroBgColor || 'transparent';
+  const heroMinHeight = parseNumberSetting(config?.heroMinHeight, 460, 240, 900);
+  const heroPaddingY = parseNumberSetting(config?.heroPaddingY, 24, 0, 120);
+  const heroGap = parseNumberSetting(config?.heroGap, 20, 0, 64);
+  const heroBgColor = parseColorSetting(config?.heroBgColor, 'transparent');
   const showMiniCart = config?.showMiniCart !== false;
   const showMobileCategories = config?.showMobileCategories !== false;
 
   // Block 1 settings (Categories)
-  const block1MaxItems = Math.max(3, Math.min(12, Number(config?.block1MaxItems) || 8));
+  const block1MaxItems = parseNumberSetting(config?.block1MaxItems, 8, 3, 12);
   const block1Title = config?.block1Title ?? 'Alle Kategorien';
   const block1FooterText = config?.block1FooterText ?? 'Alle Kategorien ansehen';
   const block1FooterUrl = config?.block1FooterUrl ?? '/shop';
-  const block1BgColor = config?.block1BgColor || '#ffffff';
-  const block1BorderColor = config?.block1BorderColor || '#e7e5e4';
-  const block1BorderRadius = config?.block1BorderRadius !== undefined ? Number(config.block1BorderRadius) : 16;
-  const block1AccentColor = config?.block1AccentColor || '#107b46';
-  const block1TitleColor = config?.block1TitleColor || '#1c1917';
-  const block1TitleSize = config?.block1TitleSize !== undefined ? Number(config.block1TitleSize) : 14;
-  const block1TextColor = config?.block1TextColor || '#44403c';
+  const block1BgColor = parseColorSetting(config?.block1BgColor, '#ffffff');
+  const block1BorderColor = parseColorSetting(config?.block1BorderColor, '#e7e5e4');
+  const block1BorderRadius = parseNumberSetting(config?.block1BorderRadius, 16, 0, 48);
+  const block1AccentColor = parseColorSetting(config?.block1AccentColor, '#107b46');
+  const block1TitleColor = parseColorSetting(config?.block1TitleColor, '#1c1917');
+  const block1TitleSize = parseNumberSetting(config?.block1TitleSize, 14, 8, 40);
+  const block1TextColor = parseColorSetting(config?.block1TextColor, '#44403c');
+  const block1TextSize = parseNumberSetting(config?.block1TextSize, 13, 8, 28);
+  const block1FooterColor = parseColorSetting(config?.block1FooterColor, block1AccentColor);
+  const block1FooterSize = parseNumberSetting(config?.block1FooterSize, 12, 8, 28);
 
   const displayCategories =
     categories && categories.length > 0
@@ -103,20 +144,25 @@ export default function HlgHero({
   const block2CtaText = config?.ctaText ?? config?.buttonText ?? 'Angebote anzeigen';
   const block2CtaUrl = config?.ctaUrl ?? config?.buttonLink ?? '/shop';
 
-  const block2BgColor = config?.block2BgColor || '#f5f5f4';
-  const block2BorderRadius = config?.block2BorderRadius !== undefined ? Number(config.block2BorderRadius) : 16;
-  const block2Padding = config?.block2Padding !== undefined ? Number(config.block2Padding) : 28;
-  const block2OverlayColor = config?.block2OverlayColor || '#ffffff';
-  const block2OverlayOpacity = config?.block2OverlayOpacity !== undefined ? Number(config.block2OverlayOpacity) : 85;
-  const block2CardBgOpacity = config?.block2CardBgOpacity !== undefined ? Number(config.block2CardBgOpacity) : 75;
-  const block2BadgeBg = config?.block2BadgeBg || '#e01b1b';
-  const block2BadgeTextColor = config?.block2BadgeTextColor || '#ffffff';
-  const block2TitleColor = config?.block2TitleColor || '#dc2626';
-  const block2TitleSize = config?.block2TitleSize !== undefined ? Number(config.block2TitleSize) : 34;
-  const block2SubtitleColor = config?.block2SubtitleColor || '#44403c';
-  const block2SubtitleSize = config?.block2SubtitleSize !== undefined ? Number(config.block2SubtitleSize) : 14;
-  const block2BtnBg = config?.block2BtnBg || '#f59e0b';
-  const block2BtnTextColor = config?.block2BtnTextColor || '#0c0a09';
+  const block2BgColor = parseColorSetting(config?.block2BgColor, '#f5f5f4');
+  const block2BorderRadius = parseNumberSetting(config?.block2BorderRadius, 16, 0, 48);
+  const block2Padding = parseNumberSetting(config?.block2Padding, 28, 0, 80);
+  const block2OverlayColor = parseColorSetting(config?.block2OverlayColor, '#ffffff');
+  const block2OverlayOpacity = parseNumberSetting(config?.block2OverlayOpacity, 85, 0, 100);
+  const block2CardBgOpacity = parseNumberSetting(config?.block2CardBgOpacity, 75, 0, 100);
+  const block2BadgeBg = parseColorSetting(config?.block2BadgeBg, '#e01b1b');
+  const block2BadgeTextColor = parseColorSetting(config?.block2BadgeTextColor, '#ffffff');
+  const block2BadgeSize = parseNumberSetting(config?.block2BadgeSize, 11, 8, 28);
+  const block2TitleColor = parseColorSetting(config?.block2TitleColor, '#dc2626');
+  const block2TitleSize = parseNumberSetting(config?.block2TitleSize, 34, 12, 72);
+  const block2SubtitleColor = parseColorSetting(config?.block2SubtitleColor, '#44403c');
+  const block2SubtitleSize = parseNumberSetting(config?.block2SubtitleSize, 14, 8, 36);
+  const block2TrustColor = parseColorSetting(config?.block2TrustColor, '#44403c');
+  const block2TrustIconColor = parseColorSetting(config?.block2TrustIconColor, '#107b46');
+  const block2TrustSize = parseNumberSetting(config?.block2TrustSize, 11, 8, 28);
+  const block2BtnBg = parseColorSetting(config?.block2BtnBg, '#f59e0b');
+  const block2BtnTextColor = parseColorSetting(config?.block2BtnTextColor, '#0c0a09');
+  const block2BtnSize = parseNumberSetting(config?.block2BtnSize, 15, 8, 32);
 
   // Block 3 settings (Right Highlight Card)
   const block3Image =
@@ -134,16 +180,20 @@ export default function HlgHero({
   const block3CtaText = config?.sideCardCtaText ?? 'Geräte entdecken';
   const block3Url = config?.sideCardUrl ?? '/shop?category=kaffeemaschinen';
 
-  const block3BgColor = config?.block3BgColor || '#1c1917';
-  const block3BorderRadius = config?.block3BorderRadius !== undefined ? Number(config.block3BorderRadius) : 16;
-  const block3OverlayOpacity = config?.block3OverlayOpacity !== undefined ? Number(config.block3OverlayOpacity) : 90;
-  const block3BadgeBg = config?.block3BadgeBg || '#ffffff';
-  const block3BadgeTextColor = config?.block3BadgeTextColor || '#1c1917';
-  const block3CategoryColor = config?.block3CategoryColor || '#fbbf24';
-  const block3TitleColor = config?.block3TitleColor || '#ffffff';
-  const block3TitleSize = config?.block3TitleSize !== undefined ? Number(config.block3TitleSize) : 18;
-  const block3SubtitleColor = config?.block3SubtitleColor || '#d6d3d1';
-  const block3LinkColor = config?.block3LinkColor || '#fbbf24';
+  const block3BgColor = parseColorSetting(config?.block3BgColor, '#1c1917');
+  const block3BorderRadius = parseNumberSetting(config?.block3BorderRadius, 16, 0, 48);
+  const block3OverlayOpacity = parseNumberSetting(config?.block3OverlayOpacity, 90, 0, 100);
+  const block3BadgeBg = parseColorSetting(config?.block3BadgeBg, '#ffffff');
+  const block3BadgeTextColor = parseColorSetting(config?.block3BadgeTextColor, '#1c1917');
+  const block3BadgeSize = parseNumberSetting(config?.block3BadgeSize, 10, 8, 24);
+  const block3CategoryColor = parseColorSetting(config?.block3CategoryColor, '#fbbf24');
+  const block3CategorySize = parseNumberSetting(config?.block3CategorySize, 11, 8, 28);
+  const block3TitleColor = parseColorSetting(config?.block3TitleColor, '#ffffff');
+  const block3TitleSize = parseNumberSetting(config?.block3TitleSize, 18, 10, 48);
+  const block3SubtitleColor = parseColorSetting(config?.block3SubtitleColor, '#d6d3d1');
+  const block3SubtitleSize = parseNumberSetting(config?.block3SubtitleSize, 12, 8, 28);
+  const block3LinkColor = parseColorSetting(config?.block3LinkColor, '#fbbf24');
+  const block3LinkSize = parseNumberSetting(config?.block3LinkSize, 12, 8, 28);
 
   const previewRing = isPreview
     ? 'hover:ring-2 hover:ring-[#107b46]/80 transition-shadow duration-200'
@@ -159,9 +209,9 @@ export default function HlgHero({
       className="relative"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Floating Mini-Cart Widget */}
+        {/* Floating Mini-Cart Widget (Desktop only) */}
         {showMiniCart && !isPreview && (
-          <div className="fixed right-0 top-1/2 -translate-y-1/2 z-40">
+          <div className="hidden lg:block fixed right-0 top-1/2 -translate-y-1/2 z-40">
             <button
               type="button"
               onClick={() => cartStore.setIsOpen(true)}
@@ -216,12 +266,12 @@ export default function HlgHero({
               }}
             >
               {/* Header with Accent Indicator */}
-              <div className="px-5 pt-4 pb-3 border-b border-stone-100">
+              <div className="px-5 pt-4 pb-3 border-b" style={{ borderColor: block1BorderColor }}>
                 <h3
-                  className="font-extrabold tracking-tight"
+                  className="font-extrabold tracking-tight leading-snug"
                   style={{ color: block1TitleColor, fontSize: `${block1TitleSize}px` }}
                 >
-                  {block1Title}
+                  {renderRichText(block1Title)}
                 </h3>
                 <div
                   className="w-8 h-0.5 rounded-full mt-1.5"
@@ -230,21 +280,25 @@ export default function HlgHero({
               </div>
 
               {/* Category List */}
-              <nav className="flex-1 divide-y divide-stone-100/90 text-xs sm:text-sm font-medium">
+              <nav
+                className="flex-1 divide-y divide-stone-100/90 font-medium"
+                style={{ fontSize: `${block1TextSize}px` }}
+              >
                 {displayCategories.map((cat, idx) => (
                   <Link
                     key={idx}
                     href={`/shop?category=${encodeURIComponent(cat.slug)}`}
-                    className="group/item flex items-center justify-between px-5 py-3 hover:bg-emerald-50/60 transition-colors"
+                    className="group/item flex items-center justify-between px-5 py-3 hover:bg-black/[0.03] transition-colors"
                   >
                     <span
                       className="group-hover/item:font-semibold transition-colors truncate"
-                      style={{ color: block1TextColor }}
+                      style={{ color: block1TextColor, fontSize: `${block1TextSize}px` }}
                     >
                       {cat.name}
                     </span>
                     <svg
-                      className="w-3.5 h-3.5 text-stone-300 group-hover/item:translate-x-0.5 transition-all shrink-0 ml-2"
+                      className="w-3.5 h-3.5 opacity-45 group-hover/item:opacity-100 group-hover/item:translate-x-0.5 transition-all shrink-0 ml-2"
+                      style={{ color: block1TextColor }}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -257,13 +311,16 @@ export default function HlgHero({
 
               {/* Footer link */}
               {block1FooterText && (
-                <div className="p-3 bg-stone-50/80 border-t border-stone-100 text-center">
+                <div
+                  className="p-3 bg-black/[0.03] border-t text-center"
+                  style={{ borderColor: block1BorderColor }}
+                >
                   <Link
                     href={block1FooterUrl || '/shop'}
-                    className="text-xs font-bold hover:underline inline-flex items-center gap-1"
-                    style={{ color: block1AccentColor }}
+                    className="font-bold hover:underline inline-flex items-center gap-1"
+                    style={{ color: block1FooterColor, fontSize: `${block1FooterSize}px` }}
                   >
-                    <span>{block1FooterText}</span>
+                    <span>{renderRichText(block1FooterText)}</span>
                     <span>&rarr;</span>
                   </Link>
                 </div>
@@ -288,7 +345,7 @@ export default function HlgHero({
             {block2Image && (
               <Image
                 src={block2Image}
-                alt={block2Title}
+                alt={stripHtmlTags(block2Title)}
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 660px"
@@ -315,11 +372,24 @@ export default function HlgHero({
                 {block2BadgeText && (
                   <div className="inline-flex items-center shadow-xs">
                     <span
-                      className="relative text-[11px] sm:text-xs font-black tracking-wider uppercase px-3.5 py-1 rounded-sm shadow-sm flex items-center gap-1.5"
-                      style={{ backgroundColor: block2BadgeBg, color: block2BadgeTextColor }}
+                      className="relative font-black tracking-wider uppercase px-3.5 py-1 rounded-sm shadow-sm flex items-center gap-1.5"
+                      style={{
+                        backgroundColor: block2BadgeBg,
+                        color: block2BadgeTextColor,
+                        fontSize: `${block2BadgeSize}px`,
+                      }}
                     >
-                      <span className="text-amber-300">⚡</span>
-                      <span>{block2BadgeText}</span>
+                      <span
+                        style={{
+                          color:
+                            block2BadgeTextColor.toLowerCase() === '#ffffff'
+                              ? '#fde047'
+                              : block2BadgeTextColor,
+                        }}
+                      >
+                        ⚡
+                      </span>
+                      <span>{renderRichText(block2BadgeText)}</span>
                     </span>
                   </div>
                 )}
@@ -329,10 +399,10 @@ export default function HlgHero({
                   className="font-black leading-[1.15] tracking-tight mt-3"
                   style={{
                     color: block2TitleColor,
-                    fontSize: `clamp(1.35rem, 2.5vw, ${block2TitleSize}px)`,
+                    fontSize: `${block2TitleSize}px`,
                   }}
                 >
-                  {block2Title}
+                  {renderRichText(block2Title)}
                 </h1>
 
                 {/* Subtitle */}
@@ -344,23 +414,22 @@ export default function HlgHero({
                       fontSize: `${block2SubtitleSize}px`,
                     }}
                   >
-                    {block2Subtitle}
+                    {renderRichText(block2Subtitle)}
                   </p>
                 )}
 
                 {/* Trust Micro-Bullets */}
                 {(block2Trust1 || block2Trust2) && (
-                  <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] font-bold text-stone-600">
-                    {block2Trust1 && (
-                      <span className="inline-flex items-center gap-1 text-[#107b46]">
-                        <span>✓</span> <span className="text-stone-700">{block2Trust1}</span>
+                  <div
+                    className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 font-bold"
+                    style={{ fontSize: `${block2TrustSize}px`, color: block2TrustColor }}
+                  >
+                    {[block2Trust1, block2Trust2].filter(Boolean).map((item, idx) => (
+                      <span key={idx} className="inline-flex items-center gap-1">
+                        <span style={{ color: block2TrustIconColor }}>✓</span>
+                        <span style={{ color: block2TrustColor }}>{renderRichText(item)}</span>
                       </span>
-                    )}
-                    {block2Trust2 && (
-                      <span className="inline-flex items-center gap-1 text-[#107b46]">
-                        <span>✓</span> <span className="text-stone-700">{block2Trust2}</span>
-                      </span>
-                    )}
+                    ))}
                   </div>
                 )}
 
@@ -369,14 +438,15 @@ export default function HlgHero({
                   <div className="mt-4 flex flex-wrap items-center gap-3">
                     <Link
                       href={block2CtaUrl || '/shop'}
-                      className="font-extrabold text-sm sm:text-base px-7 py-3 rounded-full inline-flex items-center gap-2 shadow-md hover:shadow-lg transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                      className="font-extrabold px-7 py-3 rounded-full inline-flex items-center gap-2 shadow-md hover:shadow-lg transition-all hover:scale-105 active:scale-95 cursor-pointer"
                       style={{
                         backgroundColor: block2BtnBg,
                         color: block2BtnTextColor,
+                        fontSize: `${block2BtnSize}px`,
                       }}
                     >
-                      <span>{block2CtaText}</span>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <span>{renderRichText(block2CtaText)}</span>
+                      <svg className="w-[1.05em] h-[1.05em]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                       </svg>
                     </Link>
@@ -403,7 +473,7 @@ export default function HlgHero({
             {block3Image && (
               <Image
                 src={block3Image}
-                alt={block3Title}
+                alt={stripHtmlTags(block3Title)}
                 fill
                 sizes="(max-width: 1024px) 100vw, 320px"
                 quality={90}
@@ -423,45 +493,49 @@ export default function HlgHero({
             {block3Badge && (
               <div className="relative z-10 p-5 pr-12">
                 <span
-                  className="inline-block backdrop-blur-sm font-extrabold text-[10px] uppercase tracking-wider px-3 py-1 rounded-full shadow-md"
-                  style={{ backgroundColor: block3BadgeBg, color: block3BadgeTextColor }}
+                  className="inline-block backdrop-blur-sm font-extrabold uppercase tracking-wider px-3 py-1 rounded-full shadow-md"
+                  style={{
+                    backgroundColor: block3BadgeBg,
+                    color: block3BadgeTextColor,
+                    fontSize: `${block3BadgeSize}px`,
+                  }}
                 >
-                  {block3Badge}
+                  {renderRichText(block3Badge)}
                 </span>
               </div>
             )}
 
             {/* Bottom Card Content */}
-            <div className="relative z-10 mt-auto p-5 text-white">
+            <div className="relative z-10 mt-auto p-5">
               {block3Category && (
                 <span
-                  className="text-[11px] font-bold uppercase tracking-wider block"
-                  style={{ color: block3CategoryColor }}
+                  className="font-bold uppercase tracking-wider block"
+                  style={{ color: block3CategoryColor, fontSize: `${block3CategorySize}px` }}
                 >
-                  {block3Category}
+                  {renderRichText(block3Category)}
                 </span>
               )}
               <h4
                 className="font-black tracking-tight leading-tight mt-1"
                 style={{ color: block3TitleColor, fontSize: `${block3TitleSize}px` }}
               >
-                {block3Title}
+                {renderRichText(block3Title)}
               </h4>
               {block3Subtitle && (
                 <p
-                  className="text-xs mt-1 line-clamp-2"
-                  style={{ color: block3SubtitleColor }}
+                  className="mt-1 line-clamp-2 leading-snug"
+                  style={{ color: block3SubtitleColor, fontSize: `${block3SubtitleSize}px` }}
                 >
-                  {block3Subtitle}
+                  {renderRichText(block3Subtitle)}
                 </p>
               )}
               {block3CtaText && (
                 <Link
                   href={block3Url || '/shop?category=kaffeemaschinen'}
-                  className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold hover:opacity-80 transition-opacity"
-                  style={{ color: block3LinkColor }}
+                  className="mt-3 inline-flex items-center gap-1.5 font-bold hover:opacity-80 transition-opacity"
+                  style={{ color: block3LinkColor, fontSize: `${block3LinkSize}px` }}
                 >
-                  <span>{block3CtaText}</span>
+                  <span>{renderRichText(block3CtaText)}</span>
                   <span>&rarr;</span>
                 </Link>
               )}
@@ -477,7 +551,13 @@ export default function HlgHero({
                 <Link
                   key={idx}
                   href={`/shop?category=${encodeURIComponent(cat.slug)}`}
-                  className="bg-white border border-stone-200 text-stone-800 text-xs font-semibold px-3.5 py-1.5 rounded-full whitespace-nowrap shadow-xs hover:border-[#107b46] hover:text-[#107b46] transition-colors"
+                  className="border font-semibold px-3.5 py-1.5 rounded-full whitespace-nowrap shadow-xs hover:opacity-80 transition-opacity"
+                  style={{
+                    backgroundColor: block1BgColor,
+                    borderColor: block1BorderColor,
+                    color: block1TextColor,
+                    fontSize: `${block1TextSize}px`,
+                  }}
                 >
                   {cat.name}
                 </Link>
