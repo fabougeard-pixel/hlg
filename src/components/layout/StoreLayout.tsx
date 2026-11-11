@@ -105,6 +105,7 @@ export default function StoreLayout({ children, settings, userRole }: StoreLayou
         userRole={userRole}
         announcement={settings.announcement} 
         logoImage={settings.logoImage} 
+        supportEmail={settings.supportEmail}
         headerLogoHeight={settings.headerLogoHeight}
         mobileLogoHeight={settings.mobileLogoHeight}
         menuLinks={settings.menuLinks}

@@ -5,10 +5,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/cartStore';
 import { useWishlistStore } from '@/store/wishlistStore';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useSyncExternalStore } from 'react';
 import dynamic from 'next/dynamic';
 import { searchProducts } from '@/actions/public';
 import MobileBottomNav from '@/components/layout/MobileBottomNav';
+import MobileHeaderBar from '@/components/layout/MobileHeaderBar';
 import { useTranslations } from 'next-intl';
 import Price from '@/components/Price';
 import { getUserRole } from '@/actions/auth';
@@ -47,11 +48,14 @@ type HeaderProps = {
   mobileContactPhone?: string;
   mobileContactEmail?: string;
   mobileContactWebsite?: string;
+  supportEmail?: string;
   mobileHeaderBorderColor?: string;
   allCategoriesBgColor?: string;
   allCategoriesTextColor?: string;
   userRole?: 'ADMIN' | 'CUSTOMER' | null;
 };
+
+const emptySubscribe = () => () => {};
 
 const applianceCategoriesList = [
   { name: 'Alle Kategorien', slug: 'all' },
@@ -95,11 +99,16 @@ export default function Header({
   mobileContactPhone = '',
   mobileContactEmail = '',
   mobileContactWebsite = '',
+  supportEmail = '',
   mobileHeaderBorderColor = '#d1d5db',
   userRole = null,
 }: HeaderProps) {
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
   const cartStore = useCartStore();
   const wishlistStore = useWishlistStore();
 
@@ -128,7 +137,6 @@ export default function Header({
     getUserRole().then(role => {
       setActualUserRole(role as 'ADMIN' | 'CUSTOMER' | null);
     });
-    setMounted(true);
   }, []);
 
   // Close dropdowns on outside click
@@ -143,16 +151,8 @@ export default function Header({
     }
     document.addEventListener('mousedown', handleClickOutside);
 
-    const handleResize = () => {
-      if (window.innerWidth >= 1024) {
-        setIsMobileMenuOpen(false);
-      }
-    };
-    window.addEventListener('resize', handleResize);
-
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
@@ -227,11 +227,38 @@ export default function Header({
     ? logoImage 
     : '/LOGO-HLG-HAUSGERAETE.png';
 
+  const mobileHeaderLogo =
+    currentLogo === '/LOGO-HLG-HAUSGERAETE.png'
+      ? '/LOGO-HLG-HAUSGERAETE-DARK.png'
+      : currentLogo;
+
+  const handleAccountAction = () => {
+    if (actualUserRole) {
+      router.push(actualUserRole === 'ADMIN' ? '/admin' : '/account');
+    } else {
+      setIsLoginModalOpen(true);
+    }
+  };
+
   return (
     <>
       <header className="w-full font-sans relative z-50 shadow-sm">
-        {/* Top Green Brand Bar */}
-        <div className="bg-[#107b46] text-white">
+        {/* Mobile Header Bar (< lg) */}
+        <MobileHeaderBar
+          logoSrc={mobileHeaderLogo}
+          isMenuOpen={isMobileMenuOpen}
+          onToggleMenu={() => setIsMobileMenuOpen((prev) => !prev)}
+          onAccountClick={handleAccountAction}
+          onCartClick={() => cartStore.setIsOpen(true)}
+          onCompareClick={() => router.push('/compare')}
+          onWishlistClick={() => wishlistStore.setIsOpen(true)}
+          cartCount={mounted ? cartItems : 0}
+          wishlistCount={mounted ? wishlistItems : 0}
+          compareCount={0}
+        />
+
+        {/* Desktop Top Green Brand Bar (lg+) */}
+        <div className="hidden lg:block bg-[#107b46] text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
             {/* Logo */}
             <div className="flex-shrink-0 flex items-center">
@@ -469,13 +496,7 @@ export default function Header({
               {/* Account Button: Icon + "Konto" */}
               <button
                 type="button"
-                onClick={() => {
-                  if (actualUserRole) {
-                    router.push(actualUserRole === 'ADMIN' ? '/admin' : '/account');
-                  } else {
-                    setIsLoginModalOpen(true);
-                  }
-                }}
+                onClick={handleAccountAction}
                 className="flex items-center gap-1.5 text-white hover:text-amber-300 transition py-1 text-sm font-medium cursor-pointer"
                 title={actualUserRole ? 'Mein Konto' : 'Anmelden'}
               >
@@ -538,24 +559,13 @@ export default function Header({
                 </span>
               </button>
 
-              {/* Mobile Search Button (Visible on mobile/tablet) */}
-              <button
-                type="button"
-                onClick={() => setIsMobileSearchOpen(true)}
-                className="lg:hidden p-1.5 text-white hover:text-amber-300 transition"
-                aria-label="Suche öffnen"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </button>
-
-              {/* Hamburger Menu Toggle (Visible on mobile/tablet) */}
+              {/* Hamburger Menu Toggle (Desktop Drawer) */}
               <button
                 type="button"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-1.5 text-white hover:text-amber-300 transition ml-1"
-                aria-label="Menü öffnen"
+                className="p-1.5 text-white hover:text-amber-300 transition ml-1 cursor-pointer"
+                aria-label={isMobileMenuOpen ? 'Menü schließen' : 'Menü öffnen'}
+                aria-expanded={isMobileMenuOpen}
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
@@ -565,8 +575,8 @@ export default function Header({
           </div>
         </div>
 
-        {/* Secondary Navigation Bar (White Sub-Header) */}
-        <div className="bg-white border-b border-stone-200">
+        {/* Secondary Navigation Bar (Desktop White Sub-Header) */}
+        <div className="hidden lg:block bg-white border-b border-stone-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
             {/* Nav links on the left */}
             <nav className="flex items-center space-x-6 sm:space-x-8 text-sm font-semibold">
@@ -622,15 +632,19 @@ export default function Header({
           isOpen={isMobileMenuOpen}
           onClose={() => setIsMobileMenuOpen(false)}
           logoImage={currentLogo}
-          logoHeight={mobileLogoHeight}
-          aboutTitle={mobileAboutTitle}
-          aboutDesc={mobileAboutDesc}
+          darkLogoImage={mobileHeaderLogo}
           menuLinks={navLinks}
           contactAddress={mobileContactAddress}
-          contactPhone={mobileContactPhone}
-          contactEmail={mobileContactEmail}
-          contactWebsite={mobileContactWebsite}
-          categories={categories}
+          contactEmail={mobileContactEmail || supportEmail}
+          searchCategories={searchCategories}
+          searchPlaceholder={searchPlaceholder}
+          cartCount={mounted ? cartItems : 0}
+          wishlistCount={mounted ? wishlistItems : 0}
+          compareCount={0}
+          onCartClick={() => cartStore.setIsOpen(true)}
+          onWishlistClick={() => wishlistStore.setIsOpen(true)}
+          onCompareClick={() => router.push('/compare')}
+          onAccountClick={handleAccountAction}
         />
       </header>
     </>
