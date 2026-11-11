@@ -161,33 +161,33 @@ export default function HlgHero({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Floating Mini-Cart Widget */}
         {showMiniCart && !isPreview && (
-          <div className="fixed right-4 sm:right-6 top-1/2 -translate-y-1/2 z-40">
+          <div className="fixed right-0 top-1/2 -translate-y-1/2 z-40">
             <button
               type="button"
               onClick={() => cartStore.setIsOpen(true)}
-              className="bg-[#107b46] hover:bg-[#0d693b] text-white shadow-xl hover:shadow-2xl rounded-2xl px-3.5 py-3 flex flex-col items-center justify-center transition-all hover:scale-105 active:scale-95 group cursor-pointer border-2 border-white/80"
+              className="bg-[#156b42] hover:bg-[#107b46] text-white shadow-lg hover:shadow-xl rounded-l-2xl rounded-r-none px-3.5 py-3.5 sm:px-4 sm:py-4 flex flex-col items-center justify-center gap-2 transition-all group cursor-pointer"
               title="Warenkorb ansehen"
+              aria-label="Warenkorb ansehen"
             >
-              <div className="relative mb-1">
-                <svg
-                  className="w-6 h-6 text-white group-hover:rotate-6 transition-transform"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                  />
-                </svg>
-              </div>
-              <span className="text-[11px] font-bold tracking-tight leading-tight">
-                {mounted ? cartItems : 0} {cartItems === 1 ? 'Produkt' : 'Produkte'}
+              <svg
+                className="w-7 h-7 text-white group-hover:scale-105 transition-transform"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.8}
+                  d="M7 9l2.2-4.5M17 9l-2.2-4.5M4.5 9h15a1.5 1.5 0 011.45 1.88l-1.35 5.4A2.5 2.5 0 0117.17 18.2H6.83a2.5 2.5 0 01-2.43-1.92l-1.35-5.4A1.5 1.5 0 014.5 9zM9.2 12.5h5.6M10.7 15h2.6"
+                />
+              </svg>
+              <span className="text-[12px] sm:text-[13px] font-medium tracking-tight leading-none whitespace-nowrap">
+                {mounted ? cartItems : 0} {mounted && cartItems > 1 ? 'Produkte' : 'Produkt'}
               </span>
-              <span className="text-xs font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded-full">
-                {mounted ? cartTotal.toFixed(2).replace('.', ',') : '0,00'} €
+              <span className="bg-white/25 text-white text-[12px] sm:text-[13px] font-semibold px-3 py-1 rounded-full leading-tight tabular-nums whitespace-nowrap">
+                {mounted ? cartTotal.toFixed(2).replace('.', ',') : '0,00'}€
               </span>
             </button>
           </div>
