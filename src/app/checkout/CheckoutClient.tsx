@@ -641,14 +641,7 @@ export default function CheckoutClient({ settings, zones }: CheckoutClientProps)
                           className={`flex items-center justify-end gap-2 ${eligible ? 'cursor-pointer' : 'cursor-not-allowed opacity-55'}`}
                         >
                           <span className={eligible ? 'text-gray-700' : 'text-gray-400'}>
-                            {label}
-                            {method.minOrderAmount != null && method.minOrderAmount > 0 && (
-                              <span className="text-xs ml-1 text-gray-500">
-                                (ab {formatPrice(method.minOrderAmount)})
-                              </span>
-                            )}
-                            {': '}
-                            {method.rate === 0 ? 'Kostenlos' : formatPrice(method.rate)}
+                            {method.rate === 0 ? label : `${label}: ${formatPrice(method.rate)}`}
                           </span>
                           <input
                             type="radio"
