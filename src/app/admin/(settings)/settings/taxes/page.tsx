@@ -3,7 +3,7 @@ import { getSettings } from '@/actions/settings';
 import TaxesForm from '@/components/admin/settings/TaxesForm';
 
 export const metadata = {
-  title: 'Taxes and VAT Settings | Lenha & Carvao Silva Dias Admin',
+  title: 'Taxes and VAT Settings | HLG Hausgeräte Admin',
 };
 
 export default async function TaxesSettingsPage() {

@@ -442,7 +442,7 @@
     "newsletter_placeholder": "Geben Sie Ihre E-Mail-Adresse ein...",
     "call_us": "Rufen Sie uns jetzt an",
     "email": "E-Mail",
-    "copyright": "© 2026 Lenha & Carvao Silva Dias Alle Rechte vorbehalten."
+    "copyright": "© 2026 HLG Hausgeräte. Alle Rechte vorbehalten."
   },
   "Messages": {
     "success": "Aktion erfolgreich",
@@ -581,7 +581,7 @@
     "logging_in": "Einloggen..."
   },
   "AdminLayout": {
-    "title": "Lenha & Carvao Silva Dias Admin",
+    "title": "HLG Hausgeräte Admin",
     "dashboard": "Dashboard",
     "products": "Produkte",
     "categories": "Kategorien",

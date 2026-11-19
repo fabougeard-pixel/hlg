@@ -3,7 +3,7 @@ import { getSettings } from '@/actions/settings';
 import ChatForm from '@/components/admin/settings/ChatForm';
 
 export const metadata = {
-  title: 'Customer chat Settings | Lenha & Carvao Silva Dias Admin',
+  title: 'Customer chat Settings | HLG Hausgeräte Admin',
 };
 
 export default async function ChatSettingsPage() {

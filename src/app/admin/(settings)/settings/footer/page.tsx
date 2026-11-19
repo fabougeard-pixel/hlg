@@ -3,7 +3,7 @@ import { getSettings } from '@/actions/settings';
 import FooterForm from '@/components/admin/settings/FooterForm';
 
 export const metadata = {
-  title: 'Footer Settings | Lenha & Carvao Silva Dias Admin',
+  title: 'Footer Settings | HLG Hausgeräte Admin',
 };
 
 export default async function FooterSettingsPage() {

@@ -55,7 +55,7 @@ export default function MaintenanceView({ title, message, image, logoImage }: Ma
       </main>
       
       <footer className="w-full text-center py-6 text-gray-500 text-sm">
-        &copy; {new Date().getFullYear()} Lenha & Carvao Silva Dias. All rights reserved.
+        &copy; {new Date().getFullYear()} HLG Hausgeräte. All rights reserved.
       </footer>
     </div>
   );

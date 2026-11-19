@@ -3,7 +3,7 @@ import { getSettings } from '@/actions/settings';
 import StoreFeaturesForm from '@/components/admin/settings/StoreFeaturesForm';
 
 export const metadata = {
-  title: 'Store features Settings | Lenha & Carvao Silva Dias Admin',
+  title: 'Store features Settings | HLG Hausgeräte Admin',
 };
 
 export default async function StoreFeaturesSettingsPage() {

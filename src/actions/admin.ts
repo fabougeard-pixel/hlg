@@ -961,13 +961,13 @@ export async function testSmtpConnection(targetEmail: string) {
     const { sendEmail } = await import('@/lib/mailer');
     const result = await sendEmail({
       to: targetEmail,
-      subject: 'Teste de Configuração SMTP - Lenha & Carvão Silva Dias',
+      subject: 'Teste de Configuração SMTP - HLG Hausgeräte',
       html: `
         <div style="font-family: Arial, sans-serif; padding: 25px; color: #1e293b; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #ea580c; margin-top: 0;">Teste de transmissão SMTP com sucesso!</h2>
-          <p>Esta mensagem confirma que o seu servidor SMTP e o envio de e-mails transacionais para a <strong>Lenha & Carvão Silva Dias</strong> estão a funcionar perfeitamente.</p>
+          <p>Esta mensagem confirma que o seu servidor SMTP e o envio de e-mails transacionais para a <strong>HLG Hausgeräte</strong> estão a funcionar perfeitamente.</p>
           <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
-          <small style="color: #64748b;">Enviado a partir da administração Lenha & Carvão Silva Dias a ${new Date().toLocaleString('pt-PT', { timeZone: 'Europe/Lisbon' })}</small>
+          <small style="color: #64748b;">Enviado a partir da administração HLG Hausgeräte a ${new Date().toLocaleString('pt-PT', { timeZone: 'Europe/Lisbon' })}</small>
         </div>
       `
     });

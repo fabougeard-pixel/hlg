@@ -3,7 +3,7 @@ import { getSettings } from '@/actions/settings';
 import MaintenanceForm from '@/components/admin/settings/MaintenanceForm';
 
 export const metadata = {
-  title: 'Maintenance mode Settings | Lenha & Carvao Silva Dias Admin',
+  title: 'Maintenance mode Settings | HLG Hausgeräte Admin',
 };
 
 export default async function MaintenanceSettingsPage() {

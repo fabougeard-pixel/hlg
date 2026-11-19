@@ -3,7 +3,7 @@ import { getSettings } from '@/actions/settings';
 import DesignHeaderForm from '@/components/admin/settings/DesignHeaderForm';
 
 export const metadata = {
-  title: 'Header and product cards Settings | Lenha & Carvao Silva Dias Admin',
+  title: 'Header and product cards Settings | HLG Hausgeräte Admin',
 };
 
 export default async function DesignHeaderSettingsPage() {

@@ -55,7 +55,7 @@ export async function checkRateLimit(
       const ratelimit = new Ratelimit({
         redis,
         limiter: Ratelimit.slidingWindow(limit, `${windowSeconds} s`),
-        prefix: 'lenha_rl',
+        prefix: 'hlg_rl',
       });
       const result = await ratelimit.limit(identifier);
       return {

@@ -26,7 +26,7 @@ interface FeaturedProductTabsProps {
   initialProducts?: ProductItem[];
 }
 
-// Resilient fallback products with verified Cloudinary images from Silva Dias catalog
+// Resilient fallback products with verified Cloudinary images from HLG Hausgeräte catalog
 const fallbackProducts: ProductItem[] = [
   {
     id: 'fb-p1',
@@ -171,7 +171,7 @@ function ProductCardImage({
           {getCategoryEmoji(categorySlug, title)}
         </span>
         <span className="text-[11px] font-bold tracking-wider text-stone-500 uppercase line-clamp-1">
-          {categoryName || 'Silva Dias'}
+          {categoryName || 'HLG Hausgeräte'}
         </span>
       </div>
     );

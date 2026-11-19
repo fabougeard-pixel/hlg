@@ -1,6 +1,6 @@
 {
   "Frontend": {
-    "welcome": "Bem-vindo à Lenha & Carvão Silva Dias",
+    "welcome": "Bem-vindo à HLG Hausgeräte",
     "shop": "Comprar Agora",
     "cart": "O seu carrinho"
   },
@@ -442,7 +442,7 @@
     "newsletter_placeholder": "Introduce tu E-mail...",
     "call_us": "Llámanos ahora",
     "email": "E-mail",
-    "copyright": "© 2026 Lenha & Carvao Silva Dias Todos os direitos reservados."
+    "copyright": "© 2026 HLG Hausgeräte. Todos os direitos reservados."
   },
   "Messages": {
     "success": "Acción exitosa",
@@ -581,7 +581,7 @@
     "logging_in": "Iniciando sesión..."
   },
   "AdminLayout": {
-    "title": "Lenha & Carvão Silva Dias Admin",
+    "title": "HLG Hausgeräte Admin",
     "dashboard": "Painel de Controlo",
     "products": "Produtos",
     "categories": "Categorias",
@@ -661,7 +661,7 @@
     "no_brand": "-- Sem marca --",
     "add_new_brand": "+ Adicionar nova marca",
     "brand_name_label": "Nome da marca *",
-    "brand_name_placeholder": "Ex: EcoPellets, Silva Dias...",
+    "brand_name_placeholder": "Ex: Bosch, HLG Hausgeräte...",
     "brand_logo_label": "Logótipo (Opcional)",
     "cancel_brand": "Cancelar",
     "save_error": "Ocorreu um erro ao guardar.",
@@ -693,7 +693,7 @@
     "import_woo_btn": "Importar WooCommerce",
     "import_woo_title": "Importar do WooCommerce",
     "import_woo_desc": "Importe automaticamente produtos, categorias, encomendas e artigos de uma loja WordPress/WooCommerce existente.",
-    "import_woo_url": "URL da loja WooCommerce (ex: https://lenhaecarvaosilvadias.com)",
+    "import_woo_url": "URL da loja WooCommerce (ex: https://hlghausgeraete.de)",
     "import_woo_key": "Chave de Consumidor (ck_...)",
     "import_woo_secret": "Segredo de Consumidor (cs_...)",
     "import_woo_loading": "A importar dados, por favor aguarde...",

@@ -22,7 +22,7 @@ export default function FooterForm({ initialSettings }: { initialSettings: Recor
   const [footerSupportEmail, setFooterSupportEmail] = useState(initialSettings.FOOTER_SUPPORT_EMAIL ?? initialSettings.HEADER_SUPPORT_EMAIL ?? 'support@mystore.com');
   const [footerSupportPhone, setFooterSupportPhone] = useState(initialSettings.FOOTER_SUPPORT_PHONE ?? initialSettings.HEADER_SUPPORT_PHONE ?? '+08 9229 8228');
 
-  const [footerCopyright, setFooterCopyright] = useState(initialSettings.FOOTER_COPYRIGHT || '© 2026 Lenha & Carvão Silva Dias. Todos os direitos reservados.');
+  const [footerCopyright, setFooterCopyright] = useState(initialSettings.FOOTER_COPYRIGHT || '© 2026 HLG Hausgeräte. Alle Rechte vorbehalten.');
   
   const [footerLogoImage, setFooterLogoImage] = useState(initialSettings.FOOTER_LOGO_IMAGE || '');
   const [footerNewsletterTitle, setFooterNewsletterTitle] = useState(initialSettings.FOOTER_NEWSLETTER_TITLE || 'Newsletter');
@@ -251,7 +251,7 @@ export default function FooterForm({ initialSettings }: { initialSettings: Recor
               type="text" 
               value={footerCopyright} 
               onChange={(e) => setFooterCopyright(e.target.value)} 
-              placeholder="© 2026 Lenha & Carvão Silva Dias. Todos os direitos reservados."
+              placeholder="© 2026 HLG Hausgeräte. Alle Rechte vorbehalten."
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-medium text-gray-800 shadow-sm"
             />
             <p className="text-xs text-gray-500">

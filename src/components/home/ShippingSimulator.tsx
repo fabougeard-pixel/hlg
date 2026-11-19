@@ -38,7 +38,7 @@ const defaultProductsData: SimulatorProductsData = {
       price: 199.00,
       image: 'https://res.cloudinary.com/t7r98hdh/image/upload/v1794069072/lenha/woocommerce-import/uew0ltmcqaulf0z9cgyi.jpg',
       categoryName: 'Combustíveis',
-      brand: 'Silva Dias',
+      brand: 'HLG Hausgeräte',
       sku: 'PAL-SOBRO-500'
     },
     {
@@ -78,7 +78,7 @@ const defaultProductsData: SimulatorProductsData = {
       price: 189.00,
       image: 'https://res.cloudinary.com/t7r98hdh/image/upload/v1794068735/lenha/woocommerce-import/nrrj8l8kossbcovmlucq.jpg',
       categoryName: 'Combustíveis',
-      brand: 'Silva Dias',
+      brand: 'HLG Hausgeräte',
       sku: 'BB-AZINHO-250'
     }
   ],
@@ -827,7 +827,7 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
             <div>
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-950/80 border border-red-500/40 text-white font-extrabold text-[11px] uppercase tracking-wider mb-2 shadow-sm">
                 <span>🚛</span>
-                <span className="text-white font-bold tracking-wide">Calculador de Frete Calibrado Silva Dias</span>
+                <span className="text-white font-bold tracking-wide">Calculador de Frete Calibrado HLG Hausgeräte</span>
               </div>
               <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
                 Simulador de Envio & Logística
@@ -941,7 +941,7 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] uppercase font-bold text-red-400 tracking-wider">
-                        {activeProduct.categoryName || 'Silva Dias'}
+                        {activeProduct.categoryName || 'HLG Hausgeräte'}
                       </span>
                       {activeProduct.sku && (
                         <span className="text-[10px] text-stone-400 font-mono">
@@ -1118,7 +1118,7 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="text-[10px] uppercase font-bold text-red-400 tracking-wider">
-                            {activeProduct.categoryName || 'Silva Dias'}
+                            {activeProduct.categoryName || 'HLG Hausgeräte'}
                           </span>
                           {activeProduct.sku && (
                             <span className="text-[10px] text-stone-400 font-mono">

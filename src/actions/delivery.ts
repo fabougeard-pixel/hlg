@@ -12,7 +12,7 @@ async function geocodeCity(city: string, country: string): Promise<{ lat: number
   try {
     const res = await fetch(url, {
       headers: {
-        'User-Agent': 'Lenha & Carvao Silva Dias-Tracking-System/1.0',
+        'User-Agent': 'HLG Hausgeraete-Tracking-System/1.0',
       },
     });
     

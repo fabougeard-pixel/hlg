@@ -1,6 +1,6 @@
 {
   "Frontend": {
-    "welcome": "Welcome to Lenha & Carvao Silva Dias",
+    "welcome": "Welcome to HLG Hausgeräte",
     "shop": "Shop Now",
     "cart": "Your Cart"
   },
@@ -442,7 +442,7 @@
     "newsletter_placeholder": "Enter your email...",
     "call_us": "Call Us Now",
     "email": "Email",
-    "copyright": "© 2026 Lenha & Carvao Silva Dias All rights reserved."
+    "copyright": "© 2026 HLG Hausgeräte. All rights reserved."
   },
   "Messages": {
     "success": "Action successful",
@@ -581,7 +581,7 @@
     "logging_in": "Logging in..."
   },
   "AdminLayout": {
-    "title": "Lenha & Carvao Silva Dias Admin",
+    "title": "HLG Hausgeräte Admin",
     "dashboard": "Dashboard",
     "products": "Products",
     "categories": "Categories",

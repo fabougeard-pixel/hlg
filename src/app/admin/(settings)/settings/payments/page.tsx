@@ -3,7 +3,7 @@ import { getSettings } from '@/actions/settings';
 import PaymentsForm from '@/components/admin/settings/PaymentsForm';
 
 export const metadata = {
-  title: 'Payments Settings | Lenha & Carvao Silva Dias Admin',
+  title: 'Payments Settings | HLG Hausgeräte Admin',
 };
 
 export default async function PaymentsSettingsPage() {

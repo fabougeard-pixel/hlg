@@ -6,7 +6,7 @@ import { getTrashedProducts, getTrashedMedia } from '@/actions/trash';
 export async function generateMetadata() {
   const t = await getTranslations('AdminTrash');
   return {
-    title: `${t('title')} | Lenha & Carvao Silva Dias Admin`,
+    title: `${t('title')} | HLG Hausgeräte Admin`,
   };
 }
 
