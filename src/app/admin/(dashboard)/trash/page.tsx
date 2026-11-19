@@ -16,9 +16,9 @@ export default async function TrashPage() {
   const trashedMedia = await getTrashedMedia();
 
   return (
-    <TrashPageClient 
-      initialProducts={trashedProducts} 
-      initialMedia={trashedMedia} 
+    <TrashPageClient
+      initialProducts={trashedProducts}
+      initialMedia={trashedMedia}
     />
   );
 }

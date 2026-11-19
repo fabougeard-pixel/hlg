@@ -1,9 +1,9 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/auth';
 import { createClient } from '@/utils/supabase/server';
+import { Prisma } from '@prisma/client';
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -42,7 +42,7 @@ export async function getUserNotifications(claimedUserId?: string, claimedGuestI
     return [];
   }
 
-  const orConditions: any[] = [];
+  const orConditions: Prisma.NotificationWhereInput[] = [];
   if (effectiveUserId) {
     orConditions.push({ userId: effectiveUserId });
   }
@@ -103,6 +103,7 @@ export async function markAsRead(notificationId: string) {
     where: { id: notificationId },
     data: { isRead: true },
   });
+  return { success: true };
 }
 
 /**
@@ -112,10 +113,10 @@ export async function markAllAsRead(isAdmin: boolean, claimedUserId?: string, cl
   if (isAdmin) {
     await requireAdmin();
     await prisma.notification.updateMany({
-      where: { isAdmin: true },
+      where: { isAdmin: true, isRead: false },
       data: { isRead: true },
     });
-    return;
+    return { success: true };
   }
 
   const supabase = await createClient();
@@ -123,17 +124,19 @@ export async function markAllAsRead(isAdmin: boolean, claimedUserId?: string, cl
   const effectiveUserId = user?.id || null;
   const validGuestId = claimedGuestId && UUID_REGEX.test(claimedGuestId) ? claimedGuestId : null;
 
-  if (!effectiveUserId && !validGuestId) return;
+  if (!effectiveUserId && !validGuestId) return { success: false };
 
-  const orConditions: any[] = [];
+  const orConditions: Prisma.NotificationWhereInput[] = [];
   if (effectiveUserId) orConditions.push({ userId: effectiveUserId });
   if (validGuestId) orConditions.push({ guestId: validGuestId });
 
   await prisma.notification.updateMany({
     where: {
       isAdmin: false,
+      isRead: false,
       OR: orConditions,
     },
     data: { isRead: true },
   });
+  return { success: true };
 }
