@@ -25,7 +25,7 @@ export const getCachedProductBySlug = async (slug: string) => {
       const encodedSlugLower = encodeURIComponent(slug).toLowerCase();
       const encodedSlugUpper = encodeURIComponent(slug);
       let decodedSlug = slug;
-      try { decodedSlug = decodeURIComponent(slug); } catch (e) {}
+      try { decodedSlug = decodeURIComponent(slug); } catch { /* ignore invalid URI encodings */ }
 
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(slug);
 
@@ -249,5 +249,143 @@ export const getCachedProductCounts = unstable_cache(
     return { newCount, hotCount, saleCount };
   },
   ['layout-product-counts'],
+  { tags: ['products'], revalidate: 3600 }
+);
+
+// Minimal product fields required for product cards (avoids fetching heavy HTML descriptions & attributes)
+export const PRODUCT_CARD_SELECT = {
+  id: true,
+  title: true,
+  slug: true,
+  price: true,
+  compareAtPrice: true,
+  images: true,
+  discountLabel: true,
+  isBestSeller: true,
+  type: true,
+  categories: { select: { name: true, slug: true } },
+  reviews: { select: { rating: true } }
+} as const;
+
+// Cached homepage products: full catalog lightweight selection
+export const getCachedHomepageProducts = unstable_cache(
+  async () => {
+    return prisma.product.findMany({
+      where: { isDeleted: false },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        price: true,
+        compareAtPrice: true,
+        images: true,
+        discountLabel: true,
+        isBestSeller: true,
+        gtin: true,
+        brand: { select: { name: true } },
+        categories: { select: { name: true, slug: true } }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+  },
+  ['homepage-all-products'],
+  { tags: ['products'], revalidate: 3600 }
+);
+
+// Cached shop filter sidebar data (categories with counts, brands with counts, price min/max)
+export const getCachedShopFilterData = unstable_cache(
+  async () => {
+    const [allCategories, allBrands, priceAgg] = await Promise.all([
+      prisma.category.findMany({
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          parentId: true,
+          _count: {
+            select: { products: { where: { isDeleted: false } } }
+          }
+        },
+        orderBy: { name: 'asc' }
+      }),
+      prisma.brand.findMany({
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          _count: {
+            select: { products: { where: { isDeleted: false } } }
+          }
+        },
+        orderBy: { name: 'asc' }
+      }),
+      prisma.product.aggregate({
+        where: { isDeleted: false },
+        _min: { price: true },
+        _max: { price: true }
+      })
+    ]);
+
+    return {
+      allCategories,
+      allBrands,
+      globalMinPrice: Math.floor(priceAgg._min?.price || 0),
+      globalMaxPrice: Math.ceil(priceAgg._max?.price || 1000)
+    };
+  },
+  ['shop-filter-metadata'],
+  { tags: ['products', 'categories', 'brands'], revalidate: 3600 }
+);
+
+// Cached Hot products (sorted by orders count)
+export const getCachedHotProducts = unstable_cache(
+  async (limit: number = 40) => {
+    return prisma.product.findMany({
+      where: { isDeleted: false },
+      select: PRODUCT_CARD_SELECT,
+      orderBy: {
+        orderItems: {
+          _count: 'desc'
+        }
+      },
+      take: limit
+    });
+  },
+  ['cached-hot-products'],
+  { tags: ['products'], revalidate: 3600 }
+);
+
+// Cached New products (sorted by createdAt)
+export const getCachedNewProducts = unstable_cache(
+  async (limit: number = 40) => {
+    return prisma.product.findMany({
+      where: { isDeleted: false },
+      select: PRODUCT_CARD_SELECT,
+      orderBy: {
+        createdAt: 'desc'
+      },
+      take: limit
+    });
+  },
+  ['cached-new-products'],
+  { tags: ['products'], revalidate: 3600 }
+);
+
+// Cached Sale products (with compareAtPrice)
+export const getCachedSaleProducts = unstable_cache(
+  async (limit: number = 40) => {
+    return prisma.product.findMany({
+      where: {
+        isDeleted: false,
+        compareAtPrice: { not: null }
+      },
+      select: PRODUCT_CARD_SELECT,
+      orderBy: {
+        createdAt: 'desc'
+      },
+      take: limit
+    });
+  },
+  ['cached-sale-products'],
   { tags: ['products'], revalidate: 3600 }
 );

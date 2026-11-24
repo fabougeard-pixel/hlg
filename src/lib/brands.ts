@@ -1,10 +1,11 @@
+import { unstable_cache } from 'next/cache';
 import prisma from '@/lib/prisma';
 import type { CatalogBrandSummary } from '@/components/home/categorySectionData';
 
 /**
  * Fetches all brands with active (non-deleted) product counts for homepage & preview sections.
  */
-export async function getCatalogBrandSummaries(): Promise<CatalogBrandSummary[]> {
+async function fetchCatalogBrandSummaries(): Promise<CatalogBrandSummary[]> {
   try {
     const rows = await prisma.brand.findMany({
       select: {
@@ -35,4 +36,10 @@ export async function getCatalogBrandSummaries(): Promise<CatalogBrandSummary[]>
     return [];
   }
 }
+
+export const getCatalogBrandSummaries = unstable_cache(
+  fetchCatalogBrandSummaries,
+  ['catalog-brand-summaries'],
+  { tags: ['brands', 'products'], revalidate: 3600 }
+);
 

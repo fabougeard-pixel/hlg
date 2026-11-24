@@ -19,9 +19,10 @@ export const metadata: Metadata = {
 export default async function BlogIndexPage({
   searchParams,
 }: {
-  searchParams: { q?: string }
+  searchParams: Promise<{ q?: string }>;
 }) {
-  const query = searchParams.q || '';
+  const resolvedParams = await searchParams;
+  const query = resolvedParams.q || '';
   const t = await getTranslations('Blog');
   const locale = await getLocale();
   
@@ -31,7 +32,17 @@ export default async function BlogIndexPage({
       ...(query ? { title: { contains: query, mode: 'insensitive' } } : {})
     },
     orderBy: { createdAt: 'desc' },
-    include: { _count: { select: { comments: { where: { isApproved: true } } } } }
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      image: true,
+      category: true,
+      createdAt: true,
+      excerpt: true,
+      metaDescription: true,
+      _count: { select: { comments: { where: { isApproved: true } } } }
+    }
   });
 
   const recentArticles = await prisma.article.findMany({
@@ -88,7 +99,7 @@ export default async function BlogIndexPage({
                       </span>
                     </div>
                     <p className="text-sm text-gray-600 line-clamp-3 mb-4 flex-1">
-                      {article.excerpt || article.content.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').substring(0, 150) + '...'}
+                      {article.excerpt || article.metaDescription || (article.title + '...')}
                     </p>
                     <Link href={`/blog/${article.slug}`} className="inline-block mt-auto bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-6 rounded transition self-start">
                       {t('read_more')}

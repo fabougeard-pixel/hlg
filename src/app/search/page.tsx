@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import ProductCard from '@/components/shop/ProductCard';
 import { resolveCategoryFilter } from '@/lib/categories';
+import { getCachedSettings } from '@/lib/cache';
 import { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
@@ -49,7 +50,7 @@ export default async function SearchPage({
     }
   }
 
-  const [products, settingsDb, t] = await Promise.all([
+  const [products, settingsMap, t] = await Promise.all([
     categoryNotFound
       ? Promise.resolve([])
       : prisma.product.findMany({
@@ -68,16 +69,10 @@ export default async function SearchPage({
           },
           orderBy: { createdAt: 'desc' },
         }),
-    prisma.setting.findMany({
-      where: { key: { in: ['SHOP_CARD_STYLE', 'SHOP_CARD_BORDER_COLOR'] } },
-    }),
+    getCachedSettings(),
     getTranslations('Search'),
   ]);
 
-  const settingsMap = settingsDb.reduce(
-    (acc, s) => ({ ...acc, [s.key]: s.value }),
-    {} as Record<string, string>
-  );
   const cardStyle = (settingsMap.SHOP_CARD_STYLE as 'design1' | 'design2') || 'design2';
   const borderColor = settingsMap.SHOP_CARD_BORDER_COLOR || '';
 

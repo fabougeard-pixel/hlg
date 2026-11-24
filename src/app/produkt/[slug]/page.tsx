@@ -241,6 +241,15 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
               storeName={storeName}
               shippingInfo={shippingInfo}
               contactSlug={settingsMap.CONTACT_SLUG || 'contact'}
+              soldCount={(() => {
+                let hash = 0;
+                const pStr = String(product.id || product.slug);
+                for (let i = 0; i < pStr.length; i++) {
+                  hash = ((hash << 5) - hash) + pStr.charCodeAt(i);
+                  hash |= 0;
+                }
+                return 14 + (Math.abs(hash) % 73);
+              })()}
               translations={{
                 sku: t('sku'),
                 categories: t('categories'),

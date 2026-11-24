@@ -1,4 +1,5 @@
-import prisma from '@/lib/prisma';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { getCachedSaleProducts } from '@/lib/cache';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import ProductCard from '@/components/shop/ProductCard';
@@ -8,14 +9,7 @@ export const dynamic = 'force-dynamic';
 export default async function SaleProductsPage() {
   const t = await getTranslations('SaleProducts');
 
-  const products = await prisma.product.findMany({
-    where: {
-      compareAtPrice: { not: null }
-    },
-    include: { categories: true, reviews: { select: { rating: true } } },
-    orderBy: { updatedAt: 'desc' },
-    take: 50 // Fetch sale products
-  });
+  const products = await getCachedSaleProducts(50);
 
   return (
     <div className="bg-gray-50 min-h-screen py-8 font-sans">
@@ -39,14 +33,14 @@ export default async function SaleProductsPage() {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
             {products.map((product) => (
-              <ProductCard 
-                key={product.id} 
+              <ProductCard
+                key={product.id}
                 product={{
                   ...product,
-                  discountLabel: product.compareAtPrice && product.compareAtPrice > product.price 
-                    ? `${t('sale_badge')} -${Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)}%` 
+                  discountLabel: product.compareAtPrice && product.compareAtPrice > product.price
+                    ? `${t('sale_badge')} -${Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)}%`
                     : t('sale_badge')
-                } as any} 
+                } as any}
               />
             ))}
           </div>

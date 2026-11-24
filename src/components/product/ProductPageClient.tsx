@@ -16,6 +16,16 @@ const Star = ({ filled = true }: { filled?: boolean }) => (
   </svg>
 );
 
+function getDeterministicSoldCount(productId: string | number): number {
+  const str = String(productId || 'hlg-prod');
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return 14 + (Math.abs(hash) % 73);
+}
+
 interface ProductPageClientProps {
   product: {
     id: string;
@@ -47,9 +57,10 @@ interface ProductPageClientProps {
   };
   shippingInfo?: string[];
   contactSlug?: string;
+  soldCount?: number;
 }
 
-export default function ProductPageClient({ product, enableBuyNow = false, storeName = 'My Store', translations, shippingInfo, contactSlug = 'contact' }: ProductPageClientProps) {
+export default function ProductPageClient({ product, enableBuyNow = false, storeName = 'My Store', translations, shippingInfo, contactSlug = 'contact', soldCount }: ProductPageClientProps) {
   // L'image active de la galerie, pilotée par la variation sélectionnée
   const [variationImage, setVariationImage] = useState<string | null>(null);
 
@@ -59,6 +70,7 @@ export default function ProductPageClient({ product, enableBuyNow = false, store
     : 0;
 
   const t = translations;
+  const effectiveSoldCount = soldCount ?? getDeterministicSoldCount(product.id);
 
   return (
     <>
@@ -102,8 +114,10 @@ export default function ProductPageClient({ product, enableBuyNow = false, store
               <span className="border-l border-gray-300 h-4"></span>
             </>
           )}
-          <span>
-            {t?.sold ?? 'Vendido'} <span className="font-semibold text-gray-900">24</span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="text-orange-600 font-bold" aria-hidden="true">🔥</span>
+            <span>{t?.sold ?? 'Vendu :'}</span>
+            <span className="font-semibold text-gray-900">{effectiveSoldCount}</span>
           </span>
         </div>
 

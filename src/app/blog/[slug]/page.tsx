@@ -4,6 +4,7 @@ import BlogSidebar from '@/components/blog/BlogSidebar';
 import CommentForm from '@/components/blog/CommentForm';
 import { getRecentComments, getArticleBySlug } from '@/actions/blog';
 import SafeHTML from '@/components/SafeHTML';
+import ShareButtons from '@/components/blog/ShareButtons';
 import Link from 'next/link';
 import { getTranslations, getLocale } from 'next-intl/server';
 
@@ -190,13 +191,11 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
               {/* Footer / Links */}
               <div className="mt-12 pt-8 border-t border-gray-100">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                  <div className="flex items-center gap-3">
-                    <span className="font-semibold text-gray-900">{t('share')}</span>
-                    {/* Share placeholders */}
-                    <button className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-orange-50 hover:text-orange-700 transition">f</button>
-                    <button className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-orange-50 hover:text-orange-700 transition">t</button>
-                    <button className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-orange-50 hover:text-orange-700 transition">in</button>
-                  </div>
+                  <ShareButtons
+                    url={`${baseUrl}/blog/${article.slug}`}
+                    title={article.title}
+                    shareLabel={t('share')}
+                  />
                   
                   {nextPost && (
                     <div className="text-right">

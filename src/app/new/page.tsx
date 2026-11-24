@@ -1,4 +1,5 @@
-import prisma from '@/lib/prisma';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { getCachedNewProducts } from '@/lib/cache';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import ProductCard from '@/components/shop/ProductCard';
@@ -8,11 +9,7 @@ export const dynamic = 'force-dynamic';
 export default async function NewArrivalsPage() {
   const t = await getTranslations('NewArrivals');
 
-  const products = await prisma.product.findMany({
-    include: { categories: true, reviews: { select: { rating: true } } },
-    orderBy: { createdAt: 'desc' },
-    take: 12 // Fetch latest 12 products
-  });
+  const products = await getCachedNewProducts(12);
 
   return (
     <div className="bg-gray-50 min-h-screen py-8 font-sans">

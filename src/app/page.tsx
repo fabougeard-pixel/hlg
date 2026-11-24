@@ -16,6 +16,7 @@ import FeaturedProductTabs from '@/components/home/FeaturedProductTabs';
 import HeatingGuideBlogs from '@/components/home/HeatingGuideBlogs';
 import prisma from '@/lib/prisma';
 import { getCatalogBrandSummaries } from '@/lib/brands';
+import { getCachedSettings, getCachedHomepageProducts } from '@/lib/cache';
 import {
   CatalogBrandSummary,
   DEFAULT_HLG_SECTIONS,
@@ -26,32 +27,16 @@ import {
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  const settings = await import('@/lib/cache').then(m => m.getCachedSettings());
+  const settings = await getCachedSettings();
 
-  // Fetch products & brands from Prisma
+  // Fetch products & brands from cache (cached for 1h or invalidated on admin edits)
   let formattedProducts: any[] = [];
   let dbBestsellers: any[] = [];
   let catalogBrands: CatalogBrandSummary[] = [];
 
   try {
     catalogBrands = await getCatalogBrandSummaries();
-    const allDbProds = await prisma.product.findMany({
-      where: { isDeleted: false },
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        price: true,
-        compareAtPrice: true,
-        images: true,
-        discountLabel: true,
-        isBestSeller: true,
-        gtin: true,
-        brand: { select: { name: true } },
-        categories: { select: { name: true, slug: true } }
-      },
-      orderBy: { createdAt: 'desc' }
-    });
+    const allDbProds = await getCachedHomepageProducts();
 
     formattedProducts = allDbProds.map(p => ({
       id: p.id,
