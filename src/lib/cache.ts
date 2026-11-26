@@ -20,107 +20,117 @@ export const getCachedSettings = unstable_cache(
 // We need a helper for dynamic tags per slug since unstable_cache tags must be statically defined in the wrapper
 // A common pattern is a factory function:
 export const getCachedProductBySlug = async (slug: string) => {
-  return unstable_cache(
-    async () => {
-      const encodedSlugLower = encodeURIComponent(slug).toLowerCase();
-      const encodedSlugUpper = encodeURIComponent(slug);
-      let decodedSlug = slug;
-      try { decodedSlug = decodeURIComponent(slug); } catch { /* ignore invalid URI encodings */ }
+  try {
+    return await unstable_cache(
+      async () => {
+        const encodedSlugLower = encodeURIComponent(slug).toLowerCase();
+        const encodedSlugUpper = encodeURIComponent(slug);
+        let decodedSlug = slug;
+        try { decodedSlug = decodeURIComponent(slug); } catch { /* ignore invalid URI encodings */ }
 
-      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(slug);
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(slug);
 
-      let product = await prisma.product.findFirst({
-        where: { 
-          isDeleted: false,
-          OR: [
-            { slug: slug },
-            { slug: encodedSlugLower },
-            { slug: encodedSlugUpper },
-            { slug: decodedSlug },
-            ...(isUuid ? [{ id: slug }] : [])
-          ]
-        },
-        include: {
-          categories: true,
-          Product_ForceSales_A: true,
-          Product_SaleTogether_A: true,
-          brand: true,
-          tags: true,
-          reviews: {
-            where: { isApproved: true },
-            orderBy: { createdAt: 'desc' },
-            include: { user: { select: { email: true } } }
+        let product = await prisma.product.findFirst({
+          where: { 
+            isDeleted: false,
+            OR: [
+              { slug: slug },
+              { slug: encodedSlugLower },
+              { slug: encodedSlugUpper },
+              { slug: decodedSlug },
+              ...(isUuid ? [{ id: slug }] : [])
+            ]
+          },
+          include: {
+            categories: true,
+            Product_ForceSales_A: true,
+            Product_SaleTogether_A: true,
+            brand: true,
+            tags: true,
+            reviews: {
+              where: { isApproved: true },
+              orderBy: { createdAt: 'desc' },
+              include: { user: { select: { email: true } } }
+            }
           }
+        });
+
+        // SEO Migration Fallback 1: If not found, check if a product exists with slug matching `${decodedSlug}-*` (suffix appended during WP/WooCommerce import)
+        if (!product) {
+          product = await prisma.product.findFirst({
+            where: {
+              isDeleted: false,
+              slug: {
+                startsWith: `${decodedSlug}-`
+              }
+            },
+            include: {
+              categories: true,
+              Product_ForceSales_A: true,
+              Product_SaleTogether_A: true,
+              brand: true,
+              tags: true,
+              reviews: {
+                where: { isApproved: true },
+                orderBy: { createdAt: 'desc' },
+                include: { user: { select: { email: true } } }
+              }
+            }
+          });
         }
-      });
 
-      // SEO Migration Fallback 1: If not found, check if a product exists with slug matching `${decodedSlug}-*` (suffix appended during WP/WooCommerce import)
-      if (!product) {
-        product = await prisma.product.findFirst({
-          where: {
-            isDeleted: false,
-            slug: {
-              startsWith: `${decodedSlug}-`
+        // SEO Migration Fallback 2: If not found and input slug ends with numeric suffix (e.g. `-481`), check without suffix
+        if (!product && /-\d+$/.test(decodedSlug)) {
+          const strippedSlug = decodedSlug.replace(/-\d+$/, '');
+          product = await prisma.product.findFirst({
+            where: {
+              isDeleted: false,
+              slug: strippedSlug
+            },
+            include: {
+              categories: true,
+              Product_ForceSales_A: true,
+              Product_SaleTogether_A: true,
+              brand: true,
+              tags: true,
+              reviews: {
+                where: { isApproved: true },
+                orderBy: { createdAt: 'desc' },
+                include: { user: { select: { email: true } } }
+              }
             }
-          },
-          include: {
-            categories: true,
-            Product_ForceSales_A: true,
-            Product_SaleTogether_A: true,
-            brand: true,
-            tags: true,
-            reviews: {
-              where: { isApproved: true },
-              orderBy: { createdAt: 'desc' },
-              include: { user: { select: { email: true } } }
-            }
-          }
-        });
-      }
+          });
+        }
 
-      // SEO Migration Fallback 2: If not found and input slug ends with numeric suffix (e.g. `-481`), check without suffix
-      if (!product && /-\d+$/.test(decodedSlug)) {
-        const strippedSlug = decodedSlug.replace(/-\d+$/, '');
-        product = await prisma.product.findFirst({
-          where: {
-            isDeleted: false,
-            slug: strippedSlug
-          },
-          include: {
-            categories: true,
-            Product_ForceSales_A: true,
-            Product_SaleTogether_A: true,
-            brand: true,
-            tags: true,
-            reviews: {
-              where: { isApproved: true },
-              orderBy: { createdAt: 'desc' },
-              include: { user: { select: { email: true } } }
-            }
-          }
-        });
-      }
+        // Do not cache negative misses (null) in unstable_cache so restored/new products appear immediately
+        if (!product) {
+          throw new Error('PRODUCT_NOT_FOUND');
+        }
 
-      if (!product) return null;
+        // RGPD: Never leak raw emails to client RSC payload
+        const sanitizedReviews = product.reviews.map(r => ({
+          id: r.id,
+          productId: r.productId,
+          rating: r.rating,
+          comment: r.comment,
+          createdAt: r.createdAt,
+          reviewerName: r.reviewerName || (r.user?.email ? r.user.email.split('@')[0] : 'Client'),
+        }));
 
-      // RGPD: Never leak raw emails to client RSC payload
-      const sanitizedReviews = product.reviews.map(r => ({
-        id: r.id,
-        productId: r.productId,
-        rating: r.rating,
-        comment: r.comment,
-        createdAt: r.createdAt,
-        reviewerName: r.reviewerName || (r.user?.email ? r.user.email.split('@')[0] : 'Client'),
-      }));
-
-      return {
-        ...product,
-        reviews: sanitizedReviews,
-      };
-    },
-    ['product-details', slug],
-    { tags: ['products', `product-${slug}`], revalidate: 3600 }
-  )();
+        return {
+          ...product,
+          reviews: sanitizedReviews,
+        };
+      },
+      ['product-details-v3', slug],
+      { tags: ['products', `product-${slug}`], revalidate: 3600 }
+    )();
+  } catch (err: unknown) {
+    if (err instanceof Error && err.message === 'PRODUCT_NOT_FOUND') {
+      return null;
+    }
+    throw err;
+  }
 };
 
 export const getCachedRelatedProducts = async (categoryIds: string[], excludeProductId: string) => {
